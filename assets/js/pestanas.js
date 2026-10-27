@@ -2,7 +2,6 @@
 // - Cada pestaña tiene su propia dirección: /proyectos/plataforma-bi.html#flujos
 // - Cualquier enlace a un módulo (o a una sección dentro de él) abre la pestaña correcta.
 // - Flechas izquierda/derecha, Inicio y Fin para moverse entre pestañas con el teclado.
-// - El índice lateral marca la sección que se está leyendo.
 document.addEventListener('DOMContentLoaded', function () {
   var lista = document.querySelector('[role="tablist"]');
   if (!lista) return;
@@ -18,7 +17,6 @@ document.addEventListener('DOMContentLoaded', function () {
       paneles[j].hidden = !activa;
     });
     if (enfocar) pestanas[i].focus();
-    observarIndice(paneles[i]);
   }
 
   // Busca a qué panel pertenece un id (el panel mismo o algo dentro de él)
@@ -75,28 +73,6 @@ document.addEventListener('DOMContentLoaded', function () {
     var id = location.hash.slice(1);
     if (!irA(id, false)) activar(0, false);
   });
-
-  // Índice lateral: marca la sección visible
-  var observador = null;
-  function observarIndice(panel) {
-    if (observador) observador.disconnect();
-    if (!('IntersectionObserver' in window)) return;
-    var enlaces = Array.prototype.slice.call(panel.querySelectorAll('.pbi-indice__enlace'));
-    if (!enlaces.length) return;
-    observador = new IntersectionObserver(function (entradas) {
-      entradas.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        enlaces.forEach(function (a) {
-          if (a.getAttribute('href') === '#' + en.target.id) a.setAttribute('aria-current', 'location');
-          else a.removeAttribute('aria-current');
-        });
-      });
-    }, { rootMargin: '-30% 0px -60% 0px' });
-    enlaces.forEach(function (a) {
-      var s = document.getElementById(a.getAttribute('href').slice(1));
-      if (s) observador.observe(s);
-    });
-  }
 
   // Al cargar: abre la pestaña de la dirección, si la hay
   var inicial = location.hash.slice(1);
