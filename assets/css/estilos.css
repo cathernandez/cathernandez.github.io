@@ -48,7 +48,7 @@ img { max-width: 100%; display: block; }
 a { color: var(--negro); }
 a:hover { opacity: 0.6; }
 
-h1, h2, h3 { font-family: var(--fuente-titulos); font-weight: 500; letter-spacing: -0.01em; margin: 0; }
+h1, h2, h3, h4 { font-family: var(--fuente-titulos); font-weight: 500; letter-spacing: -0.01em; margin: 0; }
 p { margin: 0; }
 
 :focus-visible { outline: 2px solid var(--negro); outline-offset: 3px; }
@@ -170,6 +170,102 @@ p { margin: 0; }
 .sobre-mi__texto { flex: 1 1 0; display: flex; flex-direction: column; gap: 18px; }
 .sobre-mi__texto p { color: var(--texto-suave); line-height: 1.7; }
 
+/* 8. Páginas de caso ------------------------------------ */
+.contenedor--angosto { max-width: 880px; }
+
+.pila { display: flex; flex-direction: column; }
+.g-4 { gap: 4px; } .g-6 { gap: 6px; } .g-8 { gap: 8px; } .g-10 { gap: 10px; }
+.g-12 { gap: 12px; } .g-16 { gap: 16px; } .g-20 { gap: 20px; } .g-24 { gap: 24px; }
+.g-32 { gap: 32px; } .g-56 { gap: 56px; }
+.mt-8 { margin-top: 8px; }
+.max-760 { max-width: 760px; }
+
+.caso-portada { display: flex; flex-direction: column; gap: 20px; padding-top: 80px; padding-bottom: 56px; }
+.caso-titulo { font-size: 48px; line-height: 1.1; max-width: 860px; }
+.caso-ficha {
+  display: flex; flex-wrap: wrap; gap: 48px; margin-top: 16px; padding-top: 24px; border-top: var(--borde);
+  font-family: var(--fuente-titulos); font-size: 14px;
+}
+.caso-imagen-principal { padding-bottom: 80px; }
+.caso-imagen-principal__marco { height: 560px; border: var(--borde); background: #efece6; overflow: hidden; }
+
+.caso-seccion { display: flex; flex-direction: column; gap: 40px; padding-top: 56px; padding-bottom: 96px; border-top: var(--borde); }
+.caso-seccion.g-32 { gap: 32px; } .caso-seccion.g-24 { gap: 24px; } .caso-seccion.g-16 { gap: 16px; }
+.caso-h2 { font-size: 28px; }
+.caso-h2--chico { font-size: 22px; }
+.caso-h3 { font-size: 21px; line-height: 1.3; max-width: 760px; }
+.caso-h3--ancho { max-width: 860px; }
+.caso-h4 { font-size: 19px; }
+
+.parrafo { color: rgba(0, 0, 0, 0.75); font-size: 17px; line-height: 1.75; max-width: 760px; }
+.parrafo--grande { font-size: 18px; }
+.parrafo--chico { font-size: 16px; line-height: 1.7; }
+.parrafo > p + p { margin-top: 1em; }
+.texto-suave { font-size: 16px; line-height: 1.6; color: var(--texto-suave); }
+.leyenda { font-size: 15px; line-height: 1.6; color: var(--texto-tenue); }
+.fuerte { font-family: var(--fuente-titulos); font-weight: 600; }
+
+.rotulo { font-family: var(--fuente-titulos); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--texto-tenue); }
+.rotulo--grande { font-size: 13px; letter-spacing: 0.08em; }
+.pie-imagen { font-family: var(--fuente-titulos); font-size: 13px; color: var(--texto-tenue); }
+.pie-imagen--normal { font-size: 14px; color: var(--negro); }
+.pie-imagen--fuerte { font-size: 14px; font-weight: 600; color: var(--negro); }
+
+.subbloque { border-top: 1px solid var(--linea-suave); padding-top: 40px; }
+.fila-titulo { display: flex; flex-wrap: wrap; gap: 16px; align-items: baseline; justify-content: space-between; }
+.fila-dos { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+.fila-dos__item { flex: 1 1 340px; min-width: 0; }
+
+.grilla { display: grid; gap: 20px; }
+.grilla--300 { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+.grilla--280 { grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); }
+.grilla.g-24 { gap: 24px; }
+
+.caja { border: var(--borde); padding: 24px; }
+.caja--negra { background: var(--negro); color: var(--blanco); }
+.caja__rotulo { font-family: var(--fuente-titulos); font-weight: 600; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+.caja__texto { font-size: 17px; line-height: 1.6; }
+.caja__texto--chico { font-size: 16px; line-height: 1.65; }
+
+.tarjeta-imagen { display: flex; flex-direction: column; border: var(--borde); }
+.tarjeta-imagen__marco { height: 300px; border-bottom: var(--borde); background: var(--gris-fondo); overflow: hidden; }
+.tarjeta-imagen__pie { flex: 1; padding: 24px; font-size: 17px; line-height: 1.6; background: var(--negro); color: var(--blanco); }
+
+.marco { border: var(--borde); background: var(--blanco); overflow: hidden; }
+.marco--gris { background: #999; }
+.marco--boceto, .marco--ruta { display: flex; align-items: center; justify-content: center; }
+.marco--boceto { height: 300px; }
+.marco--ruta { height: 260px; }
+.marco--pantalla { height: 360px; }
+.img-ancho { width: 100%; height: auto; }
+.img-cubre { width: 100%; height: 100%; object-fit: cover; }
+.img-contiene { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; }
+.pos-arriba { object-position: top; } .pos-abajo { object-position: bottom; }
+.pos-55 { object-position: center 55%; } .pos-40 { object-position: center 40%; }
+
+.comparacion { display: flex; flex-wrap: wrap; gap: 24px; }
+.comparacion__pantalla { flex: 1 1 240px; min-width: 0; }
+.comparacion__texto { flex: 2 1 360px; min-width: 0; }
+
+.persona { display: flex; flex-wrap: wrap; border: var(--borde); }
+.persona__perfil {
+  flex: 1 1 280px; min-width: 0; padding: 36px; border-right: var(--borde);
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  background: var(--negro); color: var(--blanco);
+}
+.persona__foto { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; background: var(--negro); }
+.persona__datos { display: flex; flex-direction: column; gap: 4px; text-align: center; }
+.persona__nombre { font-size: 21px; }
+.persona__dato { font-size: 15px; }
+.persona__detalle { flex: 2 1 420px; min-width: 0; padding: 36px; }
+.persona__cita { font-family: var(--fuente-titulos); font-weight: 500; font-size: 22px; line-height: 1.4; }
+
+.cita { margin: 0; padding-left: 24px; border-left: 3px solid var(--negro); font-size: 20px; line-height: 1.6; max-width: 760px; }
+.cita__autor { display: block; margin-top: 12px; font-family: var(--fuente-titulos); font-size: 14px; color: var(--texto-tenue); }
+
+.caso-siguiente { padding-top: 56px; padding-bottom: 96px; border-top: var(--borde); }
+.caso-siguiente__enlace { display: inline-flex; align-items: center; gap: 10px; font-family: var(--fuente-titulos); font-weight: 500; font-size: 20px; text-decoration: none; }
+
 /* 7. Tablet (641–1024 px) -------------------------------- */
 @media (max-width: 1024px) {
   .cuadricula--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -239,4 +335,37 @@ p { margin: 0; }
   .sobre-mi { flex-direction: column; align-items: stretch; gap: 18px; padding-top: 56px; }
   .sobre-mi__foto { flex: none; width: 100%; height: 220px; object-position: center 20%; }
   .sobre-mi__texto p { font-size: 15px; }
+
+  /* Páginas de caso */
+  .caso-portada { padding-top: 40px; padding-bottom: 32px; gap: 16px; }
+  .caso-titulo { font-size: 30px; line-height: 1.15; }
+  .caso-ficha { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 16px; margin-top: 8px; }
+  .caso-imagen-principal { padding-bottom: 40px; }
+  .caso-imagen-principal__marco { height: 220px; }
+  .caso-seccion { gap: 28px; padding-top: 32px; padding-bottom: 48px; }
+  .caso-h2 { font-size: 23px; }
+  .caso-h2--chico { font-size: 20px; }
+  .caso-h3 { font-size: 19px; }
+  .caso-h4 { font-size: 18px; }
+  .parrafo, .parrafo--grande { font-size: 16px; line-height: 1.7; }
+  .parrafo--chico { font-size: 15px; }
+  .subbloque { padding-top: 28px; }
+  .g-56 { gap: 40px; }
+  .caja { padding: 20px; }
+  .caja__texto { font-size: 16px; }
+  .tarjeta-imagen__marco { height: 260px; }
+  .tarjeta-imagen__pie { padding: 18px 20px; font-size: 16px; }
+  .marco--boceto { height: 260px; }
+  .marco--ruta { height: auto; }
+  .marco--ruta .img-contiene { width: 100%; }
+  /* Antes / después: las dos pantallas lado a lado, el texto debajo */
+  .comparacion { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .comparacion__texto { grid-column: 1 / -1; margin-top: 8px; }
+  .marco--pantalla { height: 300px; }
+  .persona__perfil { flex-basis: 100%; border-right: 0; border-bottom: var(--borde); padding: 28px 20px; }
+  .persona__detalle { padding: 24px 20px; }
+  .persona__cita { font-size: 19px; }
+  .cita { font-size: 18px; padding-left: 18px; }
+  .caso-siguiente { padding-top: 32px; padding-bottom: 48px; }
+  .caso-siguiente__enlace { font-size: 18px; }
 }
