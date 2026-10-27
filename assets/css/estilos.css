@@ -196,6 +196,10 @@ p { margin: 0; }
 .caso-h3 { font-size: 21px; line-height: 1.3; max-width: 760px; }
 .caso-h3--ancho { max-width: 860px; }
 .caso-h4 { font-size: 19px; }
+.caso-h2--grande { font-size: 34px; }
+.caso-h3--grande { font-size: 24px; }
+.g-40 { gap: 40px; }
+.lista { margin: 0; padding-left: 20px; color: rgba(0, 0, 0, 0.75); font-size: 16px; line-height: 1.8; }
 
 .parrafo { color: rgba(0, 0, 0, 0.75); font-size: 17px; line-height: 1.75; max-width: 760px; }
 .parrafo--grande { font-size: 18px; }
@@ -224,6 +228,7 @@ p { margin: 0; }
 .caja { border: var(--borde); padding: 24px; }
 .caja--negra { background: var(--negro); color: var(--blanco); }
 .caja__rotulo { font-family: var(--fuente-titulos); font-weight: 600; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+.caja__rotulo, .caja__texto { color: var(--blanco); }
 .caja__texto { font-size: 17px; line-height: 1.6; }
 .caja__texto--chico { font-size: 16px; line-height: 1.65; }
 
@@ -347,6 +352,11 @@ p { margin: 0; }
   .caso-h2--chico { font-size: 20px; }
   .caso-h3 { font-size: 19px; }
   .caso-h4 { font-size: 18px; }
+  .diagrama-ancho { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-right: calc(-1 * var(--margen-lateral)); padding-bottom: 8px; }
+  .diagrama-ancho svg { min-width: 820px; }
+  .caso-h2--grande { font-size: 26px; }
+  .caso-h3--grande { font-size: 20px; }
+  .lista { font-size: 15px; }
   .parrafo, .parrafo--grande { font-size: 16px; line-height: 1.7; }
   .parrafo--chico { font-size: 15px; }
   .subbloque { padding-top: 28px; }
