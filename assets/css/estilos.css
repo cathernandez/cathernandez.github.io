@@ -407,6 +407,18 @@ p { margin: 0; }
 .pbi-indice__enlace[aria-current] { border-left-color: var(--negro); color: var(--negro); font-weight: 600; }
 
 .pbi-pendiente { cursor: not-allowed; opacity: 0.5; }
+
+/* Índice lateral en las páginas de proyecto */
+.caso-lado { gap: 48px; }
+.pbi-indice--caso { top: 32px; }
+.caso-columna { min-width: 0; }
+.caso-columna .grilla--300 { grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
+.caso-columna > .caso-seccion:first-child { border-top: 0; padding-top: 0; }
+.caso-columna [id] { scroll-margin-top: 24px; }
+.caso-lado { padding-top: 56px; border-top: var(--borde); }
+
+/* Anterior / siguiente */
+.caso-navegacion { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px 32px; }
 .tabla-desliza { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .tabla-desliza table { min-width: 640px; }
 
@@ -441,10 +453,13 @@ p { margin: 0; }
   .pbi-portada-imagen { height: 220px !important; }
   .pbi-pad { padding: 20px !important; }
   .pbi-telefono { max-width: 240px; margin: 0 auto; }
+  .caso-navegacion { flex-direction: column; }
+  .caso-lado { padding-top: 32px; }
   .pbi-seccion { padding-left: var(--margen-lateral) !important; padding-right: var(--margen-lateral) !important; padding-top: 32px !important; padding-bottom: 48px !important; }
   .pbi-principio { flex-direction: column; gap: 6px !important; }
   .pbi-barra { flex-wrap: wrap; }
   .pbi-cadena { flex-direction: column; }
+  .pbi-conector { display: none; }
   .pbi-cadena > [aria-hidden] { flex-basis: 24px !important; }
   .pbi-cadena svg { transform: rotate(90deg); }
   .pbi-barra > span:nth-child(2) { flex-basis: 100% !important; order: 3; }
