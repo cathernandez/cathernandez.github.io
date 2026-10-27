@@ -10,6 +10,8 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&family=Archivo:wght@500;600;700&display=swap">
 <link rel="stylesheet" href="{{ '/assets/css/estilos.css' | relative_url }}?v={{ site.time | date: '%s' }}">
 <script src="{{ '/assets/js/menu.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+{% for s in page.scripts %}<script src="{{ s | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+{% endfor %}
 </head>
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
