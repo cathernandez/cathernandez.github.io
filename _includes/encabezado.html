@@ -1,0 +1,16 @@
+<header class="encabezado">
+  <div class="contenedor encabezado__fila">
+    <a class="encabezado__nombre" href="{{ '/' | relative_url }}">Catalina Hernández</a>
+
+    <button class="encabezado__menu-boton" type="button" aria-expanded="false" aria-controls="menu-principal" aria-label="Abrir menú">
+      <svg class="icono-abrir" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      <svg class="icono-cerrar" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+
+    <nav class="encabezado__nav" id="menu-principal" aria-label="Principal">
+      <a href="{{ '/#proyectos' | relative_url }}">Proyectos</a>
+      <a href="{{ '/#sobre-mi' | relative_url }}">Sobre mí</a>
+      <a class="boton boton--negro boton--chico" href="#contacto">Contacto</a>
+    </nav>
+  </div>
+</header>

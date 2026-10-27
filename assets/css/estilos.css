@@ -1,0 +1,242 @@
+/* =========================================================
+   Estilos del portafolio · Catalina Hernández
+   ---------------------------------------------------------
+   1. Variables (colores, tipografías, espacios)
+   2. Base
+   3. Componentes comunes (botones, etiquetas, chips, marcador)
+   4. Encabezado y menú
+   5. Pie de contacto
+   6. Home
+   7. Adaptación a tablet y móvil (ver tablero "Patrones móviles")
+   ========================================================= */
+
+/* 1. Variables ------------------------------------------- */
+:root {
+  --negro: #000;
+  --blanco: #fff;
+  --gris-fondo: #f2f2f2;
+  --texto-suave: rgba(0, 0, 0, 0.7);
+  --texto-tenue: rgba(0, 0, 0, 0.6);
+  --texto-marcador: rgba(0, 0, 0, 0.45);
+  --linea-suave: rgba(0, 0, 0, 0.15);
+
+  --fuente-titulos: 'Archivo', system-ui, sans-serif;
+  --fuente-texto: 'Source Serif 4', Georgia, serif;
+
+  --ancho-contenedor: 1200px;
+  --margen-lateral: 24px;
+  --borde: 1px solid var(--negro);
+}
+
+/* 2. Base ------------------------------------------------ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--blanco);
+  color: var(--negro);
+  font-family: var(--fuente-texto);
+  font-size: 18px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+
+a { color: var(--negro); }
+a:hover { opacity: 0.6; }
+
+h1, h2, h3 { font-family: var(--fuente-titulos); font-weight: 500; letter-spacing: -0.01em; margin: 0; }
+p { margin: 0; }
+
+:focus-visible { outline: 2px solid var(--negro); outline-offset: 3px; }
+
+.contenedor {
+  max-width: var(--ancho-contenedor);
+  margin: 0 auto;
+  padding-left: var(--margen-lateral);
+  padding-right: var(--margen-lateral);
+}
+
+.saltar {
+  position: absolute; left: 16px; top: -48px;
+  padding: 10px 16px; background: var(--negro); color: var(--blanco);
+  font-family: var(--fuente-titulos); font-size: 14px; z-index: 100;
+}
+.saltar:focus { top: 16px; }
+
+/* 3. Componentes comunes --------------------------------- */
+.boton {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 15px 28px; min-height: 48px;
+  font-family: var(--fuente-titulos); font-size: 15px;
+  text-decoration: none; border-radius: 2px;
+}
+.boton--negro { background: var(--negro); color: var(--blanco); }
+.boton--borde { border: var(--borde); }
+.boton--chico { padding: 10px 20px; min-height: 0; font-size: 14px; }
+
+.botones { display: flex; flex-wrap: wrap; gap: 14px; }
+
+.etiqueta {
+  font-family: var(--fuente-titulos); font-size: 12px;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--texto-tenue);
+}
+.etiqueta--negra { color: var(--negro); letter-spacing: 0.14em; font-size: 13px; }
+
+.chips {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 8px;
+  font-family: var(--fuente-titulos); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase;
+}
+.chips li { padding: 5px 10px; border: var(--borde); }
+
+.enlace-flecha { font-family: var(--fuente-titulos); font-weight: 600; font-size: 14px; text-decoration: underline; }
+
+/* Espacio reservado para imágenes que aún no existen */
+.marcador {
+  background: var(--gris-fondo);
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  padding: 24px;
+  color: var(--texto-marcador); font-family: var(--fuente-titulos); font-size: 13px;
+}
+
+.seccion { padding-top: 48px; padding-bottom: 96px; border-top: var(--borde); }
+.seccion__titulo { font-size: 32px; }
+
+.cuadricula { display: grid; gap: 24px; }
+.cuadricula--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+/* 4. Encabezado y menú ----------------------------------- */
+.encabezado { border-bottom: var(--borde); background: var(--blanco); position: relative; z-index: 20; }
+.encabezado__fila {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding-top: 24px; padding-bottom: 24px;
+}
+.encabezado__nombre { font-family: var(--fuente-titulos); font-weight: 700; font-size: 18px; letter-spacing: 0.01em; text-decoration: none; }
+.encabezado__nav { display: flex; align-items: center; gap: 32px; font-family: var(--fuente-titulos); font-size: 14px; }
+.encabezado__nav a { text-decoration: none; }
+.encabezado__menu-boton { display: none; }
+
+/* 5. Pie de contacto ------------------------------------- */
+.pie { background: var(--negro); color: var(--blanco); }
+.pie a { color: var(--blanco); }
+.pie__fila {
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 32px;
+  padding-top: 80px; padding-bottom: 80px;
+}
+.pie__texto { display: flex; flex-direction: column; gap: 14px; }
+.pie__titulo { font-size: 36px; }
+.pie__correo { color: rgba(255, 255, 255, 0.7) !important; text-decoration: none; }
+.pie__redes { display: flex; gap: 28px; font-family: var(--fuente-titulos); font-size: 14px; }
+
+/* 6. Home ------------------------------------------------ */
+.portada-home {
+  display: flex; flex-direction: column; gap: 24px;
+  padding-top: 120px; padding-bottom: 96px;
+}
+.portada-home__titulo { font-size: 58px; line-height: 1.08; max-width: 720px; }
+.portada-home__bajada { font-size: 19px; color: var(--texto-suave); max-width: 560px; }
+.portada-home .botones { margin-top: 8px; }
+
+#proyectos { display: flex; flex-direction: column; gap: 40px; }
+
+.tarjeta-destacada {
+  display: flex; border: var(--borde); text-decoration: none; color: inherit;
+}
+.tarjeta-destacada__imagen { flex: 3 1 0; min-height: 420px; border-right: var(--borde); }
+.tarjeta-destacada__texto {
+  flex: 2 1 0; padding: 40px;
+  display: flex; flex-direction: column; justify-content: center; gap: 16px;
+}
+.tarjeta-destacada__titulo { font-size: 26px; }
+.tarjeta-destacada p { color: var(--texto-suave); }
+
+.tarjeta-proyecto { display: flex; flex-direction: column; border: var(--borde); text-decoration: none; color: inherit; }
+.tarjeta-proyecto__imagen { width: 100%; height: 220px; object-fit: cover; border-bottom: var(--borde); background: var(--gris-fondo); }
+.tarjeta-proyecto__texto { padding: 24px; display: flex; flex-direction: column; gap: 10px; }
+.tarjeta-proyecto__titulo { font-size: 19px; }
+.tarjeta-proyecto p { font-size: 15px; color: var(--texto-suave); }
+
+/* Las tarjetas completas son enlaces: el efecto hover va en la tarjeta */
+.tarjeta-destacada:hover, .tarjeta-proyecto:hover { opacity: 1; }
+.tarjeta-destacada:hover .enlace-flecha { opacity: 0.6; }
+.tarjeta-proyecto:hover .tarjeta-proyecto__titulo { text-decoration: underline; }
+
+.sobre-mi { display: flex; align-items: center; gap: 48px; padding-top: 96px; }
+.sobre-mi__foto { flex: 0 0 280px; width: 280px; height: 320px; object-fit: cover; object-position: center top; border: var(--borde); }
+.sobre-mi__texto { flex: 1 1 0; display: flex; flex-direction: column; gap: 18px; }
+.sobre-mi__texto p { color: var(--texto-suave); line-height: 1.7; }
+
+/* 7. Tablet (641–1024 px) -------------------------------- */
+@media (max-width: 1024px) {
+  .cuadricula--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .portada-home__titulo { font-size: 46px; }
+}
+
+/* 7. Móvil (≤ 640 px) ------------------------------------ */
+@media (max-width: 640px) {
+  /* F1 · Escala tipográfica y márgenes */
+  :root { --margen-lateral: 16px; }
+  body { font-size: 16px; }
+  .seccion { padding-top: 32px; padding-bottom: 48px; }
+  .seccion__titulo { font-size: 26px; }
+
+  /* F2 · Encabezado y menú */
+  .encabezado__fila { padding-top: 12px; padding-bottom: 12px; }
+  .encabezado__nombre { font-size: 17px; position: relative; z-index: 30; }
+  .encabezado__menu-boton {
+    display: flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; border: var(--borde); background: var(--blanco); color: var(--negro);
+    cursor: pointer; position: relative; z-index: 30;
+  }
+  .encabezado__menu-boton .icono-cerrar { display: none; }
+  .encabezado__nav {
+    display: none;
+    position: fixed; inset: 0; z-index: 25;
+    background: var(--blanco);
+    flex-direction: column; align-items: stretch; justify-content: center; gap: 24px;
+    padding: 96px 24px 48px;
+    font-size: 28px;
+  }
+  .encabezado__nav a:not(.boton) { font-weight: 500; }
+  .encabezado__nav .boton { font-size: 16px; padding: 16px; margin-top: 16px; }
+  .menu-abierto .encabezado__nav { display: flex; }
+  .menu-abierto .encabezado__menu-boton .icono-abrir { display: none; }
+  .menu-abierto .encabezado__menu-boton .icono-cerrar { display: block; }
+  body.menu-abierto { overflow: hidden; }
+
+  /* F3 · Botones */
+  .botones { flex-direction: column; gap: 12px; }
+  .botones .boton { width: 100%; }
+
+  /* F4 · Cuadrículas */
+  .cuadricula--3 { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+
+  /* F5 · Pie de contacto */
+  .pie__fila { flex-direction: column; align-items: flex-start; gap: 22px; padding-top: 56px; padding-bottom: 56px; }
+  .pie__titulo { font-size: 27px; }
+  .pie__redes { gap: 24px; }
+
+  /* Home: portada */
+  .portada-home { padding-top: 56px; padding-bottom: 40px; gap: 18px; }
+  .portada-home__titulo { font-size: 34px; line-height: 1.12; }
+  .portada-home__bajada { font-size: 17px; }
+
+  /* H1 · Proyecto destacado y tarjetas */
+  #proyectos { gap: 24px; }
+  .tarjeta-destacada { flex-direction: column; }
+  .tarjeta-destacada__imagen { min-height: 240px; border-right: 0; border-bottom: var(--borde); }
+  .tarjeta-destacada__texto { padding: 20px; gap: 12px; }
+  .tarjeta-destacada__titulo { font-size: 21px; }
+  .tarjeta-destacada p { font-size: 15px; }
+  .tarjeta-proyecto__imagen { height: 180px; }
+  .tarjeta-proyecto__texto { padding: 20px; }
+
+  /* H2 · Sobre mí */
+  .sobre-mi { flex-direction: column; align-items: stretch; gap: 18px; padding-top: 56px; }
+  .sobre-mi__foto { flex: none; width: 100%; height: 220px; object-position: center 20%; }
+  .sobre-mi__texto p { font-size: 15px; }
+}
