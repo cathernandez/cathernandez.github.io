@@ -261,7 +261,7 @@ p { margin: 0; }
 .persona__foto { width: 140px; height: 140px; border-radius: 50%; object-fit: cover; background: var(--negro); }
 .persona__datos { display: flex; flex-direction: column; gap: 4px; text-align: center; }
 .persona__nombre { font-size: 21px; }
-.persona__dato { font-size: 15px; }
+.persona__dato { font-size: 15px; color: var(--blanco); }
 .persona__detalle { flex: 2 1 420px; min-width: 0; padding: 36px; }
 .persona__cita { font-family: var(--fuente-titulos); font-weight: 500; font-size: 22px; line-height: 1.4; }
 
