@@ -217,3 +217,17 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 })();
+
+// Interruptor Antes / Después: una sola visual grande y dos botones para cambiar entre ambas.
+document.addEventListener('click', function (e) {
+  var boton = e.target.closest('.alternar__boton');
+  if (!boton) return;
+  var grupo = boton.closest('.alternar');
+  var vista = boton.getAttribute('data-vista');
+  grupo.querySelectorAll('.alternar__boton').forEach(function (b) {
+    b.setAttribute('aria-pressed', b === boton ? 'true' : 'false');
+  });
+  grupo.querySelectorAll('.alternar__vista').forEach(function (v) {
+    v.hidden = v.getAttribute('data-vista') !== vista;
+  });
+});
