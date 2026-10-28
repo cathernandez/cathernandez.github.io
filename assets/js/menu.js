@@ -119,6 +119,11 @@ document.addEventListener('DOMContentLoaded', function () {
   function resaltar(clave, activo) {
     Array.prototype.forEach.call(elementos(clave), function (el) {
       el.classList.toggle('anatomia-activo', activo);
+      // La tabla está bajo el gráfico: la imagen se desplaza hacia abajo para mostrarla
+      if (clave === 'tabla' && el.matches('[data-anatomia]')) {
+        var marco = el.closest('.anatomia');
+        if (marco) marco.classList.toggle('anatomia--tabla', activo);
+      }
     });
   }
   function claveDe(el) {

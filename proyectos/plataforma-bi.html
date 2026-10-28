@@ -74,14 +74,17 @@ scripts:
 <p style="margin: 0; color: rgba(0,0,0,0.75); line-height: 1.7; font-size: 17px; max-width: 720px">El Reporte Estratégico es una herramienta de diagnóstico: permite comparar muchas tiendas a la vez y detectar cuáles se alejan del comportamiento del resto.</p>
 <div class="pila g-10">
 <div class="anatomia">
+<div class="anatomia__lienzo">
+<div class="anatomia__grafico">
 <img alt="Captura del reporte original, anonimizada: gráfico de dispersión con tiendas como puntos de colores, cuadrantes Q1 a Q4, selectores sobre el gráfico y leyenda de tiendas a la derecha." decoding="async" height="979" loading="lazy" src="{{ '/assets/img/plataforma-bi/01-reporte-original-anatomia.webp' | relative_url }}" width="1800"/>
-<button aria-label="2: eje vertical" class="anatomia__etiqueta" data-anatomia="ejes" style="left: 10.25%; top: 41.4%" type="button">2</button>
-<button aria-label="2: eje horizontal" class="anatomia__etiqueta" data-anatomia="ejes" style="left: 43.5%; top: 87.6%" type="button">2</button>
-<button aria-label="1: punto (una tienda)" class="anatomia__etiqueta" data-anatomia="puntos" style="left: 77.5%; top: 64.4%" type="button">1</button>
-<button aria-label="3: tamaño" class="anatomia__etiqueta" data-anatomia="tamano" style="left: 34.5%; top: 35.4%" type="button">3</button>
+<button aria-label="1: leyenda (cada color, una tienda)" class="anatomia__etiqueta" data-anatomia="puntos" style="left: 81.6%; top: 51.5%" type="button">1</button>
+<button aria-label="2: ejes" class="anatomia__etiqueta" data-anatomia="ejes" style="left: 4.5%; top: 58%" type="button">2</button>
+<button aria-label="3: selector Tamaño" class="anatomia__etiqueta" data-anatomia="tamano" style="left: 50%; top: 19%" type="button">3</button>
 <button aria-label="4: cuadrantes" class="anatomia__etiqueta" data-anatomia="cuadrantes" style="left: 45.0%; top: 59.5%" type="button">4</button>
-<button aria-label="1: leyenda" class="anatomia__etiqueta" data-anatomia="puntos" style="left: 81.6%; top: 51.5%" type="button">1</button>
 <button aria-label="5: selector Dimensión" class="anatomia__etiqueta" data-anatomia="dimension" style="left: 81.25%; top: 19%" type="button">5</button>
+</div>
+<img alt="Tabla de detalle del reporte original, anonimizada: una fila por tienda con fecha, entradas, venta, tickets, artículos, ticket promedio, artículos por ticket, tasa de conversión, concurrencia y tiempo de permanencia." class="anatomia__tabla" decoding="async" height="726" loading="lazy" src="{{ '/assets/img/plataforma-bi/02-reporte-original-tabla.webp' | relative_url }}" width="1800"/>
+</div>
 <button aria-label="6: tabla de detalle, bajo el gráfico" class="anatomia__etiqueta" data-anatomia="tabla" style="left: 50.0%; top: 96.6%" type="button">6</button>
 </div>
 <span class="pie-imagen">Anatomía del reporte original.</span>

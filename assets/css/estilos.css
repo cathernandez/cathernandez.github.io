@@ -474,8 +474,13 @@ p { margin: 0; }
 }
 
 /* 10. Imágenes con marcadores numerados interactivos ---- */
-.anatomia { position: relative; border: var(--borde); line-height: 0; }
+.anatomia { position: relative; border: var(--borde); line-height: 0; overflow: hidden; aspect-ratio: 1800 / 979; }
 .anatomia img { display: block; width: 100%; height: auto; }
+.anatomia__grafico { position: relative; }
+/* Gráfico + tabla apilados; al activar el 6 se desplaza hasta mostrar la tabla (726 de 1705 px) */
+.anatomia__lienzo { transition: transform .7s cubic-bezier(.4, 0, .2, 1); }
+.anatomia--tabla .anatomia__lienzo { transform: translateY(-42.58%); }
+@media (prefers-reduced-motion: reduce) { .anatomia__lienzo { transition: none; } }
 .anatomia__etiqueta {
   position: absolute; transform: translate(-50%, -50%);
   width: 30px; height: 30px; padding: 0; border-radius: 50%;
