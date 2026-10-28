@@ -287,3 +287,25 @@ document.addEventListener('click', function (e) {
     cajas.forEach(function (c) { obs.observe(c); });
   });
 })();
+
+// Prototipos incrustados: se muestran en su tamaño de escritorio (1440 × 900) reducidos al ancho
+// disponible, para que se vean igual que en pantalla completa. En celular se muestra una imagen.
+(function () {
+  function ajustar() {
+    document.querySelectorAll('.proto-marco').forEach(function (marco) {
+      var f = marco.querySelector('iframe');
+      if (!f) return;
+      var ancho = +marco.getAttribute('data-ancho') || 1440;
+      var alto = +marco.getAttribute('data-alto') || 900;
+      var escala = marco.clientWidth / ancho;
+      f.style.width = ancho + 'px';
+      f.style.height = alto + 'px';
+      f.style.transform = 'scale(' + escala + ')';
+      f.style.transformOrigin = '0 0';
+    });
+  }
+  document.addEventListener('DOMContentLoaded', ajustar);
+  window.addEventListener('resize', ajustar);
+  // al cambiar de pestaña el marco pasa de oculto a visible
+  document.addEventListener('click', function () { setTimeout(ajustar, 80); });
+})();

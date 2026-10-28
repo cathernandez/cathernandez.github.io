@@ -550,3 +550,11 @@ body.visor-abierto { overflow: hidden; }
 .video-demo--pausa .video-demo__icono-pausa { display: none; }
 .visor__video { max-width: 100%; max-height: 100%; width: auto; height: auto; background: var(--blanco); }
 .visor__video[hidden], .visor__imagen[hidden] { display: none; }
+
+/* 14. Prototipos incrustados ----------------------------- */
+.proto-marco__imagen { display: none !important; }
+@media (max-width: 640px) {
+  .proto-marco { aspect-ratio: auto !important; }
+  .proto-marco__iframe { display: none; }
+  .proto-marco__imagen { display: block !important; }
+}
