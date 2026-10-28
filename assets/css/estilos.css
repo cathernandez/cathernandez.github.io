@@ -472,3 +472,21 @@ p { margin: 0; }
   p.fs-28, .fs-26, .fs-24 { font-size: 20px !important; }
   .fs-23, .fs-22 { font-size: 19px !important; }
 }
+
+/* 10. Imágenes con etiquetas interactivas ---------------- */
+.anatomia { position: relative; border: var(--borde); line-height: 0; }
+.anatomia img { display: block; width: 100%; height: auto; }
+.anatomia__etiqueta {
+  position: absolute; transform: translate(-50%, -50%);
+  background: var(--negro); color: var(--blanco); border: 1px solid var(--negro);
+  padding: 6px 10px; font: 600 12px/1 var(--fuente-titulos); letter-spacing: 0.04em; text-transform: uppercase;
+  white-space: nowrap; cursor: pointer; transition: background .15s, color .15s;
+}
+.anatomia__etiqueta.anatomia-activo { background: var(--blanco); color: var(--negro); box-shadow: 0 0 0 3px var(--negro); }
+[data-anatomia-texto] { transition: background .15s, box-shadow .15s; cursor: default; }
+[data-anatomia-texto].anatomia-activo { background: var(--gris-fondo); box-shadow: 0 0 0 8px var(--gris-fondo); color: var(--negro); }
+@media (max-width: 640px) {
+  .anatomia-desliza { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-right: calc(-1 * var(--margen-lateral)); padding: 14px 0 8px; }
+  .anatomia-desliza .anatomia { min-width: 760px; }
+  .anatomia__etiqueta { padding: 5px 8px; font-size: 10px; }
+}

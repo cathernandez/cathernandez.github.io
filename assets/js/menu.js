@@ -107,3 +107,44 @@ document.addEventListener('DOMContentLoaded', function () {
     if (e.target.closest && e.target.closest('[role="tablist"]')) setTimeout(actualizar, 60);
   });
 })();
+
+// Imágenes con etiquetas interactivas (por ejemplo, la anatomía del Reporte Estratégico):
+// al pasar el cursor, enfocar o tocar una etiqueta se resalta el texto que la explica, y viceversa.
+(function () {
+  var fijado = null;
+
+  function elementos(clave) {
+    return document.querySelectorAll('[data-anatomia="' + clave + '"], [data-anatomia-texto="' + clave + '"]');
+  }
+  function resaltar(clave, activo) {
+    Array.prototype.forEach.call(elementos(clave), function (el) {
+      el.classList.toggle('anatomia-activo', activo);
+    });
+  }
+  function claveDe(el) {
+    var x = el && el.closest && el.closest('[data-anatomia], [data-anatomia-texto]');
+    return x ? (x.getAttribute('data-anatomia') || x.getAttribute('data-anatomia-texto')) : null;
+  }
+
+  ['mouseover', 'focusin'].forEach(function (tipo) {
+    document.addEventListener(tipo, function (e) {
+      var k = claveDe(e.target);
+      if (k) resaltar(k, true);
+    });
+  });
+  ['mouseout', 'focusout'].forEach(function (tipo) {
+    document.addEventListener(tipo, function (e) {
+      var k = claveDe(e.target);
+      if (!k || k === fijado) return;
+      var hacia = claveDe(e.relatedTarget);
+      if (hacia !== k) resaltar(k, false);
+    });
+  });
+  // Toque o clic: deja el resaltado fijo hasta tocar otra cosa
+  document.addEventListener('click', function (e) {
+    var k = claveDe(e.target);
+    if (fijado && fijado !== k) resaltar(fijado, false);
+    fijado = (k && k !== fijado) ? k : null;
+    if (k) resaltar(k, fijado === k);
+  });
+})();
