@@ -534,3 +534,19 @@ body.visor-abierto { overflow: hidden; }
 .alternar__boton[aria-pressed="true"] { background: var(--negro); color: var(--blanco); }
 .alternar__boton:focus-visible { outline: 2px solid var(--negro); outline-offset: 2px; }
 .alternar__vista[hidden] { display: none; }
+
+/* 13. Videos de demostración ----------------------------- */
+.video-demo { position: relative; border: var(--borde); line-height: 0; background: var(--negro); }
+.video-demo__video { display: block; width: 100%; height: auto; }
+.video-demo__pausa {
+  position: absolute; right: 12px; bottom: 12px; width: 40px; height: 40px; border-radius: 50%;
+  border: 0; background: rgba(0, 0, 0, 0.75); color: var(--blanco);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.video-demo__pausa:hover { background: var(--negro); }
+.video-demo__pausa:focus-visible { outline: 2px solid var(--negro); outline-offset: 2px; box-shadow: 0 0 0 2px var(--blanco); }
+.video-demo__icono-play { display: none; }
+.video-demo--pausa .video-demo__icono-play { display: block; }
+.video-demo--pausa .video-demo__icono-pausa { display: none; }
+.visor__video { max-width: 100%; max-height: 100%; width: auto; height: auto; background: var(--blanco); }
+.visor__video[hidden], .visor__imagen[hidden] { display: none; }

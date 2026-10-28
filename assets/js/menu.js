@@ -157,10 +157,10 @@ document.addEventListener('DOMContentLoaded', function () {
 // Ampliar imágenes al hacer clic: se abren a pantalla completa y se cierran con la X, con Esc o tocando afuera.
 // No aplica a imágenes que ya son enlaces (por ejemplo, las tarjetas del Home).
 (function () {
-  var visor = null, imagenVisor = null, cerrar = null, origen = null;
+  var visor = null, imagenVisor = null, videoVisor = null, cerrar = null, origen = null;
 
   function ampliables() {
-    return Array.prototype.slice.call(document.querySelectorAll('main img')).filter(function (img) {
+    return Array.prototype.slice.call(document.querySelectorAll('main img, main .video-demo video')).filter(function (img) {
       return !img.closest('a, button, .no-ampliar');
     });
   }
@@ -174,9 +174,10 @@ document.addEventListener('DOMContentLoaded', function () {
     visor.hidden = true;
     visor.innerHTML = '<button type="button" class="visor__cerrar" aria-label="Cerrar imagen ampliada">' +
       '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
-      '</button><img class="visor__imagen" alt="">';
+      '</button><img class="visor__imagen" alt=""><video class="visor__video" muted loop playsinline></video>';
     document.body.appendChild(visor);
     imagenVisor = visor.querySelector('.visor__imagen');
+    videoVisor = visor.querySelector('.visor__video');
     cerrar = visor.querySelector('.visor__cerrar');
     cerrar.addEventListener('click', ocultar);
     visor.addEventListener('click', function (e) { if (e.target === visor) ocultar(); });
@@ -189,8 +190,17 @@ document.addEventListener('DOMContentLoaded', function () {
   function mostrar(img) {
     if (!visor) crearVisor();
     origen = img;
-    imagenVisor.src = img.currentSrc || img.src;
-    imagenVisor.alt = img.alt || '';
+    var esVideo = img.tagName === 'VIDEO';
+    imagenVisor.hidden = esVideo; videoVisor.hidden = !esVideo;
+    if (esVideo) {
+      videoVisor.src = img.currentSrc || img.src;
+      videoVisor.setAttribute('aria-label', img.dataset.descripcion || '');
+      videoVisor.currentTime = img.currentTime || 0;
+      var p = videoVisor.play(); if (p && p.catch) p.catch(function () {});
+    } else {
+      imagenVisor.src = img.currentSrc || img.src;
+      imagenVisor.alt = img.alt || '';
+    }
     visor.hidden = false;
     document.body.classList.add('visor-abierto');
     cerrar.focus();
@@ -199,6 +209,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function ocultar() {
     visor.hidden = true;
     imagenVisor.removeAttribute('src');
+    videoVisor.pause(); videoVisor.removeAttribute('src');
     document.body.classList.remove('visor-abierto');
     if (origen) origen.focus();
   }
@@ -209,7 +220,9 @@ document.addEventListener('DOMContentLoaded', function () {
       img.setAttribute('tabindex', '0');
       img.setAttribute('role', 'button');
       img.setAttribute('aria-haspopup', 'dialog');
-      img.setAttribute('aria-label', 'Ampliar imagen' + (img.alt ? ': ' + img.alt : ''));
+      var desc = img.alt || img.getAttribute('aria-label') || '';
+      img.setAttribute('aria-label', (img.tagName === 'VIDEO' ? 'Ampliar animación' : 'Ampliar imagen') + (desc ? ': ' + desc : ''));
+      if (img.tagName === 'VIDEO') img.dataset.descripcion = desc;
       img.addEventListener('click', function () { mostrar(img); });
       img.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); mostrar(img); }
@@ -231,3 +244,46 @@ document.addEventListener('click', function (e) {
     v.hidden = v.getAttribute('data-vista') !== vista;
   });
 });
+
+// Videos de demostración (reemplazan a los GIF): se reproducen solos, en bucle y sin sonido,
+// solo mientras están a la vista; tienen botón de pausa y respetan "reducir movimiento".
+(function () {
+  var reducir = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function estado(caja, enPausa) {
+    caja.classList.toggle('video-demo--pausa', enPausa);
+    var b = caja.querySelector('.video-demo__pausa');
+    if (b) b.setAttribute('aria-label', enPausa ? 'Reproducir animación' : 'Pausar animación');
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var cajas = Array.prototype.slice.call(document.querySelectorAll('.video-demo'));
+    cajas.forEach(function (caja) {
+      var v = caja.querySelector('video');
+      v.muted = true;
+      v.removeAttribute('autoplay');
+      v.pause();
+      // Con "reducir movimiento" queda en el cuadro fijo hasta que la persona presione reproducir
+      caja.dataset.pausaManual = reducir ? '1' : '';
+      estado(caja, true);
+      caja.querySelector('.video-demo__pausa').addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (v.paused) { caja.dataset.pausaManual = ''; v.play(); estado(caja, false); }
+        else { caja.dataset.pausaManual = '1'; v.pause(); estado(caja, true); }
+      });
+    });
+    if (!('IntersectionObserver' in window)) return;
+    var obs = new IntersectionObserver(function (entradas) {
+      entradas.forEach(function (en) {
+        var caja = en.target, v = caja.querySelector('video');
+        if (en.isIntersecting && !caja.dataset.pausaManual) {
+          var p = v.play(); if (p && p.catch) p.catch(function () {});
+          estado(caja, false);
+        } else if (!en.isIntersecting && !v.paused) {
+          v.pause(); estado(caja, true);
+        }
+      });
+    }, { threshold: 0.35 });
+    cajas.forEach(function (c) { obs.observe(c); });
+  });
+})();
