@@ -504,3 +504,21 @@ li[data-anatomia-texto] .anatomia__num { top: 1px; }
 @media (max-width: 640px) {
   .anatomia__etiqueta { width: 22px; height: 22px; font-size: 11px; border-width: 1.5px; }
 }
+
+/* 11. Ampliar imágenes ----------------------------------- */
+.ampliable { cursor: zoom-in; }
+.visor {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  padding: 72px 24px 24px; background: rgba(0, 0, 0, 0.92);
+}
+.visor[hidden] { display: none; }
+.visor__imagen { max-width: 100%; max-height: 100%; width: auto; height: auto; object-fit: contain; background: var(--blanco); }
+.visor__cerrar {
+  position: absolute; top: 16px; right: 16px;
+  width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+  background: var(--blanco); color: var(--negro); border: 0; border-radius: 50%; cursor: pointer;
+}
+.visor__cerrar:focus-visible { outline: 2px solid var(--blanco); outline-offset: 3px; }
+body.visor-abierto { overflow: hidden; }
+@media (max-width: 640px) { .visor { padding: 64px 8px 8px; } }

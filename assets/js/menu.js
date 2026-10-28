@@ -153,3 +153,67 @@ document.addEventListener('DOMContentLoaded', function () {
     if (k) resaltar(k, fijado === k);
   });
 })();
+
+// Ampliar imágenes al hacer clic: se abren a pantalla completa y se cierran con la X, con Esc o tocando afuera.
+// No aplica a imágenes que ya son enlaces (por ejemplo, las tarjetas del Home).
+(function () {
+  var visor = null, imagenVisor = null, cerrar = null, origen = null;
+
+  function ampliables() {
+    return Array.prototype.slice.call(document.querySelectorAll('main img')).filter(function (img) {
+      return !img.closest('a, button, .no-ampliar');
+    });
+  }
+
+  function crearVisor() {
+    visor = document.createElement('div');
+    visor.className = 'visor';
+    visor.setAttribute('role', 'dialog');
+    visor.setAttribute('aria-modal', 'true');
+    visor.setAttribute('aria-label', 'Imagen ampliada');
+    visor.hidden = true;
+    visor.innerHTML = '<button type="button" class="visor__cerrar" aria-label="Cerrar imagen ampliada">' +
+      '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>' +
+      '</button><img class="visor__imagen" alt="">';
+    document.body.appendChild(visor);
+    imagenVisor = visor.querySelector('.visor__imagen');
+    cerrar = visor.querySelector('.visor__cerrar');
+    cerrar.addEventListener('click', ocultar);
+    visor.addEventListener('click', function (e) { if (e.target === visor) ocultar(); });
+    visor.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); ocultar(); }
+      if (e.key === 'Tab') { e.preventDefault(); cerrar.focus(); } // el foco se queda en el visor
+    });
+  }
+
+  function mostrar(img) {
+    if (!visor) crearVisor();
+    origen = img;
+    imagenVisor.src = img.currentSrc || img.src;
+    imagenVisor.alt = img.alt || '';
+    visor.hidden = false;
+    document.body.classList.add('visor-abierto');
+    cerrar.focus();
+  }
+
+  function ocultar() {
+    visor.hidden = true;
+    imagenVisor.removeAttribute('src');
+    document.body.classList.remove('visor-abierto');
+    if (origen) origen.focus();
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    ampliables().forEach(function (img) {
+      img.classList.add('ampliable');
+      img.setAttribute('tabindex', '0');
+      img.setAttribute('role', 'button');
+      img.setAttribute('aria-haspopup', 'dialog');
+      img.setAttribute('aria-label', 'Ampliar imagen' + (img.alt ? ': ' + img.alt : ''));
+      img.addEventListener('click', function () { mostrar(img); });
+      img.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); mostrar(img); }
+      });
+    });
+  });
+})();
