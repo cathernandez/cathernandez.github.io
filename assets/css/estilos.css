@@ -563,3 +563,21 @@ body.visor-abierto { overflow: hidden; }
   .proto-marco__iframe { display: none; }
   .proto-marco__imagen { display: block !important; }
 }
+
+/* ---------- 15. Comparador con deslizador (antes a la izquierda, después a la derecha) ---------- */
+.comparar { position: relative; border: var(--borde); line-height: 0; overflow: hidden; --pos: 50%; user-select: none; -webkit-user-select: none; }
+.comparar img { display: block; width: 100%; height: auto; }
+.comparar__antes { position: absolute; inset: 0; clip-path: inset(0 calc(100% - var(--pos)) 0 0); }
+.comparar__antes img { width: 100%; height: 100%; object-fit: cover; }
+.comparar__linea { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 2px; margin-left: -1px; background: #000; pointer-events: none; }
+.comparar__tirador { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; border-radius: 50%; background: #000; color: #fff; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
+.comparar__rotulo { position: absolute; top: 12px; font: 600 11px/1 var(--fuente-titulos); letter-spacing: .06em; text-transform: uppercase; padding: 6px 10px; background: #000; color: #fff; pointer-events: none; }
+.comparar__rotulo--izq { left: 12px; }
+.comparar__rotulo--der { right: 12px; }
+.comparar__control { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; touch-action: pan-y; }
+.comparar:has(.comparar__control:focus-visible) { outline: 2px solid #000; outline-offset: 3px; }
+@media (max-width: 640px) {
+  .comparar__tirador { width: 32px; height: 32px; }
+  .comparar__rotulo { top: 8px; font-size: 10px; padding: 5px 7px; }
+  .comparar__rotulo--izq { left: 8px; } .comparar__rotulo--der { right: 8px; }
+}

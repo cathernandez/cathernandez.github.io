@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function ampliables() {
     return Array.prototype.slice.call(document.querySelectorAll('main img, main .video-demo video')).filter(function (img) {
-      return !img.closest('a, button, .no-ampliar');
+      return !img.closest('a, button, .no-ampliar, .comparar');
     });
   }
 
@@ -309,3 +309,11 @@ document.addEventListener('click', function (e) {
   // al cambiar de pestaña el marco pasa de oculto a visible
   document.addEventListener('click', function () { setTimeout(ajustar, 80); });
 })();
+
+// Comparador con deslizador: mueve la línea que separa la versión anterior (izquierda) de la nueva (derecha).
+document.addEventListener('input', function (e) {
+  if (!e.target.classList || !e.target.classList.contains('comparar__control')) return;
+  var caja = e.target.closest('.comparar');
+  caja.style.setProperty('--pos', e.target.value + '%');
+  e.target.setAttribute('aria-valuetext', e.target.value + '% versión migrada');
+});
