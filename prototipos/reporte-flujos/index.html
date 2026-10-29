@@ -1,0 +1,2660 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reporte Flujos · Prototipo</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap">
+  <style>
+
+
+    :root {
+      --font-sans: 'Inter', "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --bg-app: #f5f7fb;
+      --surface: #ffffff;
+      --border: #d4d9e3;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --accent: #016085;
+      --shadow-card: 0 20px 40px -28px rgba(15, 23, 42, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      background: var(--bg-app);
+      color: var(--text);
+    }
+    button, input { font: inherit; }
+
+    .browser {
+      min-height: 100vh;
+      background: var(--bg-app);
+    }
+
+    .app {
+      min-height: 100vh;
+      position: relative;
+      background: var(--bg-app);
+    }
+
+    .sidebar__item svg,
+    .crumb svg,
+    .button svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      height: 100vh;
+      padding: 4px 0;
+      background: #fff;
+      border-radius: 0 12px 12px 0;
+    }
+
+    .sidebar__top,
+    .sidebar__bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .sidebar__bottom { margin-top: auto; }
+
+
+    .sidebar__separator {
+      display: block;
+      width: 38px;
+      height: 1px;
+      margin: 16px auto;
+      background: #e5e7eb;
+    }
+
+    .sidebar__stack {
+      display: grid;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .sidebar__top .sidebar__stack {
+      margin-top: 16px;
+    }
+
+    .sidebar__stack--single { gap: 0; }
+    .sidebar__stack--plain .sidebar__item::after { display: none; }
+
+    .sidebar__item {
+      width: 38px;
+      height: 34px;
+      margin: 0 auto;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #1f2a37;
+      padding: 0;
+      position: relative;
+    }
+
+    .sidebar__item img {
+      width: 24px;
+      height: 24px;
+      display: block;
+      object-fit: contain;
+    }
+
+    .sidebar__stack .sidebar__item:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -8px;
+      width: 38px;
+      height: 1px;
+      background: #e5e7eb;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .page {
+      min-width: 0;
+      margin-left: 64px;
+      padding: 18px 18px 22px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .crumb {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0 12px;
+      color: #4b5563;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    .crumb__current { color: var(--text); }
+
+    .toolbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .toolbar-date-picker {
+      justify-self: start;
+      width: 100%;
+      max-width: 325px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      position: relative;
+    }
+
+    .toolbar-date-picker__input {
+      width: 100%;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text-muted);
+      text-align: left;
+    }
+
+    .toolbar-date-picker__input svg {
+      width: 18px;
+      height: 18px;
+      flex: none;
+      stroke: none;
+      fill: currentColor;
+      color: #9ca3af;
+    }
+
+    .toolbar-date-picker__label {
+      color: #374151;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.25;
+      white-space: nowrap;
+    }
+
+    .toolbar-date-picker__popover {
+      position: absolute;
+      top: 46px;
+      left: 0;
+      width: 472px;
+      max-width: min(472px, calc(100vw - 32px));
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(0);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 50;
+    }
+
+    .toolbar-date-picker[data-open="true"] .toolbar-date-picker__popover {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .calendar-popover {
+      width: 100%;
+      height: 348px;
+      display: flex;
+      overflow: hidden;
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+      border: 1px solid #e5e7eb;
+    }
+
+    .calendar-popover__shortcuts {
+      width: 160px;
+      padding: 16px 0 16px 16px;
+      border-right: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      color: #2d3748;
+      font-size: 14px;
+      font-weight: 400;
+    }
+
+    .calendar-popover__shortcut {
+      height: 32px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+      line-height: 1.5;
+    }
+
+    .calendar-popover__shortcut:hover,
+    .calendar-popover__shortcut[aria-pressed="true"] {
+      color: #016085;
+      font-weight: 500;
+    }
+
+    .calendar-popover__main {
+      width: 312px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .calendar-popover__main-inner {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
+      padding: 22px 25px 0;
+      gap: 16px;
+    }
+
+    .calendar-popover__heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .calendar-popover__month {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      height: 24px;
+      padding: 10px 8px;
+      border-radius: 6px;
+      background: transparent;
+      border: 0;
+      color: #2d3748;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .calendar-popover__month svg,
+    .calendar-popover__nav svg {
+      width: 12px;
+      height: 12px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex: none;
+    }
+
+    .calendar-popover__nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .calendar-popover__nav-button {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: #2d3748;
+      cursor: pointer;
+    }
+
+    .calendar-popover__nav-button:hover {
+      background: #f3f4f6;
+    }
+
+    .calendar-popover__weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0;
+      color: #718096;
+      font-size: 12px;
+      font-weight: 500;
+      text-align: center;
+      padding-left: 8px;
+      padding-right: 0;
+    }
+
+    .calendar-popover__weekdays span {
+      display: grid;
+      place-items: center;
+      height: 24px;
+    }
+
+    .calendar-popover__grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0;
+      align-items: center;
+      justify-items: center;
+      row-gap: 0;
+      padding-left: 8px;
+      padding-bottom: 16px;
+    }
+
+    .calendar-popover__cell {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #2d3748;
+      border-radius: 9999px;
+      font-size: 14px;
+      line-height: 1.5;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+
+    .calendar-popover__cell--empty {
+      cursor: default;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .calendar-popover__cell--muted {
+      color: #718096;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .calendar-popover__cell--range-mid {
+      background: #ccecf8;
+      border-radius: 0;
+    }
+
+    .calendar-popover__cell--range-start {
+      background: #016085;
+      color: #fff;
+      border-top-left-radius: 9999px;
+      border-bottom-left-radius: 9999px;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    .calendar-popover__cell--range-end {
+      background: #016085;
+      color: #fff;
+      border-top-right-radius: 9999px;
+      border-bottom-right-radius: 9999px;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    .calendar-popover__footer {
+      height: 63px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 26px 23px;
+      background: #fff;
+    }
+
+    .calendar-popover__footer-button {
+      min-width: 80px;
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.5;
+      cursor: pointer;
+    }
+
+    .calendar-popover__footer-button--secondary {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      color: #1f2a37;
+    }
+
+    .calendar-popover__footer-button--primary {
+      background: #016085;
+      border: 1px solid #016085;
+      color: #fff;
+      padding: 0 16px;
+    }
+
+    .calendar-popover__footer-button:hover {
+      filter: brightness(0.98);
+    }
+
+    .toolbar__right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: flex-start;
+      gap: 3px;
+      margin-left: auto;
+      flex-wrap: nowrap;
+    }
+
+    .toolbar-date-picker__days {
+      display: flex;
+      width: 100%;
+      height: 29px;
+      margin-top: 2px;
+    }
+
+    .toolbar-date-picker__day {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 17px;
+      border: 1px solid var(--border);
+      border-right-width: 0;
+      background: #fff;
+      color: #111928;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.5;
+      cursor: pointer;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .toolbar-date-picker__day:first-child {
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+      padding-left: 16px;
+      padding-right: 18px;
+    }
+
+    .toolbar-date-picker__day:last-child {
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      border-right-width: 1px;
+    }
+
+    .toolbar-date-picker__day:hover,
+    .toolbar-date-picker__day[aria-pressed="true"] {
+      background: #f3f4f6;
+    }
+
+    .toolbar-meta {
+      margin-top: 2px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      width: 68px;
+      padding: 0 8px;
+      border: 0.75px solid #9ca3af;
+      border-radius: 4px;
+      background: #f9fafb;
+      color: #6b7280;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.5;
+      overflow: hidden;
+      white-space: nowrap;
+      transition:
+        width 220ms ease,
+        box-shadow 180ms ease,
+        border-color 180ms ease,
+        background-color 180ms ease;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
+    }
+
+    .toolbar-meta img {
+      width: 14px;
+      height: 14px;
+      display: block;
+      flex: none;
+    }
+
+    .toolbar-meta__icon {
+      width: 14px;
+      height: 14px;
+      display: block;
+      flex: none;
+      object-fit: contain;
+      opacity: .58;
+    }
+
+    .toolbar-meta__text {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      min-width: 0;
+      flex: 1 1 auto;
+      height: 16px;
+      overflow: visible;
+    }
+
+    .toolbar-meta__short,
+    .toolbar-meta__long {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transition:
+        opacity 140ms ease,
+        transform 180ms ease;
+    }
+
+    .toolbar-meta__short {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+      font-weight: 500;
+    }
+
+    .toolbar-meta__long {
+      opacity: 0;
+      transform: translateY(-50%) translateX(8px);
+      pointer-events: none;
+      font-weight: 500;
+    }
+
+    .toolbar-meta:hover {
+      width: min(390px, calc(100vw - 16px));
+      border-color: #6b7280;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
+      padding-inline: 10px;
+    }
+
+    .toolbar-meta:hover .toolbar-meta__short {
+      opacity: 0;
+      transform: translateY(-50%) translateX(-8px);
+    }
+
+    .toolbar-meta:hover .toolbar-meta__long {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+
+    .button {
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 4px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: var(--shadow-card);
+    }
+    .filters-panel { position: fixed; inset: 0 0 0 auto; width: min(400px, 100vw); display: flex; flex-direction: column; background: #fff; box-shadow: 0 24px 48px rgba(15,23,42,.24); opacity: 0; pointer-events: none; transform: translateX(24px); transition: opacity .22s ease, transform .28s ease; z-index: 50; }
+    .filters-panel.is-open { opacity: 1; pointer-events: auto; transform: translateX(0); }
+    .filters-panel[hidden] { display: flex; }
+    .filters-panel__header { min-height: 67px; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #d1d5db; box-sizing: border-box; }
+    .filters-panel__title { margin: 0; color: #111827; font-size: 18px; font-weight: 600; }
+    .filters-panel__close { width: 24px; height: 24px; padding: 0; display: grid; place-items: center; border: 0; background: transparent; color: #6b7280; cursor: pointer; }
+    .filters-panel__close svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+    .filters-panel__body { flex: 1; min-height: 0; overflow: auto; }
+    .filters-panel__section { width: 100%; min-height: 56px; padding: 12px 32px; display: flex; align-items: center; justify-content: space-between; border: 0; border-bottom: 1px solid #d1d5db; background: #fff; color: #111827; font: inherit; font-size: 16px; font-weight: 500; text-align: left; cursor: pointer; }
+    .filters-panel__section svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .18s ease; }
+    .filters-panel__section.is-open { background: #f9fafb; }
+    .filters-panel__section.is-open svg { transform: rotate(180deg); }
+    .filters-panel__section-content { padding: 20px 24px 24px; border-bottom: 1px solid #d1d5db; background: #f9fafb; }
+    .filters-panel__section-content[hidden] { display: none; }
+    .filters-panel__placeholder { margin: 0; color: #6b7280; font-size: 14px; }
+    .filters-panel__toggle-row { min-height: 56px; padding: 12px 32px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .filters-panel__toggle-label { color: #111827; font-size: 16px; font-weight: 500; }
+    .filters-panel__toggle { width: 80px; height: 40px; border: 0; border-radius: 999px; background: #e5e7eb; position: relative; }
+    .filters-panel__toggle::after { content: ''; position: absolute; width: 32px; height: 32px; top: 4px; left: 4px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(15,23,42,.14); }
+    .filters-panel__footer { padding: 16px; display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid #d1d5db; background: #fff; }
+    .filters-panel__action { height: 40px; padding: 0 20px; border-radius: 8px; font: inherit; font-size: 16px; font-weight: 500; cursor: pointer; }
+    .filters-panel__action--secondary { border: 1px solid #d1d5db; background: #fff; color: #374151; }
+    .filters-panel__action--primary { min-width: 112px; border: 1px solid #016085; background: #016085; color: #fff; }
+
+    .button img {
+      width: 16px;
+      height: 16px;
+      display: block;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+      flex: none;
+    }
+
+    .shell-card {
+      margin-top: 24px;
+      flex: 1 1 auto;
+      min-height: 0;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .shell-card__placeholder {
+      min-height: 100%;
+      color: #111928;
+    }
+
+    .report-content { padding-top: 16px; }
+    .report-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+    .report-tabs {
+      display: inline-flex;
+      width: 325px;
+      padding: 4px;
+      border-radius: 20px;
+      background: #e5e7eb;
+    }
+    .report-view-selector { display: flex; align-items: center; flex: 0 0 auto; }
+    .report-tab {
+      height: 32px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 18px;
+      background: transparent;
+      color: #6b7280;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-flex;
+      flex: 1 1 0;
+      align-items: center;
+      justify-content: center;
+      transition: background-color .2s ease, color .2s ease, box-shadow .2s ease, transform .2s ease;
+      transform: scale(1);
+      position: relative;
+    }
+    .report-tab img { width: 16px; height: 16px; display: block; object-fit: contain; opacity: .68; transition: opacity .2s ease; }
+    .report-tab--active img { opacity: 1; }
+    .report-tab--active { background: #fff; color: #374151; box-shadow: 0 1px 3px rgba(15,23,42,.18); transform: scale(1.015); }
+    .report-tab.is-disabled, .report-tab:disabled { color: #B8BEC7; cursor: not-allowed; opacity: 1; }
+    @property --report-tab-snake-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+    .report-tab.is-newly-enabled::after { --report-tab-snake-width: 4px; content: ''; position: absolute; z-index: 2; inset: calc(-1 * var(--report-tab-snake-width)); padding: var(--report-tab-snake-width); border-radius: 20px; background: conic-gradient(from var(--report-tab-snake-angle), transparent 0deg 300deg, #0180B2 320deg 352deg, transparent 360deg); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; filter: drop-shadow(0 0 2px rgba(1, 128, 178, .5)) drop-shadow(0 0 4px rgba(102, 194, 214, .28)); pointer-events: none; animation: report-tab-border-snake 5.6s linear infinite; animation-timing-function: linear; }
+    .report-tab.is-newly-enabled::before { --report-tab-snake-width: 5px; content: ''; position: absolute; z-index: 3; inset: calc(-1 * var(--report-tab-snake-width)); padding: var(--report-tab-snake-width); border-radius: 20px; background: conic-gradient(from var(--report-tab-snake-angle), transparent 0deg 346deg, rgba(191,230,237,.72) 349deg 353deg, transparent 356deg 360deg); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; filter: drop-shadow(0 0 2px rgba(191,230,237,.55)) drop-shadow(0 0 4px rgba(1,128,178,.32)); pointer-events: none; animation: report-tab-border-snake 5.6s linear infinite; animation-timing-function: linear; }
+    @keyframes report-tab-border-snake {
+      0% { --report-tab-snake-angle: 0turn; opacity: 0; }
+      4% { --report-tab-snake-angle: .08turn; opacity: 1; }
+      53% { --report-tab-snake-angle: 1turn; opacity: 1; }
+      55.36% { --report-tab-snake-angle: 1turn; opacity: 0; }
+      100% { --report-tab-snake-angle: 1turn; opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) { .report-tab.is-newly-enabled::after { animation: none; opacity: 1; } }
+    .report-tabs__info-wrap { position: relative; display: flex; align-items: center; margin-left: 8px; }
+    .report-tabs__info { width: 24px; height: 24px; display: block; flex: 0 0 auto; object-fit: contain; cursor: help; }
+    .report-tabs__tooltip { position: absolute; z-index: 20; left: 50%; bottom: calc(100% + 14px); width: 410px; padding: 16px 20px; transform: translateX(-50%); border: 1px solid #d1d5db; border-radius: 8px; background: #1f2937; box-shadow: 0 8px 18px rgba(15, 23, 42, .28); color: #f9fafb; font-size: 14px; line-height: 1.45; opacity: 0; pointer-events: none; visibility: hidden; transition: opacity .15s ease, visibility .15s ease; }
+    .report-tabs__tooltip::after { content: ''; position: absolute; left: 50%; bottom: -9px; width: 16px; height: 16px; transform: translateX(-50%) rotate(45deg); border-right: 1px solid #d1d5db; border-bottom: 1px solid #d1d5db; background: #1f2937; }
+    .report-tabs__tooltip p { position: relative; z-index: 1; margin: 0 0 10px; }
+    .report-tabs__tooltip p:last-child { margin-bottom: 0; }
+    .report-tabs__tooltip strong { font-weight: 700; }
+    .report-tabs__info-wrap:hover .report-tabs__tooltip, .report-tabs__info:focus + .report-tabs__tooltip { opacity: 1; visibility: visible; }
+    .report-filters { display: flex; align-items: center; gap: 12px; }
+    .report-filter { display: flex; align-items: center; gap: 8px; color: #4b5563; font-size: 14px; }
+    .report-select {
+      height: 40px;
+      min-width: 180px;
+      padding: 0 34px 0 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      background: #fff;
+      color: #374151;
+      font: inherit;
+      appearance: none;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5.25 7 9l4-3.75' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 14px 14px;
+    }
+    .report-filter:nth-child(1) .report-select,
+    .report-filter:nth-child(2) .report-select { width: 206px; }
+    .report-filter:nth-child(3) .report-select { width: 110px; min-width: 110px; }
+    .report-select--time {
+      padding: 0 34px 0 34px;
+      background-image: url("iconos-reporte/clock-outline.svg"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5.25 7 9l4-3.75' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: 12px center, right 10px center;
+      background-size: 16px 16px, 14px 14px;
+    }
+    .report-filter--indicator { position: relative; }
+    .report-filter--indicator-additional { position: relative; display: none; }
+    .indicator-dropdown { position: relative; }
+    .indicator-dropdown__trigger {
+      width: 206px;
+      height: 40px;
+      padding: 0 34px 0 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      background: #fff;
+      color: #374151;
+      font: inherit;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      position: relative;
+    }
+    .indicator-dropdown__trigger::after {
+      content: "";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      transform: translateY(-50%);
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5.25 7 9l4-3.75' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
+    .indicator-dropdown[data-open="true"] .indicator-dropdown__trigger { border-color: #016085; }
+    .indicator-dropdown__menu {
+      position: absolute;
+      z-index: 10;
+      top: calc(100% + 4px);
+      left: 0;
+      width: 206px;
+      max-height: 300px;
+      padding: 6px;
+      overflow-y: auto;
+      display: none;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, .16);
+    }
+    .indicator-dropdown[data-open="true"] .indicator-dropdown__menu { display: block; }
+    .indicator-dropdown__option {
+      width: 100%;
+      min-height: 38px;
+      padding: 8px 10px;
+      border: 0;
+      background: #fff;
+      color: #1f2937;
+      font: inherit;
+      font-size: 14px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .indicator-dropdown__option:hover,
+    .indicator-dropdown__option[aria-selected="true"] { background: #f3f4f6; }
+    .indicator-dropdown--multi .indicator-dropdown__option::before {
+      content: '';
+      width: 18px;
+      height: 18px;
+      display: inline-grid;
+      place-items: center;
+      flex: none;
+      margin-right: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      background: #fff;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .indicator-dropdown--multi .indicator-dropdown__option[aria-selected="true"]::before {
+      content: '✓';
+      border-color: #016085;
+      background: #016085;
+    }
+    .indicator-dropdown--multi .indicator-dropdown__option:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      background: #f9fafb;
+    }
+    .indicator-dropdown--additional .indicator-dropdown__option::before {
+      content: ''; width: 14px; height: 14px; margin-right: 8px; border: 1px solid #9ca3af; border-radius: 3px; background: #fff; box-sizing: border-box; flex: 0 0 auto;
+    }
+    .indicator-dropdown--additional .indicator-dropdown__option[aria-selected="true"]::before { content: '✓'; display: inline-grid; place-items: center; color: #016085; font-size: 12px; font-weight: 700; }
+    .report-content.is-indicators.is-single-store-indicators .report-filter--indicator-additional { display: flex; align-items: center; gap: 8px; }
+    .group-dropdown { position: relative; }
+    .filters-panel .group-dropdown { width: 100%; }
+    .filters-panel .group-dropdown__trigger { width: 100%; font-size: 14px; }
+    .filters-panel .group-dropdown__menu { width: 100%; box-sizing: border-box; }
+    .panel-group-dropdown__search { height: 40px; width: 100%; margin-bottom: 10px; padding: 0 12px 0 38px; border: 1px solid #d1d5db; border-radius: 8px; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='7' fill='none' stroke='%236b7280' stroke-width='2'/%3E%3Cpath d='m16 16 5 5' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") 10px center / 20px 20px no-repeat; color: #374151; font: inherit; font-size: 14px; box-sizing: border-box; }
+    .panel-group-dropdown__search::placeholder { color: #6b7280; }
+    .panel-group-dropdown__clear { margin-bottom: 4px; font-weight: 500; }
+    .filters-panel__group-by { margin-bottom: 16px; }
+    .filters-panel__group-by-label { display: block; margin-bottom: 14px; color: #374151; font-size: 14px; font-weight: 500; }
+    .filters-panel__radio-options { display: flex; gap: 38px; }
+    .filters-panel__radio-option { display: inline-flex; align-items: center; gap: 8px; color: #111827; font-size: 14px; font-weight: 500; cursor: pointer; }
+    .filters-panel__radio-option input { width: 18px; height: 18px; margin: 0; accent-color: #016085; }
+    .group-dropdown__trigger {
+      width: 206px;
+      height: 40px;
+      padding: 0 34px 0 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      background: #fff;
+      color: #374151;
+      font: inherit;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer;
+      position: relative;
+    }
+    .group-dropdown__trigger::after {
+      content: "";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      transform: translateY(-50%);
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5.25 7 9l4-3.75' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
+    .group-dropdown[data-open="true"] .group-dropdown__trigger { border-color: #016085; }
+    .group-dropdown__menu {
+      position: absolute;
+      z-index: 10;
+      top: calc(100% + 4px);
+      left: 0;
+      width: 250px;
+      padding: 6px;
+      display: none;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, .16);
+    }
+    .group-dropdown[data-open="true"] .group-dropdown__menu { display: block; }
+    .group-dropdown__option {
+      width: 100%;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px;
+      border: 0;
+      background: #fff;
+      color: #1f2937;
+      font: inherit;
+      font-size: 14px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .group-dropdown__option:hover { background: #f3f4f6; }
+    .group-dropdown__checkbox {
+      width: 20px;
+      height: 20px;
+      display: grid;
+      place-items: center;
+      flex: none;
+      border: 2px solid #016085;
+      border-radius: 4px;
+      background: #016085;
+      color: #fff;
+      font-size: 15px;
+      line-height: 1;
+    }
+    .group-dropdown__option[aria-selected="false"] .group-dropdown__checkbox {
+      border: 0.5px solid #D1D5DB;
+      background: #F9FAFB;
+      color: transparent;
+    }
+    .indicator-dropdown--additional .group-dropdown__option:disabled { opacity: .45; cursor: not-allowed; background: #F9FAFB; }
+    .time-dropdown { position: relative; }
+    .time-dropdown__trigger {
+      width: 126px;
+      height: 40px;
+      padding: 0 28px 0 34px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      background: #fff url("iconos-reporte/clock-outline.svg") 12px center / 16px 16px no-repeat;
+      color: #374151;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      position: relative;
+    }
+    .time-dropdown__trigger::after {
+      content: "";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      transform: translateY(-50%);
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3 5.25 7 9l4-3.75' fill='none' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
+    .time-dropdown[data-open="true"] .time-dropdown__trigger { border-color: #016085; }
+    .time-dropdown__menu {
+      position: absolute;
+      z-index: 10;
+      top: calc(100% + 4px);
+      right: 0;
+      width: 150px;
+      padding: 6px;
+      display: none;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, .16);
+    }
+    .time-dropdown[data-open="true"] .time-dropdown__menu { display: block; }
+    .time-dropdown__option {
+      width: 100%;
+      min-height: 38px;
+      padding: 8px 10px;
+      border: 0;
+      background: #fff;
+      color: #1f2937;
+      font: inherit;
+      font-size: 14px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .time-dropdown__option:hover,
+    .time-dropdown__option[aria-selected="true"] { background: #f3f4f6; }
+    .report-grid { display: grid; grid-template-columns: 325px minmax(0, 1fr); gap: 16px; }
+    .report-panel { border: 1px solid #d1d5db; border-radius: 4px; background: #fff; overflow: hidden; }
+    .report-grid > .report-panel:first-child { border: 0; }
+    .summary-table { width: 100%; height: 458px; table-layout: fixed; border-collapse: collapse; font-size: 14px; }
+    .summary-table th:first-child, .summary-table td:first-child { width: 130px; }
+    .summary-table th:nth-child(2), .summary-table td:nth-child(2),
+    .summary-table th:nth-child(3), .summary-table td:nth-child(3) { width: auto; }
+    .summary-table th, .summary-table td { height: 41px; padding: 0 10px; border: 1px solid #d1d5db; text-align: right; }
+    .summary-table tbody td:nth-child(3) { padding-right: 16px; }
+    .summary-table th:first-child, .summary-table td:first-child { text-align: left; }
+    .summary-table thead th { height: 40px; background: #f9fafb; color: #6b7280; font-weight: 600; }
+    .summary-table tbody tr.summary-total td { height: 43.67px; }
+    .summary-table thead th:nth-child(2),
+    .summary-table thead th:nth-child(3) { text-align: center; }
+    .summary-table .summary-total td { background: #e5e7eb; font-weight: 700; }
+    .summary-table .positive { background: #d8f4e8; }
+    .summary-table .negative { background: #fde2e2; }
+    .summary-table tbody tr:not(.summary-total) td:first-child { background: #F9FAFB; }
+    .summary-table tbody tr:not(.summary-total) td:first-child { color: #6b7280; font-weight: 600; }
+    .chart-panel { min-width: 0; padding: 28px 20px 12px; overflow-x: auto; }
+    .chart-title { margin: 0 0 34px; font-size: 18px; font-weight: 500; }
+    .chart-legend { display: flex; flex-wrap: nowrap; align-items: center; gap: 14px; margin-bottom: 34px; color: #737b8b; font-size: 14px; overflow: hidden; white-space: nowrap; }
+    .chart-legend.chart-legend--indicators { column-gap: 20px; }
+    .legend-item { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 5px; white-space: nowrap; }
+    .legend-dot { width: 15px; height: 15px; border-radius: 4px; }
+    .legend-more { flex: 0 0 auto; border: 0; padding: 0; background: transparent; color: #737b8b; font: inherit; white-space: nowrap; cursor: pointer; }
+    .time-dropdown.is-disabled { opacity: .55; pointer-events: none; }
+    .chart { width: 100%; max-width: 100%; min-width: 0; height: 310px; display: block; box-sizing: border-box; }
+    .empty-state { min-height: 430px; border: 2px dashed #d1d5db; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; text-align: center; color: #4b5563; }
+    .detail-empty-state { width: 100%; height: 100%; min-height: 0; box-sizing: border-box; }
+    .chart-empty-state { flex: 1; min-height: 0; gap: 0; border: 0; border-radius: 12px; background-color: #FFFFFF; background-image: linear-gradient(90deg, #D1D5DB 50%, transparent 0), linear-gradient(90deg, #D1D5DB 50%, transparent 0), linear-gradient(0deg, #D1D5DB 50%, transparent 0), linear-gradient(0deg, #D1D5DB 50%, transparent 0); background-position: top, bottom, left, right; background-size: 16px 2px, 16px 2px, 2px 16px, 2px 16px; background-repeat: repeat-x, repeat-x, repeat-y, repeat-y; box-sizing: border-box; }
+    .chart-empty-state .empty-state__icon { margin-bottom: 24px; }
+    .empty-state.chart-empty-state h2 { margin-bottom: 16px; }
+    .detail-empty-state { gap: 0; border: 0; border-radius: 12px; background-color: transparent; background-image: linear-gradient(90deg, #D1D5DB 50%, transparent 0), linear-gradient(90deg, #D1D5DB 50%, transparent 0), linear-gradient(0deg, #D1D5DB 50%, transparent 0), linear-gradient(0deg, #D1D5DB 50%, transparent 0); background-position: top, bottom, left, right; background-size: 16px 2px, 16px 2px, 2px 16px, 2px 16px; background-repeat: repeat-x, repeat-x, repeat-y, repeat-y; }
+    .detail-empty-state .empty-state__icon { margin-bottom: 24px; }
+    .empty-state.detail-empty-state h2 { margin-bottom: 16px; }
+    .empty-state__icon { width: 64px; height: 64px; margin-bottom: 0; border-radius: 50%; background: #f3f4f6; display: grid; place-items: center; color: #d1d5db; }
+    .empty-state__icon img { width: 30px; height: 30px; opacity: .55; }
+    .empty-state-icon-img { width: 30px; height: 30px; display: block; opacity: 1; filter: grayscale(1) brightness(.78); object-fit: contain; }
+    .empty-state__table-icon { width: 28px; height: 24px; border: 3px solid #d1d5db; border-radius: 5px; position: relative; }
+    .empty-state__table-icon::before, .empty-state__table-icon::after { content: ''; position: absolute; background: #d1d5db; }
+    .empty-state__table-icon::before { width: 3px; height: 100%; left: 9px; top: 0; box-shadow: 9px 0 #d1d5db; }
+    .empty-state__table-icon::after { height: 3px; width: 100%; left: 0; top: 9px; }
+    .empty-state h2 { margin: 0; color: #374151; font-size: 16px; font-weight: 700; }
+    .empty-state p { width: 500px; max-width: 100%; margin: 0; font-size: 14px; line-height: 1.45; }
+    .report-content.is-indicators .chart-panel { padding: 0; overflow: hidden; border: 0; background: transparent; }
+    .report-content.is-indicators .detail-panel { border: 0; }
+    .report-content.is-indicators.is-single-store-indicators .chart-panel { padding: 28px 20px 12px; overflow-x: auto; border: 1px solid #d1d5db; background: #fff; }
+    .report-content.is-indicators.is-single-store-indicators .report-filter--groups { display: none; }
+    .report-content.is-indicators.is-single-store-indicators .chart-panel > *,
+    .report-content.is-indicators.is-single-store-indicators .detail-panel > * { display: block; }
+    .report-content.is-indicators.is-single-store-indicators .chart-panel .chart-legend { display: flex; }
+    .report-content.is-indicators.is-single-store-indicators .detail-footer { display: flex; }
+    .report-content.is-indicators.is-single-store-indicators .detail-footer { align-items: center; justify-content: space-between; gap: 16px; background: #f9fafb; }
+    .detail-table .indicator-title-row { display: none; }
+    .report-content:not(.is-indicators) .detail-table .indicator-title-row { display: table-row; }
+    .detail-table .indicator-title-row th { height: 48px; padding: 0 28px; background: #fff; color: #374151; font-size: 18px; font-weight: 600; text-align: left; }
+    .report-content.is-indicators.is-single-store-indicators .detail-table .indicator-title-row { display: table-row; }
+    .detail-panel { margin-top: 14px; border: 0; box-shadow: none; box-sizing: border-box; }
+    .detail-table-scroll { overflow-x: auto; }
+    .detail-table { width: 100%; min-width: max-content; table-layout: fixed; border-collapse: collapse; border: 1px solid #d1d5db; font-size: 14px; }
+    .detail-table th, .detail-table td { min-width: 180px; box-sizing: border-box; }
+    .detail-table th:first-child, .detail-table td:first-child { width: 110px; min-width: 110px; position: sticky; left: 0; z-index: 2; background: #fff; }
+    .detail-table th:first-child { background: #f9fafb; }
+    .detail-table th:last-child, .detail-table td:last-child { width: 110px; min-width: 110px; }
+    .detail-table th, .detail-table td { height: 52px; padding: 0 18px; border-right: 1px solid #d1d5db; border-bottom: 1px solid #d1d5db; text-align: left; }
+    .detail-table th:last-child, .detail-table td:last-child { text-align: right; }
+    .detail-table th { height: 48px; background: #f9fafb; color: #6b7280; font-weight: 600; text-align: center; }
+    .detail-table th:first-child { text-align: left; }
+    .detail-table th:last-child { text-align: right; }
+    .detail-table thead tr#details-table-head th:first-child,
+    .detail-table tbody td:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .detail-table tbody td:not(:first-child) { text-align: right; }
+    .detail-table th:last-child, .detail-table td:last-child { border-right: 0; }
+    .detail-table thead th:last-child { background: #F3F4F6; color: #1F2A37; }
+    .detail-table tbody td:last-child { background: #f3f4f6; }
+    .report-content:not(.is-indicators) .detail-table th,
+    .report-content:not(.is-indicators) .detail-table td { width: 103px; min-width: 103px; }
+    .report-content:not(.is-indicators) .detail-table thead tr#details-table-head th:first-child,
+    .report-content:not(.is-indicators) .detail-table tbody td:first-child { width: 160px; min-width: 160px; max-width: 160px; }
+    .report-content:not(.is-indicators) .detail-table { width: max-content; min-width: 100%; }
+    .detail-table .detail-total td { background: #f3f4f6; font-weight: 700; }
+    .detail-table .indicator-title-row th { background: #f9fafb !important; border: 1px solid #D1D5DB; text-align: left; font-size: 14px; font-weight: 500; }
+    .report-content.is-indicators.is-single-store-indicators .detail-table tbody td:last-child { background: #fff; }
+    .report-content.is-indicators.is-single-store-indicators .detail-table tbody tr.detail-total td { background: #f3f4f6; }
+    .report-content.is-indicators.is-single-store-indicators .detail-table thead tr#details-table-head th:last-child { background: #f9fafb; color: #6b7280; }
+    .report-content.is-indicators.is-single-store-indicators .detail-table thead tr#details-table-head th { text-align: center; }
+    .report-content.is-indicators.is-single-store-indicators .detail-table th:first-child,
+    .report-content.is-indicators.is-single-store-indicators .detail-table td:first-child { border-left: 1px solid #d1d5db; }
+    .report-content.is-indicators.is-single-store-indicators .detail-table th:last-child,
+    .report-content.is-indicators.is-single-store-indicators .detail-table td:last-child { border-right: 1px solid #d1d5db; }
+    .detail-footer { width: 100%; min-height: 72px; box-sizing: border-box; display: flex !important; flex-direction: row; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 18px; background: #f9fafb !important; border-width: 0 1px 1px; border-style: solid; border-color: #d1d5db; }
+    .report-content.is-indicators.is-single-store-indicators .detail-footer { border-width: 0 1px 1px; border-style: solid; border-color: #d1d5db; }
+    .report-content.is-indicators:not(.is-single-store-indicators) .detail-footer { display: none !important; }
+    .pagination { display: inline-flex; border: 1px solid #d1d5db; border-radius: 4px; overflow: hidden; }
+    .pagination button { width: 31px; height: 33px; border: 0; border-right: 1px solid #d1d5db; background: #fff; color: #6b7280; font: inherit; font-size: 14px; }
+    .pagination button:first-child, .pagination button:last-child { width: 44px; height: 33px; font-size: 28px; font-weight: 400; }
+    .pagination button:last-child { border-right: 0; }
+    .pagination .active { background: #d8eff9; color: #016085; }
+    .pagination button img { width: 16px; height: 16px; display: block; margin: auto; object-fit: contain; }
+    .download { height: 40px; width: max-content; min-width: 136px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 18px; border: 0; border-radius: 4px; background: #016085; color: #fff; font: inherit; font-size: 14px; font-weight: 500; white-space: nowrap; }
+    .download img { width: 16px; height: 16px; min-width: 16px; min-height: 16px; display: block; object-fit: contain; filter: brightness(0) invert(1); }
+
+    @media (max-width: 1050px) {
+      .report-controls { align-items: flex-start; flex-direction: column; }
+      .report-filters { flex-wrap: wrap; }
+      .report-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 860px) {
+      .sidebar { display: none; }
+      .page {
+        margin-left: 0;
+        padding: 16px;
+        min-height: 100vh;
+      }
+      .toolbar {
+        align-items: stretch;
+      }
+      .toolbar__right {
+        width: 100%;
+        justify-content: flex-end;
+        align-items: flex-end;
+      }
+      .button { justify-content: center; }
+      .shell-card,
+      .shell-card__placeholder {
+        min-height: calc(100vh - 210px);
+      }
+      .toolbar-date-picker__popover {
+        width: min(472px, calc(100vw - 32px));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="browser">
+    <div class="app">
+      <aside class="sidebar" aria-label="Navegación lateral">
+        <div class="sidebar__top">
+          <div class="sidebar__stack">
+            <button class="sidebar__item" aria-label="Reportes">
+              <img src="iconos-menu/line-chart-up-02.svg" alt="" aria-hidden="true">
+            </button>
+            <button class="sidebar__item" aria-label="Objetivos">
+              <img src="iconos-menu/target-04.svg" alt="" aria-hidden="true">
+            </button>
+            <button class="sidebar__item" aria-label="Presentación">
+              <img src="iconos-menu/presentation-chart-03.svg" alt="" aria-hidden="true">
+            </button>
+            <button class="sidebar__item" aria-label="Descargas">
+              <img src="iconos-menu/download-01.svg" alt="" aria-hidden="true">
+            </button>
+          </div>
+        </div>
+        <div class="sidebar__bottom">
+          <div class="sidebar__separator"></div>
+          <div class="sidebar__stack sidebar__stack--plain">
+            <button class="sidebar__item" aria-label="Inicio">
+              <img src="iconos-menu/home-smile.svg" alt="" aria-hidden="true">
+            </button>
+            <button class="sidebar__item" aria-label="Noticias">
+              <img src="iconos-menu/newspapper-outline.svg" alt="" aria-hidden="true">
+            </button>
+            <button class="sidebar__item" aria-label="Ayuda">
+              <img src="iconos-menu/message-question-circle.svg" alt="" aria-hidden="true">
+            </button>
+            <button class="sidebar__item" aria-label="Usuarios">
+              <img src="iconos-menu/settings-02.svg" alt="" aria-hidden="true">
+            </button>
+            <button class="sidebar__item" aria-label="Cerrar sesión">
+              <img src="iconos-menu/log-out-02.svg" alt="" aria-hidden="true">
+            </button>
+          </div>
+          <div class="sidebar__separator"></div>
+          <div class="sidebar__stack sidebar__stack--single">
+            <button class="sidebar__item" aria-label="Contraer">
+              <img src="iconos-menu/chevron-right-double.svg" alt="" aria-hidden="true">
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="page">
+        <nav class="crumb" aria-label="Breadcrumb">
+          <img src="iconos-menu/line-chart-up-02.svg" alt="" aria-hidden="true" width="18" height="18">
+          <span>Reportes</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+          <span class="crumb__current">Flujos</span>
+        </nav>
+
+        <section class="toolbar" aria-label="Controles principales">
+          <div class="toolbar-date-picker" aria-label="Selector de fecha">
+            <button class="toolbar-date-picker__input" type="button" aria-label="Seleccionar rango de fechas" aria-expanded="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"></path>
+              </svg>
+              <span class="toolbar-date-picker__label">17/02/2025 - 23/07/2025</span>
+            </button>
+            <div class="toolbar-date-picker__popover" role="dialog" aria-label="Calendario de febrero de 2025" aria-hidden="true">
+              <div class="calendar-popover">
+                <aside class="calendar-popover__shortcuts" aria-label="Atajos de fecha">
+                  <button class="calendar-popover__shortcut" type="button">Hoy</button>
+                  <button class="calendar-popover__shortcut" type="button">Ayer</button>
+                  <button class="calendar-popover__shortcut" type="button">Esta semana</button>
+                  <button class="calendar-popover__shortcut" type="button">La semana pasada</button>
+                  <button class="calendar-popover__shortcut" type="button">Este mes</button>
+                  <button class="calendar-popover__shortcut" type="button">El mes pasado</button>
+                </aside>
+
+                <section class="calendar-popover__main" aria-label="Calendario">
+                  <div class="calendar-popover__main-inner">
+                    <div class="calendar-popover__heading">
+                      <button class="calendar-popover__month" type="button" aria-label="Cambiar mes">
+                        <span>Febrero 2025</span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="m6 9 6 6 6-6"></path>
+                        </svg>
+                      </button>
+                      <div class="calendar-popover__nav" aria-label="Navegación de mes">
+                        <button class="calendar-popover__nav-button" type="button" aria-label="Mes anterior">
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m15 18-6-6 6-6"></path>
+                          </svg>
+                        </button>
+                        <button class="calendar-popover__nav-button" type="button" aria-label="Mes siguiente">
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m9 6 6 6-6 6"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="calendar-popover__weekdays" aria-hidden="true">
+                      <span>Lun</span>
+                      <span>Mar</span>
+                      <span>Mié</span>
+                      <span>Jue</span>
+                      <span>Vie</span>
+                      <span>Sáb</span>
+                      <span>Dom</span>
+                    </div>
+
+                    <div class="calendar-popover__grid" aria-label="Días de febrero de 2025">
+                      <span class="calendar-popover__cell calendar-popover__cell--empty" aria-hidden="true"></span>
+                      <span class="calendar-popover__cell calendar-popover__cell--empty" aria-hidden="true"></span>
+                      <span class="calendar-popover__cell calendar-popover__cell--empty" aria-hidden="true"></span>
+                      <span class="calendar-popover__cell calendar-popover__cell--empty" aria-hidden="true"></span>
+                      <span class="calendar-popover__cell calendar-popover__cell--empty" aria-hidden="true"></span>
+                      <button class="calendar-popover__cell" type="button">1</button>
+                      <button class="calendar-popover__cell" type="button">2</button>
+
+                      <button class="calendar-popover__cell" type="button">3</button>
+                      <button class="calendar-popover__cell" type="button">4</button>
+                      <button class="calendar-popover__cell" type="button">5</button>
+                      <button class="calendar-popover__cell" type="button">6</button>
+                      <button class="calendar-popover__cell" type="button">7</button>
+                      <button class="calendar-popover__cell" type="button">8</button>
+                      <button class="calendar-popover__cell" type="button">9</button>
+
+                      <button class="calendar-popover__cell" type="button">10</button>
+                      <button class="calendar-popover__cell" type="button">11</button>
+                      <button class="calendar-popover__cell" type="button">12</button>
+                      <button class="calendar-popover__cell" type="button">13</button>
+                      <button class="calendar-popover__cell" type="button">14</button>
+                      <button class="calendar-popover__cell" type="button">15</button>
+                      <button class="calendar-popover__cell" type="button">16</button>
+
+                      <button class="calendar-popover__cell calendar-popover__cell--range-start" type="button">17</button>
+                      <button class="calendar-popover__cell calendar-popover__cell--range-mid" type="button">18</button>
+                      <button class="calendar-popover__cell calendar-popover__cell--range-mid" type="button">19</button>
+                      <button class="calendar-popover__cell calendar-popover__cell--range-mid" type="button">20</button>
+                      <button class="calendar-popover__cell calendar-popover__cell--range-mid" type="button">21</button>
+                      <button class="calendar-popover__cell calendar-popover__cell--range-mid" type="button">22</button>
+                      <button class="calendar-popover__cell calendar-popover__cell--range-end" type="button">23</button>
+
+                      <button class="calendar-popover__cell" type="button">24</button>
+                      <button class="calendar-popover__cell" type="button">25</button>
+                      <button class="calendar-popover__cell" type="button">26</button>
+                      <button class="calendar-popover__cell" type="button">27</button>
+                      <button class="calendar-popover__cell" type="button">28</button>
+                      <span class="calendar-popover__cell calendar-popover__cell--empty" aria-hidden="true"></span>
+                      <span class="calendar-popover__cell calendar-popover__cell--empty" aria-hidden="true"></span>
+                    </div>
+                  </div>
+
+                  <div class="calendar-popover__footer">
+                    <button class="calendar-popover__footer-button calendar-popover__footer-button--secondary" type="button" data-action="close-date-picker">Cancelar</button>
+                    <button class="calendar-popover__footer-button calendar-popover__footer-button--primary" type="button" data-action="apply-date-picker">Aplicar</button>
+                  </div>
+                </section>
+              </div>
+            </div>
+            <div class="toolbar-date-picker__days" role="group" aria-label="Días de la semana">
+              <button class="toolbar-date-picker__day" type="button" aria-pressed="false">Lun</button>
+              <button class="toolbar-date-picker__day" type="button" aria-pressed="false">Mar</button>
+              <button class="toolbar-date-picker__day" type="button" aria-pressed="false">Mie</button>
+              <button class="toolbar-date-picker__day" type="button" aria-pressed="false">Jue</button>
+              <button class="toolbar-date-picker__day" type="button" aria-pressed="false">Vie</button>
+              <button class="toolbar-date-picker__day" type="button" aria-pressed="false">Sab</button>
+              <button class="toolbar-date-picker__day" type="button" aria-pressed="false">Dom</button>
+            </div>
+          </div>
+
+          <div class="toolbar__right">
+            <button class="button" id="filters-button" type="button" aria-label="Filtros" aria-haspopup="dialog" aria-expanded="false" aria-controls="filters-panel">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M7 12h10"></path><path d="M10 17h4"></path></svg>
+              <span>Filtros</span>
+            </button>
+
+            <aside class="filters-panel" id="filters-panel" role="dialog" aria-modal="false" aria-labelledby="filters-panel-title" hidden>
+              <header class="filters-panel__header">
+                <h2 class="filters-panel__title" id="filters-panel-title">Filtros</h2>
+                <button class="filters-panel__close" id="filters-panel-close" type="button" aria-label="Cerrar filtros"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+              </header>
+              <div class="filters-panel__body">
+                <button class="filters-panel__section" type="button" aria-expanded="false"><span>Grupos</span><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+                <div class="filters-panel__section-content" hidden>
+                  <div class="group-dropdown panel-group-dropdown" data-open="false">
+                    <button class="group-dropdown__trigger" type="button" aria-haspopup="listbox" aria-expanded="false">Zona Norte Chile, Zona Centro...</button>
+                    <div class="group-dropdown__menu" role="listbox" aria-label="Grupos" aria-multiselectable="true">
+                      <input class="panel-group-dropdown__search" type="search" placeholder="Elige grupos" aria-label="Buscar grupos">
+                      <button class="group-dropdown__option panel-group-dropdown__clear" type="button" role="option" aria-selected="true"><span class="group-dropdown__checkbox">✓</span><span>Deseleccionar todo</span></button>
+                      <button class="group-dropdown__option" type="button" role="option" aria-selected="true" data-series="Zona Norte Chile"><span class="group-dropdown__checkbox">✓</span><span>Zona Norte Chile</span></button>
+                      <button class="group-dropdown__option" type="button" role="option" aria-selected="true" data-series="Zona Centro Chile"><span class="group-dropdown__checkbox">✓</span><span>Zona Centro Chile</span></button>
+                      <button class="group-dropdown__option" type="button" role="option" aria-selected="true" data-series="Zona Sur Chile"><span class="group-dropdown__checkbox">✓</span><span>Zona Sur Chile</span></button>
+                      <button class="group-dropdown__option" type="button" role="option" aria-selected="true" data-series="Santiago Alto Tráfico"><span class="group-dropdown__checkbox">✓</span><span>Santiago Alto Tráfico</span></button>
+                      <button class="group-dropdown__option" type="button" role="option" aria-selected="true" data-series="Santiago Sector Oriente"><span class="group-dropdown__checkbox">✓</span><span>Santiago Sector Oriente</span></button>
+                    </div>
+                  </div>
+                </div>
+                <button class="filters-panel__section" type="button" aria-expanded="false"><span>Tiendas</span><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+                <div class="filters-panel__section-content" hidden>
+                  <div class="filters-panel__group-by">
+                    <span class="filters-panel__group-by-label">Agrupar por:</span>
+                    <div class="filters-panel__radio-options" role="radiogroup" aria-label="Agrupar por">
+                      <label class="filters-panel__radio-option"><input type="radio" name="store-grouping" value="tiendas" checked>Tiendas</label>
+                      <label class="filters-panel__radio-option"><input type="radio" name="store-grouping" value="subtiendas">Subtiendas</label>
+                    </div>
+                  </div>
+                  <div class="group-dropdown panel-store-dropdown" data-open="false">
+                    <button class="group-dropdown__trigger" type="button" aria-haspopup="listbox" aria-expanded="false">Elige tiendas</button>
+                    <div class="group-dropdown__menu" role="listbox" aria-label="Tiendas" aria-multiselectable="true">
+                      <input class="panel-group-dropdown__search" type="search" placeholder="Elige tiendas" aria-label="Buscar tiendas">
+                      <button class="group-dropdown__option panel-store-dropdown__clear" type="button" role="option" aria-selected="false"><span class="group-dropdown__checkbox"></span><span>Seleccionar todo</span></button>
+                      <button class="group-dropdown__option" type="button" role="option" aria-selected="false" data-store="Tienda Mall Plaza Norte"><span class="group-dropdown__checkbox"></span><span>Tienda Mall Plaza Norte</span></button>
+                      <button class="group-dropdown__option" type="button" role="option" aria-selected="false" data-store="Tienda Costanera Santiago"><span class="group-dropdown__checkbox"></span><span>Tienda Costanera Santiago</span></button>
+                      <button class="group-dropdown__option" type="button" role="option" aria-selected="false" data-store="Local Parque Arauco"><span class="group-dropdown__checkbox"></span><span>Local Parque Arauco</span></button>
+                      <button class="group-dropdown__option" type="button" role="option" aria-selected="false" data-store="Sucursal Alto Las Condes"><span class="group-dropdown__checkbox"></span><span>Sucursal Alto Las Condes</span></button>
+                      <button class="group-dropdown__option" type="button" role="option" aria-selected="false" data-store="Tienda Plaza Vespucio"><span class="group-dropdown__checkbox"></span><span>Tienda Plaza Vespucio</span></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <footer class="filters-panel__footer"><button class="filters-panel__action filters-panel__action--secondary" type="button">Restablecer filtros</button><button class="filters-panel__action filters-panel__action--primary" type="button">Aplicar</button></footer>
+            </aside>
+
+            <div class="toolbar-meta" aria-label="Modo Recuperación activado. 100% de registros estimados.">
+              <img class="toolbar-meta__icon" src="iconos-reporte/icon-outline.svg" alt="" aria-hidden="true">
+              <span class="toolbar-meta__text">
+                <span class="toolbar-meta__short">100%</span>
+                <span class="toolbar-meta__long">Modo Recuperación activado. 100% de registros estimados.</span>
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section class="shell-card" aria-label="Área de contenido">
+          <div class="report-content">
+            <div class="report-controls">
+              <div class="report-view-selector">
+                <div class="report-tabs" role="tablist" aria-label="Vista del reporte">
+                  <button class="report-tab report-tab--active" type="button">Vista General</button>
+                  <button class="report-tab" type="button">Vista Indicadores</button>
+                </div>
+                <span class="report-tabs__info-wrap">
+                  <img class="report-tabs__info" src="iconos-reporte/info-circle.svg" alt="Información sobre los tipos de vista" tabindex="0" aria-describedby="view-types-tooltip">
+                  <span class="report-tabs__tooltip" id="view-types-tooltip" role="tooltip">
+                    <p>• <strong>Vista General:</strong> Compara la evolución de un indicador entre varios grupos o tiendas.</p>
+                    <p>• <strong>Vista Indicadores:</strong> Compara hasta tres indicadores de una sola tienda en el tiempo. Se habilita al seleccionar una única tienda en Filtros.</p>
+                  </span>
+                </span>
+              </div>
+              <div class="report-filters">
+                <div class="report-filter report-filter--indicator">
+                  <span>Indicador base</span>
+                  <div class="indicator-dropdown" data-open="false">
+                    <button class="indicator-dropdown__trigger" type="button" aria-haspopup="listbox" aria-expanded="false">Entradas</button>
+                    <div class="indicator-dropdown__menu" role="listbox" aria-label="Indicador base">
+                      <button class="indicator-dropdown__option" type="button" role="option">Ventas</button>
+                      <button class="indicator-dropdown__option" type="button" role="option">Ticket Promedio</button>
+                      <button class="indicator-dropdown__option" type="button" role="option">Precio Promedio</button>
+                      <button class="indicator-dropdown__option" type="button" role="option" aria-selected="true">Entradas</button>
+                      <button class="indicator-dropdown__option" type="button" role="option">Tickets</button>
+                      <button class="indicator-dropdown__option" type="button" role="option">Artículos</button>
+                      <button class="indicator-dropdown__option" type="button" role="option">Tráfico Externo</button>
+                      <button class="indicator-dropdown__option" type="button" role="option">Artículos por Ticket</button>
+                      <button class="indicator-dropdown__option" type="button" role="option">Tasa de Conversión</button>
+                      <button class="indicator-dropdown__option" type="button" role="option">Tasa de Captación</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="report-filter report-filter--indicator-additional">
+                  <span>Indicadores adicionales</span>
+                  <div class="group-dropdown indicator-dropdown--additional" data-open="false">
+                    <button class="group-dropdown__trigger" type="button" aria-haspopup="listbox" aria-expanded="false">Ventas, Ticket Promedio</button>
+                    <div class="group-dropdown__menu" role="listbox" aria-label="Indicadores adicionales" aria-multiselectable="true">
+                      <button class="group-dropdown__option" type="button" role="option"><span class="group-dropdown__checkbox"></span><span>Ventas</span></button>
+                      <button class="group-dropdown__option" type="button" role="option"><span class="group-dropdown__checkbox"></span><span>Ticket Promedio</span></button>
+                      <button class="group-dropdown__option" type="button" role="option"><span class="group-dropdown__checkbox"></span><span>Precio Promedio</span></button>
+                      <button class="group-dropdown__option" type="button" role="option"><span class="group-dropdown__checkbox"></span><span>Entradas</span></button>
+                      <button class="group-dropdown__option" type="button" role="option"><span class="group-dropdown__checkbox"></span><span>Tickets</span></button>
+                      <button class="group-dropdown__option" type="button" role="option"><span class="group-dropdown__checkbox"></span><span>Artículos</span></button>
+                      <button class="group-dropdown__option" type="button" role="option"><span class="group-dropdown__checkbox"></span><span>Tráfico Externo</span></button>
+                      <button class="group-dropdown__option" type="button" role="option"><span class="group-dropdown__checkbox"></span><span>Artículos por Ticket</span></button>
+                      <button class="group-dropdown__option" type="button" role="option"><span class="group-dropdown__checkbox"></span><span>Tasa de Conversión</span></button>
+                      <button class="group-dropdown__option" type="button" role="option"><span class="group-dropdown__checkbox"></span><span>Tasa de Captación</span></button>
+                    </div>
+                  </div>
+                </div>
+                <div class="report-filter report-filter--groups">
+                  <span>Grupos</span>
+                  <div class="group-dropdown" data-open="false">
+                    <button class="group-dropdown__trigger" type="button" aria-haspopup="listbox" aria-expanded="false">Zona Norte Chile, Zona Centro...</button>
+                    <div class="group-dropdown__menu" role="listbox" aria-label="Grupos" aria-multiselectable="true">
+                      <button class="group-dropdown__option" type="button" role="option" aria-selected="true" data-series="Zona Norte Chile"><span class="group-dropdown__checkbox">✓</span><span>Zona Norte Chile</span></button>
+                      <button class="group-dropdown__option" type="button" role="option" aria-selected="true" data-series="Zona Centro Chile"><span class="group-dropdown__checkbox">✓</span><span>Zona Centro Chile</span></button>
+                      <button class="group-dropdown__option" type="button" role="option" aria-selected="true" data-series="Zona Sur Chile"><span class="group-dropdown__checkbox">✓</span><span>Zona Sur Chile</span></button>
+                      <button class="group-dropdown__option" type="button" role="option" aria-selected="true" data-series="Santiago Alto Tráfico"><span class="group-dropdown__checkbox">✓</span><span>Santiago Alto Tráfico</span></button>
+                      <button class="group-dropdown__option" type="button" role="option" aria-selected="true" data-series="Santiago Sector Oriente"><span class="group-dropdown__checkbox">✓</span><span>Santiago Sector Oriente</span></button>
+                    </div>
+                  </div>
+                </div>
+                <div class="report-filter report-filter--time">
+                  <div class="time-dropdown" data-open="false">
+                    <button class="time-dropdown__trigger" type="button" aria-haspopup="listbox" aria-expanded="false">Hora</button>
+                    <div class="time-dropdown__menu" role="listbox" aria-label="Agrupar por">
+                      <button class="time-dropdown__option" type="button" role="option" aria-selected="true">Hora</button>
+                      <button class="time-dropdown__option" type="button" role="option">Día</button>
+                      <button class="time-dropdown__option" type="button" role="option">Semana</button>
+                      <button class="time-dropdown__option" type="button" role="option">Mes</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="report-grid">
+              <div class="report-panel">
+                <table class="summary-table">
+                  <thead><tr><th></th><th id="summary-indicator-label">Entradas</th><th>Días</th></tr></thead>
+                  <tbody id="summary-table-body">
+                    <tr class="summary-total"><td>Total</td><td>1.243</td><td>7</td></tr>
+                    <tr><td>Lunes</td><td class="negative">334</td><td>1</td></tr>
+                    <tr><td>Martes</td><td>434</td><td>1</td></tr>
+                    <tr><td>Miércoles</td><td class="positive">342</td><td>1</td></tr>
+                    <tr><td>Jueves</td><td>545</td><td>1</td></tr>
+                    <tr class="summary-total"><td>Total entre<br>semana</td><td>1.243</td><td>4</td></tr>
+                    <tr><td>Viernes</td><td>545</td><td>1</td></tr>
+                    <tr><td>Sábado</td><td class="positive">700</td><td>1</td></tr>
+                    <tr><td>Domingo</td><td>657</td><td>1</td></tr>
+                    <tr class="summary-total"><td>Total fin<br>de semana</td><td>1.243</td><td>3</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="report-panel chart-panel">
+                <h2 class="chart-title" id="chart-title">Total de Entradas</h2>
+                <div class="chart-legend" aria-label="Leyenda del gráfico">
+                  <span class="legend-item" data-series="Zona Norte Chile"><i class="legend-dot" style="background:#9ca3af"></i>Zona Norte Chile</span>
+                  <span class="legend-item" data-series="Zona Centro Chile"><i class="legend-dot" style="background:#0797a8"></i>Zona Centro Chile</span>
+                  <span class="legend-item" data-series="Zona Sur Chile"><i class="legend-dot" style="background:#5b4bea"></i>Zona Sur Chile</span>
+                  <span class="legend-item" data-series="Santiago Alto Tráfico"><i class="legend-dot" style="background:#72d7dc"></i>Santiago Alto Tráfico</span>
+                  <span class="legend-item" data-series="Santiago Sector Oriente"><i class="legend-dot" style="background:#3f82f5"></i>Santiago Sector Oriente</span>
+                  <button class="legend-more" type="button" hidden aria-label="Mostrar más leyendas"></button>
+                </div>
+                <div id="main" class="chart" role="img" aria-label="Gráfico de valores de lunes a domingo"></div>
+              </div>
+            </div>
+
+            <div class="report-panel detail-panel">
+              <div class="detail-table-scroll">
+        <table class="detail-table" id="details-table">
+                  <colgroup id="details-table-columns"></colgroup>
+                  <thead><tr id="indicator-detail-title-row" class="indicator-title-row"></tr><tr id="details-table-head"></tr></thead>
+                  <tbody id="details-table-body"></tbody>
+                </table>
+              </div>
+              <div class="detail-footer">
+                <div class="pagination" aria-label="Paginación">
+                  <button type="button" aria-label="Página anterior"><img src="iconos-reporte/chevron-left.svg" alt="" aria-hidden="true"></button>
+                  <button class="active" type="button" aria-current="page">1</button>
+                  <button type="button">2</button>
+                  <button type="button">3</button>
+                  <button type="button" aria-label="Página siguiente"><img src="iconos-reporte/chevron-right.svg" alt="" aria-hidden="true"></button>
+                </div>
+                <button class="download" type="button"><img src="iconos-reporte/descarga.svg" alt="" aria-hidden="true"> Descargar</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <script>
+    const chartDom = document.getElementById('main');
+    const myChart = echarts.init(chartDom);
+    let currentIndicator = 'Entradas';
+    let currentTimeRange = 'Hora';
+    let singleStorePeriodMode = false;
+    let selectedIndicatorNames = new Set(['Entradas', 'Tickets', 'Tasa de Conversión']);
+    let selectedSingleStoreIndex = 0;
+    let selectedPeriodNames = new Set();
+    let appliedSeriesNames = new Set();
+    let appliedStoreNames = [];
+    let appliedFilters = {
+      mode: 'groups',
+      groups: new Set(['Zona Norte Chile', 'Zona Centro Chile', 'Zona Sur Chile', 'Santiago Alto Tráfico', 'Santiago Sector Oriente']),
+      stores: []
+    };
+    const cloneFilterState = (filters) => ({
+      mode: filters.mode,
+      groups: new Set(filters.groups),
+      stores: [...filters.stores]
+    });
+    let pendingFilters = cloneFilterState(appliedFilters);
+    const periodSeriesNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Sábado', 'Domingo', 'Periodo completo', 'Inicio de semana', 'Cierre de semana'];
+    let groupingMode = 'groups';
+    const storeLabelsByGroup = {
+      'Zona Norte Chile': 'Tienda Mall Plaza Norte',
+      'Zona Centro Chile': 'Tienda Costanera Santiago',
+      'Zona Sur Chile': 'Local Parque Arauco',
+      'Santiago Alto Tráfico': 'Sucursal Alto Las Condes',
+      'Santiago Sector Oriente': 'Tienda Plaza Vespucio'
+    };
+    const groupByStoreLabel = Object.fromEntries(
+      Object.entries(storeLabelsByGroup).map(([groupName, storeName]) => [storeName, groupName])
+    );
+    const getDisplayGroupName = (groupName) => groupingMode === 'stores'
+      ? (storeLabelsByGroup[groupName] || groupName)
+      : groupName;
+    const percentageIndicators = new Set(['Tasa de Conversión', 'Tasa de Captación']);
+    const formatIndicatorValue = (value, indicator = currentIndicator) => {
+      const numericValue = percentageIndicators.has(indicator)
+        ? Math.min(100, Math.max(0, Math.round(value ?? 0)))
+        : Math.round(value ?? 0);
+      const formatted = String(numericValue).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      return percentageIndicators.has(indicator) ? `${formatted}%` : formatted;
+    };
+    const option = {
+      animation: true,
+      animationDuration: 500,
+      animationDurationUpdate: 500,
+      animationEasingUpdate: 'cubicOut',
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: '#ffffff',
+        borderColor: '#3f82f5',
+        borderWidth: 1,
+        padding: [12, 14],
+        textStyle: { color: '#6b7280', fontFamily: 'Inter, sans-serif', fontSize: 14 },
+        extraCssText: 'border-radius:4px;box-shadow:0 4px 12px rgba(15,23,42,.18);',
+        formatter: (params) => {
+          const value = Array.isArray(params) ? params[0] : params;
+          const formattedValue = formatIndicatorValue(value.value);
+          return `<div style="font-size:14px;font-weight:500;color:#6b7280;margin-bottom:8px;">${getDisplayGroupName(value.seriesName)} - ${value.name}</div><div style="display:flex;align-items:center;gap:8px;font-size:14px;"><span style="width:12px;height:12px;border-radius:50%;background:${value.color};display:inline-block;"></span><span>${currentIndicator}</span><strong style="margin-left:auto;font-size:14px;color:#6b7280;">${formattedValue}</strong></div>`;
+        }
+      },
+      grid: {
+        left: 8,
+        right: 8,
+        top: 10,
+        bottom: 28,
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00']
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        { name: 'Zona Norte Chile', data: [150, 230, 224, 218, 135, 147, 260], type: 'line', itemStyle: { color: '#9ca3af' }, lineStyle: { color: '#9ca3af' } },
+        { name: 'Zona Centro Chile', data: [130, 170, 185, 240, 170, 280, 210], type: 'line', itemStyle: { color: '#0797a8' }, lineStyle: { color: '#0797a8' } },
+        { name: 'Zona Sur Chile', data: [140, 200, 160, 250, 220, 270, 190], type: 'line', itemStyle: { color: '#5b4bea' }, lineStyle: { color: '#5b4bea' } },
+        { name: 'Santiago Alto Tráfico', data: [130, 145, 205, 300, 215, 265, 130], type: 'line', itemStyle: { color: '#72d7dc' }, lineStyle: { color: '#72d7dc' } },
+        { name: 'Santiago Sector Oriente', data: [135, 300, 245, 340, 300, 135, 195], type: 'line', itemStyle: { color: '#3f82f5' }, lineStyle: { color: '#3f82f5' } }
+      ]
+    };
+
+    myChart.setOption(option);
+    window.addEventListener('resize', () => myChart.resize());
+    myChart.on('mouseover', (params) => {
+      if (params.componentType === 'series' && params.color) {
+        myChart.setOption({ tooltip: { borderColor: params.color } });
+      }
+    });
+
+    const layoutChartLegend = () => {
+      const legend = document.querySelector('.chart-legend');
+      const more = legend?.querySelector('.legend-more');
+      if (!legend || !more) return;
+      const items = [...legend.querySelectorAll('.legend-item')];
+      const availableItems = items.filter((item) => item.style.display !== 'none');
+      items.forEach((item) => { item.hidden = false; });
+      more.hidden = true;
+      const gap = 14;
+      const containerWidth = legend.getBoundingClientRect().width;
+      const widths = availableItems.map((item) => item.getBoundingClientRect().width);
+      let visibleCount = availableItems.length;
+      for (let count = availableItems.length; count >= 0; count -= 1) {
+        const hiddenCount = availableItems.length - count;
+        const itemWidth = widths.slice(0, count).reduce((sum, width) => sum + width, 0);
+        let totalWidth = itemWidth + Math.max(0, count - 1) * gap;
+        if (hiddenCount) {
+          more.textContent = `+${hiddenCount} más`;
+          more.hidden = false;
+          totalWidth += (count ? gap : 0) + more.getBoundingClientRect().width;
+        }
+        if (totalWidth <= containerWidth) {
+          visibleCount = count;
+          break;
+        }
+      }
+      const hiddenCount = availableItems.length - visibleCount;
+      availableItems.forEach((item, index) => { item.hidden = index >= visibleCount; });
+      more.hidden = hiddenCount === 0;
+      if (hiddenCount) more.textContent = `+${hiddenCount} más`;
+    };
+    window.addEventListener('resize', layoutChartLegend);
+    window.setTimeout(layoutChartLegend, 0);
+
+    const renderNormalChartLegend = (selectedNames) => {
+      const legend = document.querySelector('.chart-legend');
+      if (!legend) return;
+      legend.classList.remove('chart-legend--indicators');
+      legend.querySelectorAll('.legend-item').forEach((item) => item.remove());
+      option.series.forEach((series) => {
+        if (!selectedNames.has(series.name)) return;
+        const item = document.createElement('span');
+        item.className = 'legend-item';
+        item.dataset.series = series.name;
+        const color = series.itemStyle?.color || '#9ca3af';
+        item.innerHTML = `<i class="legend-dot" style="background:${color}"></i>${getDisplayGroupName(series.name)}`;
+        legend.insertBefore(item, legend.querySelector('.legend-more'));
+      });
+      layoutChartLegend();
+    };
+
+    const updateGroupSeries = (selectedNames, updateTable = true) => {
+      if (singleStorePeriodMode) {
+        renderSingleStorePeriodChart();
+        if (updateTable) updateDetailValues(currentIndicator, getScaledIndicatorData(currentIndicator, 'Hora'));
+        return;
+      }
+      const scaledValues = getScaledIndicatorData(currentIndicator, currentTimeRange);
+      myChart.setOption({
+        series: option.series.map((series, index) => ({
+          name: series.name,
+          type: 'line',
+          data: selectedNames.has(series.name) ? scaledValues[index] : [],
+          itemStyle: { color: series.itemStyle?.color || '#9ca3af' },
+          lineStyle: { color: series.lineStyle?.color || series.itemStyle?.color || '#9ca3af' }
+        }))
+      }, { lazyUpdate: false, replaceMerge: ['series'] });
+      renderNormalChartLegend(selectedNames);
+      if (updateTable) updateDetailValues(currentIndicator, scaledValues, selectedNames);
+    };
+
+    const timeAxisCategories = {
+      Hora: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00'],
+      Día: ['17/02/2025', '18/02/2025', '19/02/2025', '20/02/2025', '21/02/2025', '22/02/2025', '23/02/2025'],
+      Semana: ['Semana 8', 'Semana 9', 'Semana 10', 'Semana 11', 'Semana 12', 'Semana 13', 'Semana 14'],
+      Mes: ['Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio']
+    };
+
+    const updateTimeAxis = (timeRange) => {
+      if (singleStorePeriodMode) {
+        if (document.querySelector('.report-content')?.classList.contains('is-single-store-indicators')) {
+          currentTimeRange = timeRange;
+          renderSingleStoreIndicatorChart();
+          return;
+        }
+        currentTimeRange = 'Hora';
+        renderSingleStorePeriodChart();
+        return;
+      }
+      currentTimeRange = timeRange;
+      const categories = timeAxisCategories[timeRange] || timeAxisCategories.Hora;
+      const scaledValues = getScaledIndicatorData(currentIndicator, timeRange);
+      myChart.setOption({
+        xAxis: { type: 'category', data: categories },
+        series: option.series.map((series, index) => ({ data: scaledValues[index] }))
+      });
+      chartDom.style.maxWidth = 'none';
+      chartDom.style.width = (timeRange === 'Día' || timeRange === 'Semana')
+        ? `${Math.max(100, (categories.length / 15) * 100)}%`
+        : '100%';
+      myChart.resize();
+      updateIndicatorAxis(currentIndicator);
+      updateDetailValues(currentIndicator, scaledValues);
+      const detailAxisLabel = document.getElementById('detail-axis-label');
+      if (detailAxisLabel) detailAxisLabel.textContent = timeRange;
+      document.querySelectorAll('.detail-axis-value').forEach((cell, index) => {
+        cell.textContent = categories[index] || '';
+      });
+    };
+
+    const indicatorAxisConfig = {
+      Ventas: { name: 'Ventas', max: 500000, interval: 100000 },
+      'Ticket Promedio': { name: 'Ticket Promedio', max: 100000, interval: 20000 },
+      'Precio Promedio': { name: 'Precio Promedio', max: 100000, interval: 20000 },
+      Entradas: { name: 'Entradas', max: 500, interval: 100 },
+      Tickets: { name: 'Tickets', max: 100, interval: 20 },
+      'Artículos': { name: 'Artículos', max: 100, interval: 20 },
+      'Tráfico Externo': { name: 'Tráfico Externo', max: 1000, interval: 200 },
+      'Artículos por Ticket': { name: 'Artículos por Ticket', max: 15, interval: 3 },
+      'Tasa de Conversión': { name: 'Tasa de Conversión', max: 35, interval: 5 },
+      'Tasa de Captación': { name: 'Tasa de Captación', max: 35, interval: 5 }
+    };
+
+    const indicatorSeriesData = {
+      Ventas: [[150000, 230000, 224000, 218000, 135000, 147000, 260000], [130000, 170000, 185000, 240000, 170000, 280000, 210000], [140000, 200000, 160000, 250000, 220000, 270000, 190000], [130000, 145000, 205000, 300000, 215000, 265000, 130000], [135000, 300000, 245000, 340000, 300000, 135000, 195000]],
+      'Ticket Promedio': [[45000, 62000, 58000, 51000, 39000, 47000, 70000], [42000, 55000, 60000, 68000, 44000, 72000, 64000], [38000, 59000, 53000, 61000, 50000, 69000, 57000], [47000, 52000, 63000, 74000, 48000, 65000, 43000], [50000, 70000, 61000, 80000, 73000, 46000, 69000]],
+      'Precio Promedio': [[30000, 42000, 39000, 46000, 28000, 35000, 55000], [26000, 38000, 44000, 52000, 31000, 57000, 47000], [29000, 45000, 41000, 49000, 35000, 53000, 42000], [34000, 40000, 47000, 59000, 33000, 51000, 30000], [37000, 56000, 49000, 67000, 60000, 36000, 53000]],
+      Entradas: [[150, 230, 224, 218, 135, 147, 260], [130, 170, 185, 240, 170, 280, 210], [140, 200, 160, 250, 220, 270, 190], [130, 145, 205, 300, 215, 265, 130], [135, 300, 245, 340, 300, 135, 195]],
+      Tickets: [[35, 52, 48, 44, 27, 31, 58], [30, 40, 42, 55, 34, 61, 46], [28, 47, 39, 51, 42, 57, 38], [33, 36, 45, 63, 40, 54, 29], [37, 59, 50, 70, 61, 32, 48]],
+      'Artículos': [[42, 58, 55, 51, 31, 36, 65], [38, 46, 50, 62, 40, 74, 57], [35, 53, 44, 66, 52, 70, 48], [40, 43, 56, 78, 49, 68, 34], [45, 72, 61, 88, 76, 41, 60]],
+      'Tráfico Externo': [[340, 520, 480, 430, 270, 310, 610], [280, 420, 460, 580, 350, 700, 540], [310, 500, 430, 620, 510, 670, 460], [360, 390, 550, 760, 470, 640, 330], [400, 720, 590, 850, 740, 390, 620]],
+      'Artículos por Ticket': [[5, 8, 7, 6, 4, 5, 9], [4, 6, 7, 9, 5, 11, 8], [4, 7, 6, 8, 6, 10, 7], [5, 6, 8, 12, 7, 10, 5], [6, 10, 8, 13, 11, 6, 9]],
+      'Tasa de Conversión': [[12, 18, 17, 16, 10, 12, 21], [10, 14, 15, 19, 12, 25, 18], [11, 16, 13, 20, 16, 23, 15], [13, 15, 18, 26, 15, 22, 11], [14, 24, 19, 30, 26, 13, 21]],
+      'Tasa de Captación': [[9, 14, 13, 12, 8, 10, 17], [8, 11, 12, 15, 9, 20, 14], [8, 13, 10, 16, 13, 18, 12], [10, 12, 14, 21, 12, 18, 9], [11, 19, 15, 25, 22, 10, 17]]
+    };
+
+    const granularityMultiplier = { Hora: 1, Día: 3, Semana: 8, Mes: 20 };
+
+    const getScaledIndicatorData = (indicator, timeRange) => {
+      const rawValues = indicatorSeriesData[indicator] || indicatorSeriesData.Entradas;
+      const multiplier = granularityMultiplier[timeRange] || 1;
+      return rawValues.map((seriesValues) => {
+        const scaledSeries = seriesValues.map((value) => {
+          const scaledValue = percentageIndicators.has(indicator) ? value : value * multiplier;
+          return percentageIndicators.has(indicator) ? Math.min(100, scaledValue) : scaledValue;
+        });
+        if (timeRange === 'Hora') {
+          const interiorLength = timeAxisCategories.Hora.length - 2;
+          const resampledSeries = Array.from({ length: interiorLength }, (_, index) => {
+            const sourcePosition = (index / (interiorLength - 1)) * (scaledSeries.length - 1);
+            const lowerIndex = Math.floor(sourcePosition);
+            const upperIndex = Math.ceil(sourcePosition);
+            const fraction = sourcePosition - lowerIndex;
+            const lowerValue = scaledSeries[lowerIndex] ?? 0;
+            const upperValue = scaledSeries[upperIndex] ?? lowerValue;
+            return Math.round(lowerValue + (upperValue - lowerValue) * fraction);
+          });
+          return [0, ...resampledSeries, 0];
+        }
+        return scaledSeries.slice(0, timeAxisCategories[timeRange].length);
+      });
+    };
+
+    const renderSingleStorePeriodChart = () => {
+      const sourceValues = getScaledIndicatorData(currentIndicator, 'Hora')[selectedSingleStoreIndex] || [];
+      const dayValues = (indicatorSeriesData[currentIndicator] || indicatorSeriesData.Entradas)[selectedSingleStoreIndex] || [];
+      const average = (values) => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+      const periodFactors = [dayValues[0], dayValues[1], dayValues[2], dayValues[3], dayValues[5], dayValues[6], average(dayValues), average(dayValues.slice(0, 4)), average(dayValues.slice(4))];
+      const reference = average(dayValues) || 1;
+      const colors = ['#9ca3af', '#0797a8', '#5b4bea', '#72d7dc', '#3f82f5', '#f59e0b', '#64748b', '#14b8a6', '#a855f7'];
+      const periodSeries = periodSeriesNames.map((name, index) => ({ name, type: 'line', data: selectedPeriodNames.has(name) ? sourceValues.map((value) => Math.round(value * (periodFactors[index] / reference))) : [], itemStyle: { color: colors[index] }, lineStyle: { color: colors[index] } }));
+      const axisConfig = indicatorAxisConfig[currentIndicator] || indicatorAxisConfig.Entradas;
+      const isPercentage = percentageIndicators.has(currentIndicator);
+      myChart.setOption({
+        grid: { right: 8, containLabel: true },
+        xAxis: { type: 'category', data: timeAxisCategories.Hora },
+        yAxis: {
+          type: 'value',
+          name: axisConfig.name,
+          max: axisConfig.max,
+          interval: axisConfig.interval,
+          axisLabel: { formatter: (value) => `${String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}${isPercentage ? '%' : ''}` }
+        },
+        series: periodSeries
+      }, { replaceMerge: ['series', 'yAxis'] });
+      const legend = document.querySelector('.chart-legend');
+      if (legend) {
+        legend.classList.remove('chart-legend--indicators');
+        legend.querySelectorAll('.legend-item').forEach((item) => item.remove());
+        periodSeriesNames.forEach((name, index) => {
+          const item = document.createElement('span');
+          item.className = 'legend-item';
+          item.dataset.series = name;
+          item.innerHTML = `<i class="legend-dot" style="background:${colors[index]}"></i>${name}`;
+          if (selectedPeriodNames.has(name)) legend.insertBefore(item, legend.querySelector('.legend-more'));
+        });
+      }
+      layoutChartLegend();
+    };
+
+    const indicatorComparisonNames = ['Entradas', 'Tickets', 'Tasa de Conversión'];
+    const indicatorComparisonColors = ['#9ca3af', '#0797a8', '#5b4bea'];
+    const renderSingleStoreIndicatorChart = () => {
+      const categories = timeAxisCategories[currentTimeRange] || timeAxisCategories.Hora;
+      const selectedGroupName = option.series[selectedSingleStoreIndex]?.name;
+      const storeName = storeLabelsByGroup[selectedGroupName] || appliedStoreNames[0] || 'Tienda seleccionada';
+      const granularityScale = granularityMultiplier[currentTimeRange] || 1;
+      const visibleIndicators = [...selectedIndicatorNames];
+      const series = visibleIndicators.map((indicator, index) => ({
+        name: indicator,
+        type: 'line',
+        yAxisIndex: index,
+        data: (getScaledIndicatorData(indicator, currentTimeRange)[selectedSingleStoreIndex] || [])
+          .slice(0, categories.length)
+          .map((value) => percentageIndicators.has(indicator) ? Math.min(100, value) : value),
+        itemStyle: { color: indicatorComparisonColors[index] },
+        lineStyle: { color: indicatorComparisonColors[index] }
+      }));
+      myChart.setOption({
+        grid: { left: 8, right: 54, containLabel: true },
+        xAxis: { type: 'category', data: categories },
+        yAxis: visibleIndicators.map((indicator, index) => ({
+          type: 'value',
+          name: indicator,
+          position: index === 0 ? 'left' : 'right',
+          max: percentageIndicators.has(indicator)
+            ? 100
+            : (indicatorAxisConfig[indicator]?.max || 100) * granularityScale,
+          interval: percentageIndicators.has(indicator)
+            ? 20
+            : (indicatorAxisConfig[indicator]?.interval || 20) * granularityScale,
+          offset: index > 1 ? 100 : 0,
+          axisLine: { show: true, lineStyle: { color: indicatorComparisonColors[index] } },
+          axisTick: { show: true, lineStyle: { color: indicatorComparisonColors[index] } },
+          axisLabel: {
+            color: indicatorComparisonColors[index],
+            formatter: percentageIndicators.has(indicator)
+              ? (value) => `${value}%`
+              : (value) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+          },
+          nameTextStyle: { color: indicatorComparisonColors[index] }
+        })),
+        series
+      }, { replaceMerge: ['series', 'yAxis'] });
+      const chartTitle = document.getElementById('chart-title');
+      if (chartTitle) chartTitle.textContent = `Total del periodo / ${storeName}`;
+      const legend = document.querySelector('.chart-legend');
+      if (legend) {
+        legend.classList.add('chart-legend--indicators');
+        legend.querySelectorAll('.legend-item').forEach((item) => item.remove());
+        visibleIndicators.forEach((name, index) => {
+          const item = document.createElement('span');
+          item.className = 'legend-item';
+          item.dataset.series = name;
+          item.innerHTML = `<i class="legend-dot" style="background:${indicatorComparisonColors[index]}"></i>${name}`;
+          legend.insertBefore(item, legend.querySelector('.legend-more'));
+        });
+      }
+      layoutChartLegend();
+      myChart.resize();
+      renderSingleStoreIndicatorTable();
+    };
+
+    const renderSingleStoreIndicatorTable = () => {
+      const title = document.getElementById('indicator-detail-title-row');
+      const head = document.getElementById('details-table-head');
+      const body = document.getElementById('details-table-body');
+      if (!title || !head || !body) return;
+      // La Vista General deja en el colgroup anchos fijos para muchas columnas; aquí se limpian
+      // para que la tabla de indicadores reparta todo el ancho disponible entre sus columnas.
+      const columns = document.getElementById('details-table-columns');
+      if (columns) columns.innerHTML = '';
+      const selectedGroupName = option.series[selectedSingleStoreIndex]?.name;
+      const storeName = storeLabelsByGroup[selectedGroupName] || appliedStoreNames[0] || 'Tienda seleccionada';
+      const categories = timeAxisCategories[currentTimeRange] || timeAxisCategories.Hora;
+      const visibleCategories = currentTimeRange === 'Hora' ? categories.slice(0, 7) : categories;
+      const visibleIndicators = [...selectedIndicatorNames];
+      const indicatorLabel = (indicator) => indicator.replace(/^Tasa de /, '');
+      const valuesByIndicator = visibleIndicators.map((indicator) => ({
+        indicator,
+        values: (getScaledIndicatorData(indicator, currentTimeRange)[selectedSingleStoreIndex] || [])
+          .slice(0, visibleCategories.length)
+          .map((value) => percentageIndicators.has(indicator) ? Math.min(100, value) : value)
+      }));
+      title.innerHTML = `<th colspan="${visibleIndicators.length + 1}">${storeName}</th>`;
+      head.innerHTML = `<th>${currentTimeRange}</th>${valuesByIndicator.map(({ indicator }) => `<th>${indicatorLabel(indicator)}</th>`).join('')}`;
+      body.innerHTML = visibleCategories.map((category, rowIndex) => `<tr><td>${category}</td>${valuesByIndicator.map(({ indicator, values }) => `<td>${formatIndicatorValue(values[rowIndex] ?? 0, indicator)}</td>`).join('')}</tr>`).join('');
+      body.insertAdjacentHTML('beforeend', `<tr class="detail-total"><td>Total periodo</td>${valuesByIndicator.map(({ indicator, values }) => `<td>${formatIndicatorValue(values.reduce((sum, value) => sum + value, 0), indicator)}</td>`).join('')}</tr>`);
+    };
+
+    const renderSummaryTable = (indicator) => {
+      const body = document.getElementById('summary-table-body');
+      if (!body) return;
+      const rawValues = indicatorSeriesData[indicator] || indicatorSeriesData.Entradas;
+      const dayTotals = rawValues[0].map((_, dayIndex) => rawValues.reduce((sum, seriesValues) => sum + (seriesValues[dayIndex] || 0), 0));
+      const startDate = new Date(2025, 1, 17);
+      const endDate = new Date(2025, 6, 23);
+      const occurrences = Array(7).fill(0);
+      for (const date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+        const mondayFirstIndex = (date.getDay() + 6) % 7;
+        occurrences[mondayFirstIndex] += 1;
+      }
+      const weekdayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+      const renderRow = (name, value, count, className = '') => `<tr class="${className}"><td>${name}</td><td>${formatIndicatorValue(value, indicator)}</td><td>${count}</td></tr>`;
+      const weekTotal = dayTotals.slice(0, 4).reduce((sum, value) => sum + value, 0);
+      const weekendTotal = dayTotals.slice(4).reduce((sum, value) => sum + value, 0);
+      const total = dayTotals.reduce((sum, value) => sum + value, 0);
+      body.innerHTML = `${renderRow('Total', total, occurrences.reduce((sum, value) => sum + value, 0), 'summary-total')}${dayTotals.slice(0, 4).map((value, index) => renderRow(weekdayNames[index], value, occurrences[index])).join('')}${renderRow('Total inicio<br>de semana', weekTotal, occurrences.slice(0, 4).reduce((sum, value) => sum + value, 0), 'summary-total')}${dayTotals.slice(4).map((value, index) => renderRow(weekdayNames[index + 4], value, occurrences[index + 4])).join('')}${renderRow('Total cierre<br>de semana', weekendTotal, occurrences.slice(4).reduce((sum, value) => sum + value, 0), 'summary-total')}`;
+    };
+
+    const updateDetailValues = (indicator, selectedValues = getScaledIndicatorData(indicator, currentTimeRange), selectedNamesOverride = null) => {
+      const head = document.getElementById('details-table-head');
+      const body = document.getElementById('details-table-body');
+      const title = document.getElementById('indicator-detail-title-row');
+      if (!head || !body) return;
+      const label = (value) => `<span>${value}</span>`;
+
+      if (!document.querySelector('.report-content')?.classList.contains('is-indicators')) {
+        const categories = timeAxisCategories[currentTimeRange] || timeAxisCategories.Hora;
+        const columns = document.getElementById('details-table-columns');
+        if (columns) columns.innerHTML = `<col style="width:160px">${categories.map(() => '<col style="width:103px">').join('')}<col style="width:103px">`;
+        let rows;
+        if (singleStorePeriodMode) {
+          const sourceValues = getScaledIndicatorData(indicator, 'Hora')[selectedSingleStoreIndex] || [];
+          const dayValues = (indicatorSeriesData[indicator] || indicatorSeriesData.Entradas)[selectedSingleStoreIndex] || [];
+          const average = dayValues.length ? dayValues.reduce((sum, value) => sum + value, 0) / dayValues.length : 0;
+          const periodFactors = [dayValues[0], dayValues[1], dayValues[2], dayValues[3], dayValues[5], dayValues[6], average, dayValues.slice(0, 4).reduce((sum, value) => sum + value, 0) / 4, dayValues.slice(4).reduce((sum, value) => sum + value, 0) / 3];
+          rows = periodSeriesNames.filter((name) => selectedPeriodNames.has(name)).map((name, index) => ({ name, values: sourceValues.map((value) => Math.round(value * ((periodFactors[index] || 0) / (average || 1)))) }));
+        } else {
+          const selectedNames = selectedNamesOverride || new Set(appliedFilters.groups);
+          rows = option.series.map((series, index) => ({ name: getDisplayGroupName(series.name), values: selectedNames.has(series.name) ? (selectedValues[index] || []) : [] })).filter((row) => row.values.length);
+        }
+        if (title) title.innerHTML = `<th colspan="${categories.length + 2}">${indicator}</th>`;
+        const firstColumnLabel = singleStorePeriodMode ? 'Día' : (groupingMode === 'stores' ? 'Tienda' : 'Grupo');
+        head.innerHTML = `<th>${firstColumnLabel}</th>${categories.map((category) => `<th>${category}</th>`).join('')}<th>Total</th>`;
+        body.innerHTML = rows.map(({ name, values }) => `<tr><td>${name}</td>${categories.map((_, index) => `<td>${formatIndicatorValue(values[index] ?? 0, indicator)}</td>`).join('')}<td><strong>${formatIndicatorValue(values.slice(0, categories.length).reduce((sum, value) => sum + value, 0), indicator)}</strong></td></tr>`).join('');
+        body.insertAdjacentHTML('beforeend', `<tr class="detail-total"><td>Total</td>${categories.map((_, index) => `<td>${formatIndicatorValue(rows.reduce((sum, row) => sum + (row.values[index] || 0), 0), indicator)}</td>`).join('')}<td>${formatIndicatorValue(rows.reduce((sum, row) => sum + row.values.slice(0, categories.length).reduce((rowSum, value) => rowSum + value, 0), 0), indicator)}</td></tr>`);
+        return;
+      }
+
+      if (singleStorePeriodMode) {
+        const categories = timeAxisCategories.Hora.slice(0, 7);
+        const dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+        const rawDayValues = (indicatorSeriesData[indicator] || indicatorSeriesData.Entradas)[selectedSingleStoreIndex] || [];
+        const hourlyValues = getScaledIndicatorData(indicator, 'Hora')[selectedSingleStoreIndex] || [];
+        const average = rawDayValues.length ? rawDayValues.reduce((sum, value) => sum + value, 0) / rawDayValues.length : 1;
+        const visibleDayIndexes = dayNames.map((day, index) => ({ day, index })).filter(({ day }) => selectedPeriodNames.has(day));
+        const dayColumns = visibleDayIndexes.map(({ index }) => rawDayValues[index] || 0).map((dayValue) => hourlyValues.map((value) => Math.round(value * (dayValue / (average || 1)))));
+        head.innerHTML = `<th>Hora</th>${visibleDayIndexes.map(({ day }) => `<th>${label(indicator)}<br>${label(day)}</th>`).join('')}<th>Total</th>`;
+        body.innerHTML = categories.map((category, rowIndex) => {
+          const rowValues = dayColumns.map((column) => column[rowIndex] ?? 0);
+          const rowTotal = rowValues.reduce((sum, value) => sum + value, 0);
+          return `<tr><td>${category}</td>${rowValues.map((value) => `<td>${formatIndicatorValue(value, indicator)}</td>`).join('')}<td><strong>${formatIndicatorValue(rowTotal, indicator)}</strong></td></tr>`;
+        }).join('');
+        const columnTotals = dayColumns.map((column) => column.slice(0, categories.length).reduce((sum, value) => sum + value, 0));
+        const grandTotal = columnTotals.reduce((sum, value) => sum + value, 0);
+        body.insertAdjacentHTML('beforeend', `<tr class="detail-total"><td>Total</td>${columnTotals.map((value) => `<td>${formatIndicatorValue(value, indicator)}</td>`).join('')}<td>${formatIndicatorValue(grandTotal, indicator)}</td></tr>`);
+        return;
+      }
+
+      const categories = timeAxisCategories[currentTimeRange] || timeAxisCategories.Hora;
+      const detailCategories = currentTimeRange === 'Hora' ? categories.slice(0, 7) : categories;
+      const selectedNames = singleStorePeriodMode
+        ? new Set([option.series[selectedSingleStoreIndex]?.name])
+        : (selectedNamesOverride || new Set(appliedFilters.groups));
+      const visibleSeries = option.series
+        .map((series, index) => ({ ...series, index }))
+        .filter((series) => selectedNames.has(series.name));
+      head.innerHTML = `<th>${currentTimeRange}</th>${visibleSeries.map((series) => `<th>${label(indicator)}<br>${label(getDisplayGroupName(series.name))}</th>`).join('')}<th>Total</th>`;
+      body.innerHTML = detailCategories.map((category, rowIndex) => {
+        const rowValues = visibleSeries.map((series) => selectedValues[series.index]?.[rowIndex] ?? 0);
+        const rowTotal = rowValues.reduce((sum, value) => sum + value, 0);
+        return `<tr><td>${category}</td>${rowValues.map((value) => `<td>${formatIndicatorValue(value, indicator)}</td>`).join('')}<td><strong>${formatIndicatorValue(rowTotal, indicator)}</strong></td></tr>`;
+      }).join('');
+
+      const columnTotals = visibleSeries.map((series) => (selectedValues[series.index] || []).slice(0, detailCategories.length).reduce((sum, value) => sum + value, 0));
+      const grandTotal = columnTotals.reduce((sum, value) => sum + value, 0);
+      body.insertAdjacentHTML('beforeend', `<tr class="detail-total"><td>Total</td>${columnTotals.map((value) => `<td>${formatIndicatorValue(value, indicator)}</td>`).join('')}<td>${formatIndicatorValue(grandTotal, indicator)}</td></tr>`);
+    };
+
+    const updateIndicatorAxis = (indicator) => {
+      currentIndicator = indicator;
+      const config = indicatorAxisConfig[indicator] || indicatorAxisConfig.Entradas;
+      const isPercentage = indicator === 'Tasa de Conversión' || indicator === 'Tasa de Captación';
+      const multiplier = granularityMultiplier[currentTimeRange] || 1;
+      const detailIndicatorLabel = document.getElementById('detail-indicator-label');
+      if (detailIndicatorLabel) detailIndicatorLabel.textContent = indicator;
+      const chartTitle = document.getElementById('chart-title');
+      if (chartTitle) chartTitle.textContent = `Total de ${indicator}`;
+      const summaryIndicatorLabel = document.getElementById('summary-indicator-label');
+      if (summaryIndicatorLabel) summaryIndicatorLabel.textContent = indicator;
+      renderSummaryTable(indicator);
+      if (singleStorePeriodMode) {
+        myChart.setOption({
+          yAxis: {
+            type: 'value',
+            name: config.name,
+            max: config.max,
+            interval: config.interval,
+            axisLabel: {
+              formatter: (value) => `${String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}${isPercentage ? '%' : ''}`
+            }
+          }
+        });
+        renderSingleStorePeriodChart();
+        updateDetailValues(indicator, getScaledIndicatorData(indicator, 'Hora'));
+        return;
+      }
+      myChart.setOption({
+        yAxis: {
+          type: 'value',
+          name: config.name,
+          max: config.max * multiplier,
+          interval: config.interval * multiplier,
+          axisLabel: {
+            formatter: (value) => `${String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.')}${isPercentage ? '%' : ''}`
+          }
+        },
+        series: option.series.map((series, index) => ({
+          data: getScaledIndicatorData(indicator, currentTimeRange)[index]
+        }))
+      });
+      updateDetailValues(indicator, getScaledIndicatorData(indicator, currentTimeRange));
+    };
+
+    updateIndicatorAxis('Entradas');
+
+    const datePicker = document.querySelector('.toolbar-date-picker');
+    const datePickerButton = document.querySelector('.toolbar-date-picker__input');
+    const datePickerPopover = document.querySelector('.toolbar-date-picker__popover');
+    const closeDatePickerButtons = document.querySelectorAll('[data-action="close-date-picker"]');
+    const applyDatePickerButton = document.querySelector('[data-action="apply-date-picker"]');
+    const dayButtons = document.querySelectorAll('.toolbar-date-picker__day');
+
+    const setDatePickerOpen = (isOpen) => {
+      datePicker.dataset.open = String(isOpen);
+      datePickerButton.setAttribute('aria-expanded', String(isOpen));
+      datePickerPopover.setAttribute('aria-hidden', String(!isOpen));
+    };
+
+    datePickerButton.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const isOpen = datePicker.dataset.open === 'true';
+      setDatePickerOpen(!isOpen);
+    });
+
+    closeDatePickerButtons.forEach((button) => {
+      button.addEventListener('click', () => setDatePickerOpen(false));
+    });
+
+    applyDatePickerButton?.addEventListener('click', () => setDatePickerOpen(false));
+
+    document.addEventListener('click', (event) => {
+      if (!datePicker.contains(event.target)) {
+        setDatePickerOpen(false);
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        setDatePickerOpen(false);
+      }
+    });
+
+    dayButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const isPressed = button.getAttribute('aria-pressed') === 'true';
+        button.setAttribute('aria-pressed', String(!isPressed));
+      });
+    });
+
+    setDatePickerOpen(false);
+
+    const indicatorDropdown = document.querySelector('.indicator-dropdown');
+    const indicatorTrigger = indicatorDropdown?.querySelector('.indicator-dropdown__trigger');
+    const indicatorOptions = indicatorDropdown?.querySelectorAll('.indicator-dropdown__option') || [];
+    const additionalDropdown = document.querySelector('.indicator-dropdown--additional');
+    const additionalTrigger = additionalDropdown?.querySelector('.group-dropdown__trigger');
+    const additionalOptions = additionalDropdown?.querySelectorAll('.group-dropdown__option') || [];
+    let selectedAdditionalNames = new Set();
+    const getAdditionalName = (item) => item.querySelector('span:last-child')?.textContent.trim() || item.textContent.trim();
+    const getDefaultIndicatorSelection = () => {
+      const availableIndicators = [...indicatorOptions].map((item) => item.textContent.trim());
+      return new Set([currentIndicator, ...availableIndicators.filter((name) => name !== currentIndicator)].slice(0, 3));
+    };
+    const syncIndicatorOptionAvailability = () => {
+      const multiMode = indicatorDropdown?.classList.contains('indicator-dropdown--multi');
+      const limitReached = selectedIndicatorNames.size >= 3;
+      indicatorOptions.forEach((item) => {
+        const isSelected = selectedIndicatorNames.has(item.textContent.trim());
+        item.disabled = Boolean(multiMode && limitReached && !isSelected);
+      });
+    };
+
+    const setIndicatorDropdownOpen = (isOpen) => {
+      if (!indicatorDropdown || !indicatorTrigger) return;
+      indicatorDropdown.dataset.open = String(isOpen);
+      indicatorTrigger.setAttribute('aria-expanded', String(isOpen));
+    };
+
+    const setAdditionalDropdownOpen = (isOpen) => {
+      if (!additionalDropdown || !additionalTrigger) return;
+      additionalDropdown.dataset.open = String(isOpen);
+      additionalTrigger.setAttribute('aria-expanded', String(isOpen));
+    };
+    const syncAdditionalOptions = () => {
+      additionalOptions.forEach((item) => {
+        const name = getAdditionalName(item);
+        item.setAttribute('aria-selected', String(selectedAdditionalNames.has(name)));
+        item.disabled = selectedAdditionalNames.size >= 2 && !selectedAdditionalNames.has(name) || name === currentIndicator;
+        const checkbox = item.querySelector('.group-dropdown__checkbox');
+        if (checkbox) checkbox.textContent = selectedAdditionalNames.has(name) ? '✓' : '';
+      });
+      if (additionalTrigger) additionalTrigger.textContent = [...selectedAdditionalNames].join(', ');
+    };
+    const getDefaultAdditionalSelection = () => {
+      const availableIndicators = [...additionalOptions].map(getAdditionalName).filter((name) => name !== currentIndicator);
+      return new Set(availableIndicators.slice(0, 2));
+    };
+
+    indicatorTrigger?.addEventListener('click', (event) => {
+      event.stopPropagation();
+      setGroupDropdownOpen(false);
+      setTimeDropdownOpen(false);
+      setIndicatorDropdownOpen(indicatorDropdown.dataset.open !== 'true');
+    });
+
+    additionalTrigger?.addEventListener('click', (event) => {
+      event.stopPropagation();
+      setIndicatorDropdownOpen(false);
+      setGroupDropdownOpen(false);
+      setTimeDropdownOpen(false);
+      setAdditionalDropdownOpen(additionalDropdown.dataset.open !== 'true');
+    });
+
+    indicatorOptions.forEach((option) => {
+      option.addEventListener('click', () => {
+        const indicatorsViewActive = document.querySelector('.report-content')?.classList.contains('is-single-store-indicators');
+        if (indicatorsViewActive) {
+          const indicatorName = option.textContent.trim();
+          currentIndicator = indicatorName;
+          selectedAdditionalNames = new Set([...selectedAdditionalNames].filter((name) => name !== currentIndicator));
+          while (selectedAdditionalNames.size < 2) {
+            const next = [...additionalOptions].map(getAdditionalName).find((name) => name !== currentIndicator && !selectedAdditionalNames.has(name));
+            if (!next) break;
+            selectedAdditionalNames.add(next);
+          }
+          selectedIndicatorNames = new Set([currentIndicator, ...selectedAdditionalNames]);
+          indicatorOptions.forEach((item) => item.setAttribute('aria-selected', String(item.textContent.trim() === currentIndicator)));
+          indicatorTrigger.textContent = currentIndicator;
+          const summaryIndicatorLabel = document.getElementById('summary-indicator-label');
+          if (summaryIndicatorLabel) summaryIndicatorLabel.textContent = currentIndicator;
+          renderSummaryTable(currentIndicator);
+          syncAdditionalOptions();
+          renderSingleStoreIndicatorChart();
+          return;
+        }
+        indicatorTrigger.textContent = option.textContent;
+        indicatorOptions.forEach((item) => item.setAttribute('aria-selected', String(item === option)));
+        updateIndicatorAxis(option.textContent.trim());
+        setIndicatorDropdownOpen(false);
+      });
+    });
+
+    additionalOptions.forEach((option) => {
+      option.addEventListener('click', () => {
+        if (!document.querySelector('.report-content')?.classList.contains('is-single-store-indicators')) return;
+        const name = getAdditionalName(option);
+        if (name === currentIndicator) return;
+        if (selectedAdditionalNames.has(name)) selectedAdditionalNames.delete(name);
+        else if (selectedAdditionalNames.size < 2) selectedAdditionalNames.add(name);
+        selectedIndicatorNames = new Set([currentIndicator, ...selectedAdditionalNames]);
+        syncAdditionalOptions();
+        renderSingleStoreIndicatorChart();
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (indicatorDropdown && !indicatorDropdown.contains(event.target)) {
+        setIndicatorDropdownOpen(false);
+      }
+      if (additionalDropdown && !additionalDropdown.contains(event.target)) {
+        setAdditionalDropdownOpen(false);
+      }
+    });
+
+    setIndicatorDropdownOpen(false);
+
+    const groupDropdown = document.querySelector('.report-filter--groups .group-dropdown');
+    const groupTrigger = groupDropdown?.querySelector('.group-dropdown__trigger');
+    let groupOptions = groupDropdown?.querySelectorAll('.group-dropdown__option[data-series]') || [];
+    const groupMenu = groupDropdown?.querySelector('.group-dropdown__menu');
+    const defaultGroupMenuMarkup = groupMenu?.innerHTML || '';
+    const groupFilterLabel = groupDropdown?.parentElement?.querySelector(':scope > span');
+
+    const setGroupDropdownOpen = (isOpen) => {
+      if (!groupDropdown || !groupTrigger) return;
+      groupDropdown.dataset.open = String(isOpen);
+      groupTrigger.setAttribute('aria-expanded', String(isOpen));
+    };
+
+    groupTrigger?.addEventListener('click', (event) => {
+      event.stopPropagation();
+      setIndicatorDropdownOpen(false);
+      setTimeDropdownOpen(false);
+      setGroupDropdownOpen(groupDropdown.dataset.open !== 'true');
+    });
+
+    groupOptions.forEach((option) => {
+      option.dataset.bound = 'true';
+      option.addEventListener('click', () => {
+        const isSelected = option.getAttribute('aria-selected') === 'true';
+        option.setAttribute('aria-selected', String(!isSelected));
+        const checkbox = option.querySelector('.group-dropdown__checkbox');
+        if (checkbox) checkbox.textContent = !isSelected ? '✓' : '';
+
+        const selectedLabels = [...groupOptions]
+          .filter((item) => item.getAttribute('aria-selected') === 'true')
+          .map((item) => item.querySelector('span:last-child')?.textContent.trim());
+        groupTrigger.textContent = selectedLabels.length
+          ? selectedLabels.join(', ')
+          : 'Seleccionar grupos';
+        updateGroupSeries(new Set(
+          [...groupOptions]
+            .filter((item) => item.getAttribute('aria-selected') === 'true')
+            .map((item) => item.dataset.series)
+        ), true);
+      });
+    });
+
+    groupMenu?.addEventListener('click', (event) => {
+      const dynamicOption = event.target.closest('.group-dropdown__option[data-series]');
+      if (dynamicOption && !dynamicOption.dataset.bound && !singleStorePeriodMode) {
+        event.stopPropagation();
+        const isSelected = dynamicOption.getAttribute('aria-selected') === 'true';
+        dynamicOption.setAttribute('aria-selected', String(!isSelected));
+        dynamicOption.querySelector('.group-dropdown__checkbox').textContent = isSelected ? '' : '✓';
+        groupOptions = groupMenu.querySelectorAll('.group-dropdown__option[data-series]');
+        const selected = new Set([...groupOptions].filter((item) => item.getAttribute('aria-selected') === 'true').map((item) => item.dataset.series));
+        groupTrigger.textContent = selected.size ? [...groupOptions].filter((item) => selected.has(item.dataset.series)).map((item) => item.querySelector('span:last-child').textContent.trim()).join(', ') : 'Seleccionar grupos';
+        updateGroupSeries(selected, true);
+        return;
+      }
+      const option = event.target.closest('.group-dropdown__option[data-period]');
+      if (!option || !singleStorePeriodMode) return;
+      event.stopPropagation();
+      const isSelected = option.getAttribute('aria-selected') === 'true';
+      option.setAttribute('aria-selected', String(!isSelected));
+      option.querySelector('.group-dropdown__checkbox').textContent = isSelected ? '' : '✓';
+      selectedPeriodNames = new Set([...groupMenu.querySelectorAll('.group-dropdown__option[data-period]')]
+        .filter((item) => item.getAttribute('aria-selected') === 'true')
+        .map((item) => item.dataset.period));
+      groupTrigger.textContent = selectedPeriodNames.size ? [...selectedPeriodNames].join(', ') : 'Seleccionar periodos';
+      renderSingleStorePeriodChart();
+      updateDetailValues(currentIndicator, getScaledIndicatorData(currentIndicator, 'Hora'));
+    });
+
+    document.addEventListener('click', (event) => {
+      if (groupDropdown && !groupDropdown.contains(event.target)) {
+        setGroupDropdownOpen(false);
+      }
+    });
+
+    setGroupDropdownOpen(false);
+
+    const panelGroupDropdown = document.querySelector('.panel-group-dropdown');
+    const panelGroupTrigger = panelGroupDropdown?.querySelector('.group-dropdown__trigger');
+    const getPanelGroupOptions = () => panelGroupDropdown?.querySelectorAll('.group-dropdown__option[data-series]') || [];
+    const panelGroupClear = panelGroupDropdown?.querySelector('.panel-group-dropdown__clear');
+    const panelGroupSearch = panelGroupDropdown?.querySelector('.panel-group-dropdown__search');
+    let suppressPanelGroupClose = false;
+    const updatePanelGroupSummary = () => {
+      const panelGroupOptions = getPanelGroupOptions();
+      const selectedLabels = [...panelGroupOptions]
+        .filter((item) => item.getAttribute('aria-selected') === 'true')
+        .map((item) => item.querySelector('span:last-child')?.textContent.trim());
+      if (panelGroupTrigger) panelGroupTrigger.textContent = selectedLabels.length ? selectedLabels.join(', ') : 'Seleccionar grupos';
+      const allSelected = panelGroupOptions.length > 0 && [...panelGroupOptions].every((item) => item.getAttribute('aria-selected') === 'true');
+      panelGroupClear?.setAttribute('aria-selected', String(allSelected));
+      const clearLabel = panelGroupClear?.querySelector('span:last-child');
+      if (clearLabel) clearLabel.textContent = allSelected ? 'Deseleccionar todo' : 'Seleccionar todo';
+      const clearCheckbox = panelGroupClear?.querySelector('.group-dropdown__checkbox');
+      if (clearCheckbox) clearCheckbox.textContent = allSelected ? '✓' : '';
+    };
+    const syncPanelGroups = () => {
+      const panelGroupOptions = getPanelGroupOptions();
+      panelGroupOptions.forEach((panelOption) => {
+        const selected = pendingFilters.mode === 'groups' && pendingFilters.groups.has(panelOption.dataset.series);
+        panelOption.setAttribute('aria-selected', String(selected));
+        const checkbox = panelOption.querySelector('.group-dropdown__checkbox');
+        if (checkbox) checkbox.textContent = selected ? '✓' : '';
+      });
+      updatePanelGroupSummary();
+    };
+    panelGroupTrigger?.addEventListener('click', (event) => {
+      event.stopPropagation();
+      setGroupDropdownOpen(false);
+      panelGroupDropdown.dataset.open = String(panelGroupDropdown.dataset.open !== 'true');
+      panelGroupTrigger.setAttribute('aria-expanded', panelGroupDropdown.dataset.open);
+    });
+    panelGroupDropdown?.addEventListener('click', (event) => {
+      const panelOption = event.target.closest('.group-dropdown__option[data-series]');
+      if (!panelOption) return;
+      const selected = panelOption.getAttribute('aria-selected') === 'true';
+      panelOption.setAttribute('aria-selected', String(!selected));
+      panelOption.querySelector('.group-dropdown__checkbox').textContent = selected ? '' : '✓';
+      pendingFilters = {
+        mode: 'groups',
+        groups: new Set([...getPanelGroupOptions()]
+          .filter((item) => item.getAttribute('aria-selected') === 'true')
+          .map((item) => item.dataset.series)),
+        stores: []
+      };
+      if (!selected) {
+        getPanelStoreOptions().forEach((storeOption) => {
+          storeOption.setAttribute('aria-selected', 'false');
+          storeOption.querySelector('.group-dropdown__checkbox').textContent = '';
+        });
+        syncPanelStores();
+      }
+      updatePanelGroupSummary();
+    });
+    panelGroupClear?.addEventListener('click', () => {
+      const panelGroupOptions = getPanelGroupOptions();
+      const allSelected = [...panelGroupOptions].every((option) => option.getAttribute('aria-selected') === 'true');
+      suppressPanelGroupClose = true;
+      panelGroupOptions.forEach((option) => {
+        const isSelected = option.getAttribute('aria-selected') === 'true';
+        option.setAttribute('aria-selected', String(!allSelected));
+        option.querySelector('.group-dropdown__checkbox').textContent = allSelected ? '' : '✓';
+      });
+      pendingFilters = {
+        mode: 'groups',
+        groups: allSelected ? new Set() : new Set([...panelGroupOptions].map((option) => option.dataset.series)),
+        stores: []
+      };
+      if (!allSelected) {
+        getPanelStoreOptions().forEach((storeOption) => {
+          storeOption.setAttribute('aria-selected', 'false');
+          storeOption.querySelector('.group-dropdown__checkbox').textContent = '';
+        });
+        syncPanelStores();
+      }
+      updatePanelGroupSummary();
+      window.setTimeout(() => { suppressPanelGroupClose = false; }, 0);
+    });
+    panelGroupSearch?.addEventListener('input', () => {
+      const query = panelGroupSearch.value.trim().toLowerCase();
+      getPanelGroupOptions().forEach((option) => {
+        option.hidden = !option.dataset.series.toLowerCase().includes(query);
+      });
+    });
+    document.addEventListener('click', (event) => {
+      if (panelGroupDropdown && !panelGroupDropdown.contains(event.target) && !suppressPanelGroupClose) {
+        panelGroupDropdown.dataset.open = 'false';
+        panelGroupTrigger?.setAttribute('aria-expanded', 'false');
+      }
+    });
+    syncPanelGroups();
+
+    const panelStoreDropdown = document.querySelector('.panel-store-dropdown');
+    const panelStoreTrigger = panelStoreDropdown?.querySelector('.group-dropdown__trigger');
+    const getPanelStoreOptions = () => panelStoreDropdown?.querySelectorAll('.group-dropdown__option[data-store]') || [];
+    const panelStoreClear = panelStoreDropdown?.querySelector('.panel-store-dropdown__clear');
+    const panelStoreSearch = panelStoreDropdown?.querySelector('.panel-group-dropdown__search');
+    const syncPanelStores = () => {
+      const panelStoreOptions = getPanelStoreOptions();
+      const allSelected = panelStoreOptions.length > 0 && pendingFilters.mode === 'stores' && pendingFilters.stores.length === panelStoreOptions.length;
+      const labels = pendingFilters.mode === 'stores'
+        ? [...pendingFilters.stores]
+        : [...panelStoreOptions].filter((item) => item.getAttribute('aria-selected') === 'true').map((item) => item.dataset.store);
+      if (panelStoreTrigger) panelStoreTrigger.textContent = labels.length ? labels.join(', ') : 'Seleccionar tiendas';
+      panelStoreClear?.setAttribute('aria-selected', String(allSelected));
+      const label = panelStoreClear?.querySelector('span:last-child');
+      if (label) label.textContent = allSelected ? 'Deseleccionar todo' : 'Seleccionar todo';
+      const checkbox = panelStoreClear?.querySelector('.group-dropdown__checkbox');
+      if (checkbox) checkbox.textContent = allSelected ? '✓' : '';
+    };
+    panelStoreTrigger?.addEventListener('click', (event) => {
+      event.stopPropagation();
+      panelStoreDropdown.dataset.open = String(panelStoreDropdown.dataset.open !== 'true');
+      panelStoreTrigger.setAttribute('aria-expanded', panelStoreDropdown.dataset.open);
+    });
+    panelStoreDropdown?.addEventListener('click', (event) => {
+      const option = event.target.closest('.group-dropdown__option[data-store]');
+      if (!option) return;
+      const selected = option.getAttribute('aria-selected') === 'true';
+      option.setAttribute('aria-selected', String(!selected));
+      option.querySelector('.group-dropdown__checkbox').textContent = selected ? '' : '✓';
+      const stores = [...getPanelStoreOptions()]
+        .filter((item) => item.getAttribute('aria-selected') === 'true')
+        .map((item) => item.dataset.store);
+      pendingFilters = {
+        mode: 'stores',
+        groups: new Set(stores.map((store) => groupByStoreLabel[store]).filter(Boolean)),
+        stores
+      };
+      if (!selected) {
+        getPanelGroupOptions().forEach((groupOption) => {
+          groupOption.setAttribute('aria-selected', 'false');
+          groupOption.querySelector('.group-dropdown__checkbox').textContent = '';
+        });
+        updatePanelGroupSummary();
+      }
+      syncPanelStores();
+    });
+    panelStoreClear?.addEventListener('click', () => {
+      const panelStoreOptions = getPanelStoreOptions();
+      const allSelected = [...panelStoreOptions].every((option) => option.getAttribute('aria-selected') === 'true');
+      panelStoreOptions.forEach((option) => {
+        option.setAttribute('aria-selected', String(!allSelected));
+        option.querySelector('.group-dropdown__checkbox').textContent = allSelected ? '' : '✓';
+      });
+      pendingFilters = {
+        mode: 'stores',
+        groups: allSelected ? new Set() : new Set([...panelStoreOptions].map((option) => groupByStoreLabel[option.dataset.store]).filter(Boolean)),
+        stores: allSelected ? [] : [...panelStoreOptions].map((option) => option.dataset.store)
+      };
+      if (!allSelected) {
+        getPanelGroupOptions().forEach((groupOption) => {
+          groupOption.setAttribute('aria-selected', 'false');
+          groupOption.querySelector('.group-dropdown__checkbox').textContent = '';
+        });
+        updatePanelGroupSummary();
+      }
+      syncPanelStores();
+    });
+    panelStoreSearch?.addEventListener('input', () => {
+      const query = panelStoreSearch.value.trim().toLowerCase();
+      getPanelStoreOptions().forEach((option) => { option.hidden = !option.dataset.store.toLowerCase().includes(query); });
+    });
+    document.addEventListener('click', (event) => {
+      if (panelStoreDropdown && !panelStoreDropdown.contains(event.target)) {
+        panelStoreDropdown.dataset.open = 'false';
+        panelStoreTrigger?.setAttribute('aria-expanded', 'false');
+      }
+    });
+    syncPanelStores();
+
+    const timeDropdown = document.querySelector('.time-dropdown');
+    const timeTrigger = timeDropdown?.querySelector('.time-dropdown__trigger');
+    const timeOptions = timeDropdown?.querySelectorAll('.time-dropdown__option') || [];
+
+    const setTimeDropdownOpen = (isOpen) => {
+      if (!timeDropdown || !timeTrigger) return;
+      timeDropdown.dataset.open = String(isOpen);
+      timeTrigger.setAttribute('aria-expanded', String(isOpen));
+    };
+
+    timeTrigger?.addEventListener('click', (event) => {
+      if (singleStorePeriodMode && !document.querySelector('.report-content')?.classList.contains('is-single-store-indicators')) return;
+      event.stopPropagation();
+      setIndicatorDropdownOpen(false);
+      setGroupDropdownOpen(false);
+      setTimeDropdownOpen(timeDropdown.dataset.open !== 'true');
+    });
+
+    timeOptions.forEach((option) => {
+      option.addEventListener('click', () => {
+        if (singleStorePeriodMode && !document.querySelector('.report-content')?.classList.contains('is-single-store-indicators')) return;
+        timeTrigger.childNodes[timeTrigger.childNodes.length - 1].textContent = option.textContent;
+        timeOptions.forEach((item) => item.setAttribute('aria-selected', String(item === option)));
+        updateTimeAxis(option.textContent.trim());
+        setTimeDropdownOpen(false);
+      });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (timeDropdown && !timeDropdown.contains(event.target)) {
+        setTimeDropdownOpen(false);
+      }
+    });
+
+    setTimeDropdownOpen(false);
+    updateDetailValues(currentIndicator, getScaledIndicatorData(currentIndicator, currentTimeRange));
+
+    const reportContent = document.querySelector('.report-content');
+    const reportTabs = document.querySelectorAll('.report-tab');
+    const updateIndicatorsTabAvailability = (animate = false) => {
+      const indicatorsTab = reportTabs[1];
+      if (!indicatorsTab) return;
+      const canUseIndicators = singleStorePeriodMode;
+      const wasDisabled = indicatorsTab.disabled;
+      indicatorsTab.disabled = !canUseIndicators;
+      indicatorsTab.setAttribute('aria-disabled', String(!canUseIndicators));
+      indicatorsTab.classList.toggle('is-disabled', !canUseIndicators);
+      if (canUseIndicators) {
+        indicatorsTab.classList.remove('is-newly-enabled');
+        void indicatorsTab.offsetWidth;
+        indicatorsTab.classList.add('is-newly-enabled');
+      } else {
+        indicatorsTab.classList.remove('is-newly-enabled');
+      }
+      if (!canUseIndicators && indicatorsTab.classList.contains('report-tab--active')) {
+        reportTabs[0]?.click();
+      }
+    };
+    updateIndicatorsTabAvailability();
+    reportTabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => {
+        if (tab.disabled) return;
+        const isIndicators = index === 1;
+        if (isIndicators) tab.classList.remove('is-newly-enabled');
+        reportContent?.classList.toggle('is-indicators', isIndicators);
+        reportContent?.classList.toggle('is-single-store-indicators', isIndicators && singleStorePeriodMode);
+        indicatorDropdown?.classList.remove('indicator-dropdown--multi');
+        if (isIndicators && singleStorePeriodMode) {
+          selectedAdditionalNames = getDefaultAdditionalSelection();
+          selectedIndicatorNames = new Set([currentIndicator, ...selectedAdditionalNames]);
+          currentTimeRange = 'Hora';
+          if (timeTrigger) timeTrigger.childNodes[timeTrigger.childNodes.length - 1].textContent = 'Hora';
+          timeOptions.forEach((item) => item.setAttribute('aria-selected', String(item.textContent.trim() === 'Hora')));
+          timeDropdown?.classList.remove('is-disabled');
+          timeTrigger?.setAttribute('aria-disabled', 'false');
+          indicatorOptions.forEach((item) => item.setAttribute('aria-selected', String(item.textContent.trim() === currentIndicator)));
+          if (indicatorTrigger) indicatorTrigger.textContent = currentIndicator;
+          syncAdditionalOptions();
+        } else {
+          selectedAdditionalNames = new Set();
+          timeDropdown?.classList.toggle('is-disabled', singleStorePeriodMode);
+          timeTrigger?.setAttribute('aria-disabled', String(singleStorePeriodMode));
+          indicatorOptions.forEach((item) => item.setAttribute('aria-selected', String(item.textContent.trim() === currentIndicator)));
+          if (indicatorTrigger) indicatorTrigger.textContent = currentIndicator;
+          syncIndicatorOptionAvailability();
+          setAdditionalDropdownOpen(false);
+        }
+        reportTabs.forEach((item) => item.classList.toggle('report-tab--active', item === tab));
+      if (isIndicators && singleStorePeriodMode) {
+        renderSingleStoreIndicatorChart();
+      } else if (!isIndicators && singleStorePeriodMode) {
+        renderSingleStorePeriodChart();
+        const chartTitle = document.getElementById('chart-title');
+        if (chartTitle) chartTitle.textContent = `Total de ${currentIndicator}`;
+        updateDetailValues(currentIndicator, getScaledIndicatorData(currentIndicator, 'Hora'));
+      } else if (!isIndicators) {
+        requestAnimationFrame(() => myChart.resize());
+      }
+      });
+    });
+
+    const filtersButton = document.getElementById('filters-button');
+    const filtersPanel = document.getElementById('filters-panel');
+    const filtersClose = document.getElementById('filters-panel-close');
+    const setFiltersOpen = (isOpen) => {
+      if (!filtersPanel || !filtersButton) return;
+      filtersPanel.hidden = false;
+      filtersPanel.classList.toggle('is-open', isOpen);
+      filtersButton.setAttribute('aria-expanded', String(isOpen));
+      if (!isOpen) window.setTimeout(() => { if (!filtersPanel.classList.contains('is-open')) filtersPanel.hidden = true; }, 300);
+    };
+    filtersButton?.addEventListener('click', () => setFiltersOpen(!filtersPanel?.classList.contains('is-open')));
+    filtersClose?.addEventListener('click', () => setFiltersOpen(false));
+    filtersPanel?.querySelectorAll('.filters-panel__section').forEach((section) => {
+      section.addEventListener('click', () => {
+        const content = section.nextElementSibling;
+        const isOpen = section.getAttribute('aria-expanded') === 'true';
+        section.setAttribute('aria-expanded', String(!isOpen));
+        section.classList.toggle('is-open', !isOpen);
+        if (content) content.hidden = isOpen;
+      });
+    });
+    filtersPanel?.querySelector('.filters-panel__toggle')?.addEventListener('click', (event) => {
+      const toggle = event.currentTarget;
+      const isOn = toggle.getAttribute('aria-pressed') === 'true';
+      toggle.setAttribute('aria-pressed', String(!isOn));
+    });
+
+    const filtersApply = filtersPanel?.querySelector('.filters-panel__action--primary');
+    const filtersReset = filtersPanel?.querySelector('.filters-panel__action--secondary');
+    const applyFilters = (event) => {
+      if (event.__filtersApplied) return;
+      event.__filtersApplied = true;
+      event.preventDefault();
+      event.stopPropagation();
+      const selectedStores = [...pendingFilters.stores];
+      const selectedSeries = new Set(pendingFilters.groups);
+      appliedSeriesNames = new Set(selectedSeries);
+      appliedStoreNames = [...selectedStores];
+      groupingMode = pendingFilters.mode === 'stores' && selectedStores.length ? 'stores' : 'groups';
+      appliedFilters = cloneFilterState({
+        mode: groupingMode,
+        groups: selectedSeries,
+        stores: appliedStoreNames
+      });
+      pendingFilters = cloneFilterState(appliedFilters);
+      singleStorePeriodMode = selectedStores.length === 1;
+      updateIndicatorsTabAvailability(true);
+      selectedSingleStoreIndex = singleStorePeriodMode
+        ? option.series.findIndex((series) => series.name === [...selectedSeries][0])
+        : 0;
+      if (groupMenu) {
+        if (singleStorePeriodMode) {
+          selectedPeriodNames = new Set(periodSeriesNames);
+          groupMenu.innerHTML = periodSeriesNames.map((name) => `<button class="group-dropdown__option" type="button" role="option" data-period="${name}" aria-selected="true"><span class="group-dropdown__checkbox">✓</span><span>${name}</span></button>`).join('');
+        } else if (groupingMode === 'stores') {
+          groupMenu.innerHTML = Object.values(storeLabelsByGroup)
+            .filter((storeName) => selectedSeries.has(groupByStoreLabel[storeName]))
+            .map((storeName) => {
+            const groupName = groupByStoreLabel[storeName];
+            return `<button class="group-dropdown__option" type="button" role="option" data-series="${groupName}" aria-selected="true"><span class="group-dropdown__checkbox">✓</span><span>${storeName}</span></button>`;
+          }).join('');
+        } else if (groupingMode === 'groups') {
+          const groupTemplate = document.createElement('div');
+          groupTemplate.innerHTML = defaultGroupMenuMarkup;
+          groupMenu.innerHTML = [...groupTemplate.querySelectorAll('.group-dropdown__option[data-series]')]
+            .filter((option) => selectedSeries.has(option.dataset.series))
+            .map((option) => option.outerHTML)
+            .join('');
+        }
+        groupOptions = groupMenu.querySelectorAll('.group-dropdown__option[data-series]');
+      }
+      const indicatorsViewActive = reportContent?.classList.contains('is-indicators');
+      if (timeDropdown && timeTrigger) {
+        const disableTimeDropdown = singleStorePeriodMode && !indicatorsViewActive;
+        timeDropdown.classList.toggle('is-disabled', disableTimeDropdown);
+        timeTrigger.setAttribute('aria-disabled', String(disableTimeDropdown));
+        if (disableTimeDropdown) {
+          timeDropdown.dataset.open = 'false';
+          timeTrigger.setAttribute('aria-expanded', 'false');
+          timeTrigger.childNodes[timeTrigger.childNodes.length - 1].textContent = 'Hora';
+        }
+      }
+      groupOptions.forEach((option) => {
+        const selected = selectedSeries.has(option.dataset.series);
+        option.setAttribute('aria-selected', String(selected));
+        const checkbox = option.querySelector('.group-dropdown__checkbox');
+        if (checkbox) checkbox.textContent = selected ? '✓' : '';
+        const optionLabel = option.querySelector('span:last-child');
+        if (optionLabel) optionLabel.textContent = getDisplayGroupName(option.dataset.series);
+      });
+      if (groupFilterLabel) groupFilterLabel.textContent = singleStorePeriodMode ? 'Periodo' : (groupingMode === 'stores' ? 'Tiendas' : 'Grupos');
+      const selectedLabels = [...groupOptions]
+        .filter((option) => option.getAttribute('aria-selected') === 'true')
+        .map((option) => option.querySelector('span:last-child')?.textContent.trim());
+      if (groupTrigger) groupTrigger.textContent = singleStorePeriodMode
+        ? [...selectedPeriodNames].join(', ')
+        : (selectedLabels.length ? selectedLabels.join(', ') : (groupingMode === 'stores' ? 'Seleccionar tiendas' : 'Seleccionar grupos'));
+      updateGroupSeries(selectedSeries);
+      if (selectedStores.length) {
+        getPanelGroupOptions().forEach((option) => {
+          option.setAttribute('aria-selected', 'false');
+          const checkbox = option.querySelector('.group-dropdown__checkbox');
+          if (checkbox) checkbox.textContent = '';
+        });
+        updatePanelGroupSummary();
+      } else {
+        syncPanelGroups();
+      }
+      const isIndicatorsView = reportContent?.classList.contains('is-indicators');
+      reportContent?.classList.toggle('is-single-store-indicators', Boolean(isIndicatorsView && singleStorePeriodMode));
+      indicatorDropdown?.classList.remove('indicator-dropdown--multi');
+      if (isIndicatorsView && singleStorePeriodMode) {
+        selectedAdditionalNames = getDefaultAdditionalSelection();
+        selectedIndicatorNames = new Set([currentIndicator, ...selectedAdditionalNames]);
+        indicatorOptions.forEach((item) => item.setAttribute('aria-selected', String(item.textContent.trim() === currentIndicator)));
+        if (indicatorTrigger) indicatorTrigger.textContent = currentIndicator;
+        syncAdditionalOptions();
+      }
+      if (isIndicatorsView && singleStorePeriodMode) renderSingleStoreIndicatorChart();
+      setFiltersOpen(false);
+    };
+    filtersApply?.addEventListener('click', applyFilters);
+    filtersReset?.addEventListener('click', () => {
+      pendingFilters = cloneFilterState(appliedFilters);
+      syncPanelGroups();
+      getPanelStoreOptions().forEach((option) => {
+        const selected = pendingFilters.mode === 'stores' && pendingFilters.stores.includes(option.dataset.store);
+        option.setAttribute('aria-selected', String(selected));
+        const checkbox = option.querySelector('.group-dropdown__checkbox');
+        if (checkbox) checkbox.textContent = selected ? '✓' : '';
+      });
+      syncPanelStores();
+    });
+  </script>
+</body>
+</html>
