@@ -534,6 +534,9 @@ body.visor-abierto { overflow: hidden; }
 .alternar__boton[aria-pressed="true"] { background: var(--negro); color: var(--blanco); }
 .alternar__boton:focus-visible { outline: 2px solid var(--negro); outline-offset: 2px; }
 .alternar__vista[hidden] { display: none; }
+/* Espacio equivalente al interruptor, para alinear una imagen vecina sin interruptor */
+.alternar-espacio { padding-top: 54px !important; }
+@media (max-width: 640px) { .alternar-espacio { padding-top: 0 !important; } }
 
 /* 13. Videos de demostración ----------------------------- */
 .video-demo { position: relative; border: var(--borde); line-height: 0; background: var(--negro); }
