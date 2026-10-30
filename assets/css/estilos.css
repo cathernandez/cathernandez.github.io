@@ -581,3 +581,12 @@ body.visor-abierto { overflow: hidden; }
   .comparar__rotulo { top: 8px; font-size: 10px; padding: 5px 7px; }
   .comparar__rotulo--izq { left: 8px; } .comparar__rotulo--der { right: 8px; }
 }
+
+/* ---------- 16. Interruptor como stepper (pasos numerados, centrado) ---------- */
+.alternar--pasos { gap: 20px; }
+.alternar--pasos .alternar__botones { align-self: center; border: 0; display: flex; align-items: center; }
+.alternar--pasos .alternar__boton { width: 40px; height: 40px; border-radius: 50%; border: var(--borde); padding: 0; background: var(--blanco); color: var(--negro); font: 600 15px/1 var(--fuente-titulos); letter-spacing: 0; text-transform: none; display: flex; align-items: center; justify-content: center; }
+.alternar--pasos .alternar__boton + .alternar__boton { border-left: var(--borde); }
+.alternar--pasos .alternar__boton[aria-pressed="true"] { background: var(--negro); color: var(--blanco); }
+.pasos__linea { width: 96px; height: 1px; background: var(--negro); margin: 0 8px; }
+@media (max-width: 640px) { .pasos__linea { width: 48px; } }
