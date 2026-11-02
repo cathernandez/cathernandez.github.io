@@ -651,16 +651,20 @@ body.visor-abierto { overflow: hidden; }
 .telefono-marco img { display: block; width: 100%; height: auto; border-radius: 26px; }
 .telefono-marco--chico { max-width: 270px; }
 
-/* ---------- Prototipo de Figma: incrustado en escritorio, aviso + enlace en móvil ---------- */
-.figma-proto { display: flex; flex-direction: column; gap: 12px; }
-.figma-proto__marco { width: 100%; aspect-ratio: 16 / 9; border: var(--borde); background: var(--gris-fondo); line-height: 0; }
+/* ---------- Prototipo de Figma: marco tipo navegador (igual a Plataforma BI); en móvil, aviso ---------- */
+.figma-proto { border: var(--borde); background: var(--blanco); }
+.figma-proto__barra { display: flex; align-items: center; gap: 14px; padding: 10px 14px; border-bottom: var(--borde); background: #f7f7f7; }
+.figma-proto__puntos { display: flex; gap: 6px; }
+.figma-proto__puntos span { width: 10px; height: 10px; border-radius: 50%; border: 1px solid #000; }
+.figma-proto__titulo { flex: 1; font-family: var(--fuente-titulos); font-size: 12px; color: var(--texto-tenue); border: 1px solid rgba(0, 0, 0, 0.2); background: var(--blanco); padding: 5px 10px; }
+.figma-proto__boton { font-family: var(--fuente-titulos); font-weight: 600; font-size: 13px; color: var(--blanco); background: var(--negro); padding: 7px 14px; text-decoration: none; white-space: nowrap; }
+.figma-proto__boton:hover { opacity: 0.8; }
+.figma-proto__marco { width: 100%; aspect-ratio: 16 / 9; background: var(--gris-fondo); line-height: 0; }
 .figma-proto__marco iframe { display: block; width: 100%; height: 100%; border: 0; }
-.figma-proto__enlace { align-self: flex-start; font-family: var(--fuente-titulos); font-size: 14px; font-weight: 600; color: var(--negro); }
 .figma-proto__movil { display: none; }
 @media (max-width: 640px) {
-  .figma-proto__marco, .figma-proto__enlace { display: none; }
-  .figma-proto__movil { display: flex; flex-direction: column; gap: 16px; padding: 24px 20px; border: var(--borde); background: var(--gris-fondo); }
-  .figma-proto__aviso { font-size: 16px; line-height: 1.6; color: var(--texto-suave); margin: 0; }
+  .figma-proto__marco { display: none; }
+  .figma-proto__movil { display: block; margin: 0; padding: 24px 20px; background: var(--gris-fondo); font-size: 16px; line-height: 1.6; color: var(--texto-suave); }
   .telefono-marco { border-width: 7px; border-radius: 26px; }
   .telefono-marco img { border-radius: 19px; }
 }
