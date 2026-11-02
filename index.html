@@ -8,8 +8,13 @@ description: Diseñadora UX/UI. Diseño productos que hacen simple lo complejo, 
   <h1 class="portada-home__titulo">Diseño productos que hacen simple lo complejo.</h1>
   <p class="portada-home__bajada">Me especializo en productos de datos (reportes, dashboards y visualizaciones) y también diseño apps móviles y e-commerce. Trabajo de punta a punta: desde el discovery hasta el prototipo en alta fidelidad.</p>
   <div class="botones">
-    <a class="boton boton--negro" href="#contacto">Contacto</a>
-    <a class="boton boton--borde" href="{{ '/assets/docs/cv-catalina-hernandez.pdf' | relative_url }}" target="_blank" rel="noopener" download>Descargar CV</a>
+    <div class="contacto-rapido">
+      <a class="boton boton--negro" href="#contacto" data-contacto-boton aria-expanded="false" aria-controls="contacto-panel">Contacto</a>
+      <div class="contacto-panel" id="contacto-panel" hidden>
+        {% include contacto-filas.html %}
+      </div>
+    </div>
+    <a class="boton boton--borde" href="{{ '/assets/docs/cv-catalina-hernandez.pdf' | relative_url }}" target="_blank" rel="noopener" download>Descargar CV <span class="boton__nota">(PDF, 58 KB)</span></a>
   </div>
 </section>
 
@@ -57,10 +62,67 @@ description: Diseñadora UX/UI. Diseño productos que hacen simple lo complejo, 
   </div>
 </section>
 
-<section class="contenedor seccion sobre-mi" id="sobre-mi" aria-labelledby="sobre-mi-titulo">
-  <img class="sobre-mi__foto" src="{{ '/assets/img/home/foto-catalina.webp' | relative_url }}" alt="Retrato de Catalina Hernández sonriendo, con pelo castaño largo y blusa blanca bordada." width="560" height="640" loading="lazy" decoding="async">
-  <div class="sobre-mi__texto">
-    <h2 class="seccion__titulo" id="sobre-mi-titulo">Sobre mí</h2>
-    <p>Estudié Ingeniería Comercial y trabajé varios años en consultoría como project manager. Luego me certifiqué en UX/UI y me dediqué al diseño, porque me gusta la idea de crear cosas. Ese camino me dejó una mirada atenta al negocio detrás de cada decisión de diseño.</p>
+<section class="contenedor seccion experiencia" id="experiencia" aria-labelledby="experiencia-titulo">
+  <div class="experiencia__intro">
+    <img class="experiencia__foto" src="{{ '/assets/img/home/foto-catalina.webp' | relative_url }}" alt="Retrato de Catalina Hernández sonriendo, con pelo castaño largo y blusa blanca bordada." width="560" height="640" loading="lazy" decoding="async">
+    <div class="experiencia__texto">
+      <h2 class="seccion__titulo" id="experiencia-titulo">Experiencia</h2>
+      <p>Estudié Ingeniería Comercial y trabajé varios años en consultoría como project manager. Luego me certifiqué en UX/UI y me dediqué al diseño, porque me gusta la idea de crear cosas. Ese camino me dejó una mirada atenta al negocio detrás de cada decisión de diseño.</p>
+    </div>
+  </div>
+
+  <div class="experiencia__columnas">
+    <div class="experiencia__col">
+      <h3 class="experiencia__subtitulo">Trabajo</h3>
+      <ol class="linea-tiempo">
+        <li class="linea-tiempo__item">
+          <div class="linea-tiempo__cabecera"><h4>Diseñadora UI/UX</h4><span class="linea-tiempo__fecha">Mar 2026 – Oct 2026</span></div>
+          <p class="linea-tiempo__lugar"><a href="{{ '/proyectos/plataforma-bi.html' | relative_url }}">Plataforma BI</a> · Santiago, Chile</p>
+          <ul>
+            <li>Lideré el discovery con clientes internos y externos y convertí los hallazgos en requerimientos para reportes de BI que cruzan datos de sensores en tienda y sistemas de venta.</li>
+            <li>Diseñé en Figma, con enfoque mobile-first, la migración de reportes a una nueva plataforma en sus versiones móvil y escritorio.</li>
+            <li>Construí prototipos funcionales en HTML, CSS y JavaScript usando Codex (IA), lo que permitió acelerar el refinamiento con desarrollo y la validación con stakeholders en sesiones interactivas.</li>
+          </ul>
+        </li>
+        <li class="linea-tiempo__item">
+          <div class="linea-tiempo__cabecera"><h4>Diseñadora UI/UX</h4><span class="linea-tiempo__fecha">May 2023 – Jun 2024</span></div>
+          <p class="linea-tiempo__lugar"><a href="{{ '/proyectos/alara.html' | relative_url }}">Alara</a> · Santiago, Chile</p>
+          <ul>
+            <li>Diseñé una aplicación móvil ligada a un botón de pánico físico que mejoró significativamente la sensación de seguridad del usuario gracias a una experiencia de uso fluida y confiable.</li>
+            <li>Supervisé el desarrollo de la aplicación desde la conceptualización hasta su lanzamiento, alineando a los equipos técnicos con los requerimientos del usuario y los plazos establecidos.</li>
+          </ul>
+        </li>
+        <li class="linea-tiempo__item">
+          <div class="linea-tiempo__cabecera"><h4>Consultora Asociada</h4><span class="linea-tiempo__fecha">Ago 2019 – Jul 2022</span></div>
+          <p class="linea-tiempo__lugar">J-Global · Remoto</p>
+          <ul>
+            <li>Diseñé una plataforma web de entrenamiento para clientes corporativos, incorporando recursos interactivos que aumentaron la participación y el aprendizaje efectivo del personal.</li>
+            <li>Coordiné equipos multidisciplinarios en proyectos estratégicos, aplicando metodologías ágiles que mejoraron los tiempos de entrega y la calidad de los entregables.</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+
+    <div class="experiencia__col">
+      <h3 class="experiencia__subtitulo">Formación</h3>
+      <ol class="linea-tiempo linea-tiempo--compacta">
+        <li class="linea-tiempo__item"><div class="linea-tiempo__cabecera"><h4>Certificación Diseño UI/UX</h4><span class="linea-tiempo__fecha">2023</span></div><p class="linea-tiempo__lugar">Springboard Academy · Online</p></li>
+        <li class="linea-tiempo__item"><div class="linea-tiempo__cabecera"><h4>Certificación Scrum Master</h4><span class="linea-tiempo__fecha">2020</span></div><p class="linea-tiempo__lugar">Scrum Institute · Online</p></li>
+        <li class="linea-tiempo__item"><div class="linea-tiempo__cabecera"><h4>Master’s in International Management</h4><span class="linea-tiempo__fecha">2018 – 2019</span></div><p class="linea-tiempo__lugar">Universidad Adolfo Ibáñez · Santiago</p></li>
+        <li class="linea-tiempo__item"><div class="linea-tiempo__cabecera"><h4>Ingeniería Comercial</h4><span class="linea-tiempo__fecha">2013 – 2018</span></div><p class="linea-tiempo__lugar">Universidad Adolfo Ibáñez · Santiago</p></li>
+      </ol>
+
+      <h3 class="experiencia__subtitulo">Herramientas</h3>
+      <ul class="chips experiencia__chips" aria-label="Herramientas">
+        <li>Figma</li><li>Codex</li><li>Claude Design</li><li>Excel</li><li>Google Analytics</li><li>Mixpanel</li><li>Photoshop</li><li>Illustrator</li><li>YouTrack</li>
+      </ul>
+
+      <h3 class="experiencia__subtitulo">Idiomas</h3>
+      <p class="experiencia__idiomas">Español (nativo) · Inglés (avanzado)</p>
+    </div>
+  </div>
+
+  <div class="botones">
+    <a class="boton boton--borde" href="{{ '/assets/docs/cv-catalina-hernandez.pdf' | relative_url }}" target="_blank" rel="noopener" download>Descargar CV <span class="boton__nota">(PDF, 58 KB)</span></a>
   </div>
 </section>

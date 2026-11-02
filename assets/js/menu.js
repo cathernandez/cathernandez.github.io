@@ -317,3 +317,49 @@ document.addEventListener('input', function (e) {
   caja.style.setProperty('--pos', e.target.value + '%');
   e.target.setAttribute('aria-valuetext', e.target.value + '% versión migrada');
 });
+
+// Contacto: el botón de la portada abre un panel con correo y WhatsApp; cada fila tiene un botón para copiar.
+(function () {
+  var boton = document.querySelector('[data-contacto-boton]');
+  var panel = boton && document.getElementById(boton.getAttribute('aria-controls'));
+  function abrir(si) {
+    if (!panel) return;
+    panel.hidden = !si;
+    boton.setAttribute('aria-expanded', si ? 'true' : 'false');
+    if (si) { var primero = panel.querySelector('a, button'); if (primero) primero.focus(); }
+  }
+  if (boton && panel) {
+    boton.addEventListener('click', function (e) { e.preventDefault(); abrir(panel.hidden); });
+    document.addEventListener('click', function (e) {
+      if (!panel.hidden && !panel.contains(e.target) && !boton.contains(e.target)) abrir(false);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !panel.hidden) { abrir(false); boton.focus(); }
+    });
+  }
+
+  var aviso = document.querySelector('.contacto-aviso');
+  function copiar(texto) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(texto);
+    return new Promise(function (ok, falla) {
+      var area = document.createElement('textarea');
+      area.value = texto; area.setAttribute('readonly', ''); area.style.position = 'fixed'; area.style.opacity = '0';
+      document.body.appendChild(area); area.select();
+      try { document.execCommand('copy') ? ok() : falla(); } catch (err) { falla(err); }
+      document.body.removeChild(area);
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-copiar]');
+    if (!b) return;
+    var original = b.textContent;
+    copiar(b.getAttribute('data-copiar')).then(function () {
+      b.textContent = 'Copiado ✓';
+      if (aviso) aviso.textContent = 'Copiado al portapapeles: ' + b.getAttribute('data-copiar');
+    }, function () {
+      b.textContent = 'No se pudo';
+    });
+    clearTimeout(b._t);
+    b._t = setTimeout(function () { b.textContent = original; }, 2000);
+  });
+})();
