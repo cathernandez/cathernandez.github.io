@@ -146,7 +146,8 @@ p { margin: 0; }
 .tarjeta-destacada {
   display: flex; border: var(--borde); text-decoration: none; color: inherit;
 }
-.tarjeta-destacada__imagen { flex: 3 1 0; min-height: 420px; border-right: var(--borde); }
+.tarjeta-destacada__imagen { flex: 3 1 0; min-height: 420px; border-right: var(--borde); position: relative; overflow: hidden; background: #eef1f5; }
+.tarjeta-destacada__imagen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .tarjeta-destacada__texto {
   flex: 2 1 0; padding: 40px;
   display: flex; flex-direction: column; justify-content: center; gap: 16px;
