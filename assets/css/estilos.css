@@ -26,6 +26,7 @@
   --ancho-contenedor: 1200px;
   --margen-lateral: 24px;
   --borde: 1px solid var(--negro);
+  --alto-encabezado: 91px;
 }
 
 /* 2. Base ------------------------------------------------ */
@@ -110,7 +111,8 @@ p { margin: 0; }
 .cuadricula--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 /* 4. Encabezado y menú ----------------------------------- */
-.encabezado { border-bottom: var(--borde); background: var(--blanco); position: relative; z-index: 20; }
+.encabezado { border-bottom: var(--borde); background: var(--blanco); position: sticky; top: 0; z-index: 40; }
+html { scroll-padding-top: var(--alto-encabezado); }
 .encabezado__fila {
   display: flex; align-items: center; justify-content: space-between; gap: 16px;
   padding-top: 24px; padding-bottom: 24px;
@@ -166,7 +168,7 @@ p { margin: 0; }
 .tarjeta-destacada:hover .enlace-flecha { opacity: 0.6; }
 .tarjeta-proyecto:hover .tarjeta-proyecto__titulo { text-decoration: underline; }
 
-.experiencia { display: flex; flex-direction: column; gap: 48px; padding-top: 96px; }
+.experiencia { display: flex; flex-direction: column; gap: 40px; padding-top: 96px; }
 .experiencia__intro { display: flex; align-items: center; gap: 40px; }
 .experiencia__foto { flex: 0 0 200px; width: 200px; height: 240px; object-fit: cover; object-position: center top; border: var(--borde); }
 .experiencia__texto { flex: 1 1 0; display: flex; flex-direction: column; gap: 18px; max-width: 680px; }
@@ -323,6 +325,7 @@ p { margin: 0; }
 
 /* 7. Móvil (≤ 640 px) ------------------------------------ */
 @media (max-width: 640px) {
+  :root { --alto-encabezado: 69px; }
   /* F1 · Escala tipográfica y márgenes */
   :root { --margen-lateral: 16px; }
   body { font-size: 16px; }
@@ -431,7 +434,7 @@ p { margin: 0; }
 }
 
 /* 9. Plataforma BI: pestañas, índice e hilo conductor ---- */
-.pbi-pestanas { position: sticky; top: 0; z-index: 5; display: flex; border: var(--borde); background: var(--blanco); }
+.pbi-pestanas { position: sticky; top: var(--alto-encabezado); z-index: 5; display: flex; border: var(--borde); background: var(--blanco); }
 .pbi-pestana {
   flex: 1 1 0; min-width: 0; padding: 16px 20px; display: flex; flex-direction: column; gap: 4px;
   border-right: var(--borde); background: var(--blanco); color: var(--negro); text-decoration: none;
@@ -448,7 +451,7 @@ p { margin: 0; }
 [role="tabpanel"] [id] { scroll-margin-top: 110px; }
 
 .pbi-lado { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 56px; align-items: start; }
-.pbi-indice { position: sticky; top: 104px; display: flex; flex-direction: column; gap: 12px; }
+.pbi-indice { position: sticky; top: calc(var(--alto-encabezado) + 104px); display: flex; flex-direction: column; gap: 12px; }
 .pbi-indice__lista { list-style: none; margin: 0; padding: 0; }
 .pbi-indice__enlace {
   display: block; padding: 7px 0 7px 14px; border-left: 2px solid rgba(0, 0, 0, 0.12);
@@ -460,7 +463,7 @@ p { margin: 0; }
 
 /* Índice lateral en las páginas de proyecto */
 .caso-lado { gap: 48px; }
-.pbi-indice--caso { top: 32px; }
+.pbi-indice--caso { top: calc(var(--alto-encabezado) + 32px); }
 .caso-columna { min-width: 0; }
 .caso-columna .grilla--300 { grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); }
 .caso-columna > .caso-seccion:first-child { border-top: 0; padding-top: 0; }

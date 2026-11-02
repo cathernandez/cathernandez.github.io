@@ -339,27 +339,77 @@ document.addEventListener('input', function (e) {
   }
 
   var aviso = document.querySelector('.contacto-aviso');
+  // Copia con el método antiguo (funciona en más navegadores y vistas embebidas).
+  function copiarAntiguo(texto) {
+    var area = document.createElement('textarea');
+    area.value = texto; area.setAttribute('readonly', '');
+    area.style.position = 'fixed'; area.style.top = '0'; area.style.left = '0'; area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.focus(); area.select(); area.setSelectionRange(0, texto.length);
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+    document.body.removeChild(area);
+    return ok;
+  }
   function copiar(texto) {
-    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(texto);
-    return new Promise(function (ok, falla) {
-      var area = document.createElement('textarea');
-      area.value = texto; area.setAttribute('readonly', ''); area.style.position = 'fixed'; area.style.opacity = '0';
-      document.body.appendChild(area); area.select();
-      try { document.execCommand('copy') ? ok() : falla(); } catch (err) { falla(err); }
-      document.body.removeChild(area);
-    });
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      return navigator.clipboard.writeText(texto).catch(function () {
+        if (!copiarAntiguo(texto)) throw new Error('sin permiso');
+      });
+    }
+    return copiarAntiguo(texto) ? Promise.resolve() : Promise.reject(new Error('sin permiso'));
+  }
+  // Si el navegador no deja copiar, se selecciona el dato para copiarlo con Cmd/Ctrl + C.
+  function seleccionar(fila) {
+    var valor = fila && fila.querySelector('.contacto-fila__valor');
+    if (!valor || !window.getSelection) return;
+    var rango = document.createRange(); rango.selectNodeContents(valor);
+    var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(rango);
   }
   document.addEventListener('click', function (e) {
     var b = e.target.closest('[data-copiar]');
     if (!b) return;
-    var original = b.textContent;
-    copiar(b.getAttribute('data-copiar')).then(function () {
+    var original = b.getAttribute('data-texto') || b.textContent;
+    b.setAttribute('data-texto', original);
+    var valor = b.getAttribute('data-copiar');
+    copiar(valor).then(function () {
       b.textContent = 'Copiado ✓';
-      if (aviso) aviso.textContent = 'Copiado al portapapeles: ' + b.getAttribute('data-copiar');
+      if (aviso) aviso.textContent = 'Copiado al portapapeles: ' + valor;
     }, function () {
-      b.textContent = 'No se pudo';
+      seleccionar(b.closest('.contacto-fila'));
+      b.textContent = 'Usa Cmd/Ctrl + C';
+      if (aviso) aviso.textContent = 'No se pudo copiar automáticamente. El dato quedó seleccionado: ' + valor;
     });
     clearTimeout(b._t);
-    b._t = setTimeout(function () { b.textContent = original; }, 2000);
+    b._t = setTimeout(function () { b.textContent = original; }, 2500);
+  });
+
+  // Al hacer clic en el correo se copia la dirección en el mismo momento (por si no hay una
+  // aplicación de correo configurada). Si no se abrió ninguna aplicación, se avisa en el botón de al lado.
+  document.addEventListener('click', function (e) {
+    var enlace = e.target.closest('a[href^="mailto:"]');
+    if (!enlace) return;
+    var direccion = enlace.getAttribute('href').replace('mailto:', '');
+    var copiado = copiar(direccion).then(function () { return true; }, function () { return false; });
+    var salio = false;
+    function alSalir() { salio = true; }
+    window.addEventListener('blur', alSalir, { once: true });
+    document.addEventListener('visibilitychange', alSalir, { once: true });
+    setTimeout(function () {
+      window.removeEventListener('blur', alSalir);
+      document.removeEventListener('visibilitychange', alSalir);
+      if (salio) return;
+      var fila = enlace.closest('.contacto-fila');
+      var b = fila && fila.querySelector('[data-copiar]');
+      if (!b) return;
+      copiado.then(function (ok) {
+        var original = b.getAttribute('data-texto') || b.textContent;
+        b.setAttribute('data-texto', original);
+        if (ok) { b.textContent = 'Copiado ✓'; if (aviso) aviso.textContent = 'No se abrió una aplicación de correo; la dirección quedó copiada.'; }
+        else { seleccionar(fila); b.textContent = 'Usa Cmd/Ctrl + C'; }
+        clearTimeout(b._t);
+        b._t = setTimeout(function () { b.textContent = original; }, 2500);
+      });
+    }, 900);
   });
 })();
