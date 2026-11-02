@@ -1,0 +1,2222 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reporte Demografía · Prototipo</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap">
+  <style>
+
+    :root {
+      --font-sans: 'Inter', Arial, sans-serif;
+      --bg-app: #f5f7fb;
+      --surface: #ffffff;
+      --border: #d4d9e3;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --accent: #016085;
+      --shadow-card: 0 20px 40px -28px rgba(15, 23, 42, 0.35);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      background: var(--bg-app);
+      color: var(--text);
+    }
+    button, input { font: inherit; }
+
+    .browser {
+      min-height: 100vh;
+      background: var(--bg-app);
+    }
+
+    .app {
+      min-height: 100vh;
+      position: relative;
+      background: var(--bg-app);
+    }
+
+    .sidebar__item svg,
+    .crumb svg,
+    .button svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      height: 100vh;
+      padding: 4px 0;
+      background: #fff;
+      border-radius: 0 12px 12px 0;
+    }
+
+    .sidebar__top,
+    .sidebar__bottom {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .sidebar__bottom { margin-top: auto; }
+
+
+    .sidebar__separator {
+      display: block;
+      width: 38px;
+      height: 1px;
+      margin: 16px auto;
+      background: #e5e7eb;
+    }
+
+    .sidebar__stack {
+      display: grid;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .sidebar__top .sidebar__stack {
+      margin-top: 16px;
+    }
+
+    .sidebar__stack--single { gap: 0; }
+    .sidebar__stack--plain .sidebar__item::after { display: none; }
+
+    .sidebar__item {
+      width: 38px;
+      height: 34px;
+      margin: 0 auto;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 8px;
+      background: transparent;
+      color: #1f2a37;
+      padding: 0;
+      position: relative;
+    }
+
+    .sidebar__item img {
+      width: 24px;
+      height: 24px;
+      display: block;
+      object-fit: contain;
+    }
+
+    .sidebar__stack .sidebar__item:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -8px;
+      width: 38px;
+      height: 1px;
+      background: #e5e7eb;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .page {
+      min-width: 0;
+      margin-left: 64px;
+      padding: 18px 18px 22px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .crumb {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0 12px;
+      color: #4b5563;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    .crumb__current { color: var(--text); }
+
+    .toolbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .toolbar-date-picker {
+      justify-self: start;
+      width: 100%;
+      max-width: 325px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      position: relative;
+    }
+
+    .toolbar-date-picker__input {
+      width: 100%;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text-muted);
+      text-align: left;
+    }
+
+    .toolbar-date-picker__input svg {
+      width: 18px;
+      height: 18px;
+      flex: none;
+      stroke: none;
+      fill: currentColor;
+      color: #9ca3af;
+    }
+
+    .toolbar-date-picker__label {
+      color: #374151;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.25;
+      white-space: nowrap;
+    }
+
+    .toolbar-date-picker__popover {
+      position: absolute;
+      top: 46px;
+      left: 0;
+      width: 472px;
+      max-width: min(472px, calc(100vw - 32px));
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(0);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+      z-index: 50;
+    }
+
+    .toolbar-date-picker[data-open="true"] .toolbar-date-picker__popover {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    .calendar-popover {
+      width: 100%;
+      height: 348px;
+      display: flex;
+      overflow: hidden;
+      border-radius: 6px;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+      border: 1px solid #e5e7eb;
+    }
+
+    .calendar-popover__shortcuts {
+      width: 160px;
+      padding: 16px 0 16px 16px;
+      border-right: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      color: #2d3748;
+      font-size: 14px;
+      font-weight: 400;
+    }
+
+    .calendar-popover__shortcut {
+      height: 32px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+      line-height: 1.5;
+    }
+
+    .calendar-popover__shortcut:hover,
+    .calendar-popover__shortcut[aria-pressed="true"] {
+      color: #016085;
+      font-weight: 500;
+    }
+
+    .calendar-popover__main {
+      width: 312px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .calendar-popover__main-inner {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
+      padding: 22px 25px 0;
+      gap: 16px;
+    }
+
+    .calendar-popover__heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .calendar-popover__month {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      height: 24px;
+      padding: 10px 8px;
+      border-radius: 6px;
+      background: transparent;
+      border: 0;
+      color: #2d3748;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .calendar-popover__month svg,
+    .calendar-popover__nav svg {
+      width: 12px;
+      height: 12px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex: none;
+    }
+
+    .calendar-popover__nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .calendar-popover__nav-button {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: #2d3748;
+      cursor: pointer;
+    }
+
+    .calendar-popover__nav-button:hover {
+      background: #f3f4f6;
+    }
+
+    .calendar-popover__weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0;
+      color: #718096;
+      font-size: 12px;
+      font-weight: 500;
+      text-align: center;
+      padding-left: 8px;
+      padding-right: 0;
+    }
+
+    .calendar-popover__weekdays span {
+      display: grid;
+      place-items: center;
+      height: 24px;
+    }
+
+    .calendar-popover__grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0;
+      align-items: center;
+      justify-items: center;
+      row-gap: 0;
+      padding-left: 8px;
+      padding-bottom: 16px;
+    }
+
+    .calendar-popover__cell {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #2d3748;
+      border-radius: 9999px;
+      font-size: 14px;
+      line-height: 1.5;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+
+    .calendar-popover__cell--empty {
+      cursor: default;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .calendar-popover__cell--muted {
+      color: #718096;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .calendar-popover__cell--range-mid {
+      background: #ccecf8;
+      border-radius: 0;
+    }
+
+    .calendar-popover__cell--range-start {
+      background: #016085;
+      color: #fff;
+      border-top-left-radius: 9999px;
+      border-bottom-left-radius: 9999px;
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    .calendar-popover__cell--range-end {
+      background: #016085;
+      color: #fff;
+      border-top-right-radius: 9999px;
+      border-bottom-right-radius: 9999px;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+
+    .calendar-popover__footer {
+      height: 63px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 26px 23px;
+      background: #fff;
+    }
+
+    .calendar-popover__footer-button {
+      min-width: 80px;
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.5;
+      cursor: pointer;
+    }
+
+    .calendar-popover__footer-button--secondary {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      color: #1f2a37;
+    }
+
+    .calendar-popover__footer-button--primary {
+      background: #016085;
+      border: 1px solid #016085;
+      color: #fff;
+      padding: 0 16px;
+    }
+
+    .calendar-popover__footer-button:hover {
+      filter: brightness(0.98);
+    }
+
+    .toolbar__right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      justify-content: flex-start;
+      gap: 3px;
+      margin-left: auto;
+      flex-wrap: nowrap;
+    }
+
+    .toolbar-date-picker__days {
+      display: flex;
+      width: 100%;
+      height: 29px;
+      margin-top: 2px;
+    }
+
+    .toolbar-date-picker__day {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 17px;
+      border: 1px solid var(--border);
+      border-right-width: 0;
+      background: #fff;
+      color: #111928;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.5;
+      cursor: pointer;
+      transition: background-color 0.15s ease, color 0.15s ease;
+    }
+
+    .toolbar-date-picker__day:first-child {
+      border-top-left-radius: 4px;
+      border-bottom-left-radius: 4px;
+      padding-left: 16px;
+      padding-right: 18px;
+    }
+
+    .toolbar-date-picker__day:last-child {
+      border-top-right-radius: 4px;
+      border-bottom-right-radius: 4px;
+      border-right-width: 1px;
+    }
+
+    .toolbar-date-picker__day:hover,
+    .toolbar-date-picker__day[aria-pressed="true"] {
+      background: #f3f4f6;
+    }
+
+    .toolbar-meta {
+      margin-top: 2px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      width: 68px;
+      padding: 0 8px;
+      border: 0.75px solid #9ca3af;
+      border-radius: 4px;
+      background: #f9fafb;
+      color: #6b7280;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.5;
+      overflow: hidden;
+      white-space: nowrap;
+      transition:
+        width 220ms ease,
+        box-shadow 180ms ease,
+        border-color 180ms ease,
+        background-color 180ms ease;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
+    }
+
+    .toolbar-meta img {
+      width: 12px;
+      height: 12px;
+      display: block;
+      flex: none;
+      filter: brightness(0) saturate(100%) invert(45%) sepia(9%) saturate(533%) hue-rotate(182deg) brightness(91%) contrast(88%);
+    }
+
+    .toolbar-meta__text {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      min-width: 0;
+      flex: 1 1 auto;
+      height: 16px;
+    }
+
+    .toolbar-meta__short,
+    .toolbar-meta__long {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transition:
+        opacity 140ms ease,
+        transform 180ms ease;
+    }
+
+    .toolbar-meta__short {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+      font-weight: 500;
+    }
+
+    .toolbar-meta__long {
+      opacity: 0;
+      transform: translateY(-50%) translateX(8px);
+      pointer-events: none;
+      font-weight: 500;
+    }
+
+    .toolbar-meta:hover {
+      width: 360px;
+      border-color: #6b7280;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
+      padding-inline: 10px;
+    }
+
+    .toolbar-meta:hover .toolbar-meta__short {
+      opacity: 0;
+      transform: translateY(-50%) translateX(-8px);
+    }
+
+    .toolbar-meta:hover .toolbar-meta__long {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+
+    .button {
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      border: 0;
+      border-radius: 4px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: var(--shadow-card);
+    }
+
+    .button img {
+      width: 16px;
+      height: 16px;
+      display: block;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+      flex: none;
+    }
+
+    .shell-card {
+      margin-top: 24px;
+      flex: 1 1 auto;
+      min-height: 0;
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .shell-card__placeholder {
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      color: #9ca3af;
+      font-size: 14px;
+      font-style: italic;
+    }
+
+    .demographic-content {
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .leader-grid,
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .leader-card,
+    .chart-card,
+    .details-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .leader-card {
+      min-height: 139px;
+      padding: 17px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .leader-card__top,
+    .leader-card__headline,
+    .chart-card__header,
+    .details-card__header {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+    }
+
+    .leader-card__top { flex-wrap: wrap; }
+    .chart-card__header,
+    .details-card__header { justify-content: space-between; }
+    .leader-card__label,
+    .chart-card__title,
+    .details-card__title {
+      color: #111928;
+      font-weight: 550;
+    }
+
+    .chart-card__title { font-weight: 500; }
+    .wide-card .chart-card__header { gap: 16px; }
+    .wide-card .chart-card__title { margin-right: auto; }
+    .wide-card__controls { display: flex; align-items: center; gap: 16px; }
+    .wide-card__controls label { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+    .wide-card__select-wrap { position: relative; display: inline-flex; min-width: 190px; }
+    .wide-card__select-wrap::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: 14px;
+      width: 7px;
+      height: 7px;
+      border-right: 1.5px solid #6b7280;
+      border-bottom: 1.5px solid #6b7280;
+      transform: translateY(-65%) rotate(45deg);
+      pointer-events: none;
+    }
+    .wide-card__select { width: 100%; height: 36px; min-width: 0; padding: 0 38px 0 14px; border: 1px solid #d8dde6; border-radius: 8px; appearance: none; background: #fff; color: #374151; font: inherit; font-size: 14px; }
+    .wide-card__dropdown { position: relative; min-width: 190px; }
+    .wide-card__indicator-label { display: inline-flex; align-items: center; gap: 6px; }
+    .wide-card__indicator-help { position: relative; display: inline-flex; align-items: center; }
+    .wide-card__indicator-help img { width: 16px; height: 16px; display: block; cursor: help; }
+    .wide-card__indicator-help::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      z-index: 30;
+      left: 50%;
+      top: calc(100% + 10px);
+      bottom: auto;
+      width: 360px;
+      padding: 12px 18px;
+      border-radius: 6px;
+      background: #1f2a37;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 20px;
+      text-align: center;
+      white-space: normal;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transform: translate(-50%, -4px);
+      transition: opacity 140ms ease, transform 140ms ease, visibility 140ms ease;
+    }
+    .wide-card__indicator-help::before {
+      content: "";
+      position: absolute;
+      z-index: 31;
+      left: 50%;
+      top: calc(100% + 4px);
+      bottom: auto;
+      width: 12px;
+      height: 12px;
+      background: #1f2a37;
+      transform: translateX(-50%) rotate(45deg);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 140ms ease, visibility 140ms ease;
+    }
+    .wide-card__indicator-help:hover::after,
+    .wide-card__indicator-help:hover::before,
+    .wide-card__indicator-help:focus-visible::after,
+    .wide-card__indicator-help:focus-visible::before { opacity: 1; visibility: visible; }
+    .wide-card__indicator-help:hover::after,
+    .wide-card__indicator-help:focus-visible::after { transform: translate(-50%, 0); }
+    .wide-card__dropdown-trigger { width: 100%; height: 36px; padding: 0 38px 0 14px; border: 1px solid #d8dde6; border-radius: 8px; background: #f9fafb; color: #374151; font: inherit; font-size: 14px; text-align: left; cursor: pointer; position: relative; }
+    .wide-card__dropdown-trigger::after { content: ""; position: absolute; top: 50%; right: 14px; width: 7px; height: 7px; border-right: 1.5px solid #6b7280; border-bottom: 1.5px solid #6b7280; transform: translateY(-65%) rotate(45deg); }
+    .wide-card__dropdown-menu { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; right: 0; display: none; max-height: 200px; overflow-y: auto; padding: 4px 0; margin: 0; border: 1px solid #016085; border-radius: 6px; background: #fff; box-shadow: 0 5px 12px rgba(31, 42, 55, .28); list-style: none; }
+    .wide-card__dropdown[data-open="true"] .wide-card__dropdown-menu { display: block; }
+    .wide-card__dropdown-option { width: 100%; min-height: 48px; padding: 0 14px; border: 0; background: transparent; color: #273447; font: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+    .wide-card__dropdown-option:hover, .wide-card__dropdown-option[aria-selected="true"] { background: #f3f4f6; }
+    .wide-card__multiselect { width: 160px; min-width: 160px; max-width: 160px; flex: 0 0 160px; }
+    .wide-card__multiselect[data-multiselect="age"] { width: 160px; min-width: 160px; max-width: 160px; }
+    .wide-card__multiselect .wide-card__dropdown-trigger { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .wide-card__multiselect .wide-card__dropdown-menu { right: auto; min-width: 100%; max-height: none; padding: 10px 12px; }
+    .wide-card__multiselect[data-multiselect="age"] .wide-card__dropdown-menu { width: 160px; min-width: 160px; }
+    .wide-card__multiselect[data-multiselect="age"][data-open="true"] .wide-card__dropdown-menu { display: grid; grid-template-columns: 1fr; row-gap: 2px; }
+    .wide-card__multiselect-option { display: flex; align-items: center; gap: 12px; min-width: 0; min-height: 44px; color: #374151; font-size: 14px; white-space: normal; cursor: pointer; }
+    .wide-card__multiselect-option input { position: absolute; opacity: 0; pointer-events: none; }
+    .wide-card__multiselect-check { width: 24px; height: 24px; display: grid; place-items: center; flex: none; border: 1px solid #9ca3af; border-radius: 6px; background: #fff; }
+    .wide-card__multiselect-option input:checked + .wide-card__multiselect-check { border-color: #087da6; background: #087da6; }
+    .wide-card__multiselect-check::after { content: ""; width: 10px; height: 6px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: translateY(-1px) rotate(-45deg); opacity: 0; }
+    .wide-card__multiselect-option input:checked + .wide-card__multiselect-check::after { opacity: 1; }
+    .wide-card__multiselect-option:hover .wide-card__multiselect-check { border-color: #087da6; }
+    @media (max-width: 1500px) { .wide-card .chart-card__header { align-items: flex-start; flex-wrap: wrap; } .wide-card .chart-card__title { flex: 1 1 280px; } .wide-card__controls { margin-left: auto; flex-wrap: wrap; justify-content: flex-end; gap: 10px 12px; } }
+
+    .leader-card__label { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
+    .leader-card__icon {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border-radius: 4px;
+      background: #e6f5fc;
+      color: #087da6;
+      font-size: 14px;
+    }
+
+    .leader-card__icon img,
+    .segment-pill img {
+      width: 16px;
+      height: 16px;
+      display: block;
+      object-fit: contain;
+    }
+
+    .segment-pill--teal img {
+      filter: brightness(0) saturate(100%) invert(39%) sepia(31%) saturate(1018%) hue-rotate(143deg) brightness(88%) contrast(94%);
+    }
+
+    .leader-card__icon img {
+      filter: none;
+    }
+
+    .leader-card__top > strong,
+    .leader-card__top > span:not(.segment-pill) {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .segment-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .segment-pill--pink { color: #bf125d; background: #fdf2f8; }
+    .segment-pill--purple { color: #6c2bd9; background: #f6f5ff; }
+    .segment-pill--blue { color: #3478e5; background: #eff6ff; }
+    .segment-pill--teal { color: #087c88; background: #effafa; }
+    .leader-card__rule { height: 1px; background: #e5e7eb; }
+    .leader-card__metrics { display: grid; grid-template-columns: 1fr 1px 1fr; gap: 16px; align-items: center; }
+    .metric-divider { width: 1px; height: 40px; background: #e5e7eb; }
+    .metric strong { display: block; color: #1f2a37; font-size: 16px; line-height: 16px; }
+    .metric span { display: block; margin-top: 8px; color: #6b7280; font-size: 14px; }
+
+    .summary-card {
+      min-height: 188px;
+      padding: 17px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+      gap: 16px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .summary-card__section { min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+    .summary-card__header { display: flex; align-items: center; gap: 8px; min-height: 24px; font-weight: 500; }
+    .summary-card__icon { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 4px; background: #e6f5fc; flex: none; }
+    .summary-card__icon img { width: 16px; height: 16px; object-fit: contain; }
+    .summary-card__title { color: #111928; font-size: 16px; font-weight: 500; line-height: 14px; white-space: nowrap; }
+    .summary-card__body { min-width: 0; flex: 1 1 auto; display: grid; gap: 16px; }
+    .summary-card__body--segments { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .summary-card__column { min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+    .summary-card__body--segments .summary-card__column:first-child { position: relative; border-right: 0; padding-right: 16px; }
+    .summary-card__body--segments .summary-card__column:first-child::after { content: ""; position: absolute; top: 24px; right: 0; bottom: 0; width: 1px; background: #e5e7eb; }
+    .summary-card__label { color: #6b7280; font-size: 14px; font-weight: 500; line-height: 14px; white-space: nowrap; }
+    .summary-card__segment { min-width: 0; flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; padding: 12px; border-radius: 12px; }
+    .summary-card__segment--pink { background: #fdf2f8; }
+    .summary-card__segment--orange { background: #fff8f1; }
+    .summary-card__segment-head { display: flex; align-items: center; gap: 8px; color: #bf125d; font-size: 14px; font-weight: 500; white-space: nowrap; }
+    .summary-card__segment--orange .summary-card__segment-head { color: #b43403; }
+    .summary-card__segment-head img { width: 16px; height: 16px; object-fit: contain; flex: none; }
+    .summary-card__segment--orange .summary-card__segment-head img { filter: brightness(0) saturate(100%) invert(23%) sepia(98%) saturate(2575%) hue-rotate(7deg) brightness(88%) contrast(98%); }
+    .summary-card__segment-rule { height: 1px; width: 100%; background: #FAD1E8; }
+    .summary-card__segment--orange .summary-card__segment-rule { background: #FCD9BD; }
+    .summary-card__metrics { display: grid; grid-template-columns: 1fr 1px 1fr; gap: 16px; align-items: center; }
+    .summary-card__metric-divider { width: 1px; height: 40px; background: #e5e7eb; }
+    .summary-card__segment--pink .summary-card__metric-divider { background: #FAD1E8; }
+    .summary-card__segment--orange .summary-card__metric-divider { background: #FCD9BD; }
+    .summary-card__metric strong { display: block; color: #1f2a37; font-size: 14px; line-height: 16px; font-weight: 600; }
+    .summary-card__metric span { display: block; margin-top: 6px; color: #6b7280; font-size: 14px; line-height: 16px; }
+    .summary-card__group-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; min-width: 0; }
+    .summary-card__section:nth-of-type(2) > .summary-card__group-columns { grid-template-columns: minmax(0, 1fr) minmax(0, 1.85fr); }
+    .summary-card__group-column { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+    .summary-card__section:nth-of-type(2) > .summary-card__group-columns > .summary-card__group-column:first-child { position: relative; border-right: 0; padding-right: 16px; }
+    .summary-card__section:nth-of-type(2) > .summary-card__group-columns > .summary-card__group-column:first-child::after { content: ""; position: absolute; top: 24px; right: 0; bottom: 0; width: 1px; background: #e5e7eb; }
+    .summary-card__group-item { min-width: 0; flex: 0 0 56px; height: 56px; display: flex; flex-direction: column; justify-content: space-between; gap: 4px; padding: 6px 8px; border-radius: 12px; overflow: hidden; }
+    .summary-card__group-item--blue { background: #e0f3ff; }
+    .summary-card__group-item--pink { background: #fdf2f8; }
+    .summary-card__group-item--yellow { background: #fdfdea; }
+    .summary-card__group-item--teal { background: #edfafa; }
+    .summary-card__group-item--purple { background: #f6f5ff; }
+    .summary-card__group-item--orange { background: #fff8f1; }
+    .summary-card__group-label { display: flex; align-items: center; gap: 8px; color: #0084d5; font-size: 14px; line-height: 16px; font-weight: 500; white-space: nowrap; }
+    .summary-card__group-item--pink .summary-card__group-label { color: #bf125d; }
+    .summary-card__group-item--yellow .summary-card__group-label { color: #8e4b10; }
+    .summary-card__group-item--teal .summary-card__group-label { color: #036672; }
+    .summary-card__group-item--purple .summary-card__group-label { color: #6c2bd9; }
+    .summary-card__group-item--orange .summary-card__group-label { color: #b43403; }
+    .summary-card__group-label img { width: 16px; height: 16px; flex: none; object-fit: contain; }
+    .summary-card__group-item--yellow .summary-card__group-label img { filter: brightness(0) saturate(100%) invert(29%) sepia(45%) saturate(1122%) hue-rotate(354deg) brightness(91%) contrast(91%); }
+    .summary-card__group-item--teal .summary-card__group-label img { filter: brightness(0) saturate(100%) invert(27%) sepia(32%) saturate(1420%) hue-rotate(143deg) brightness(88%) contrast(98%); }
+    .summary-card__group-item--orange .summary-card__group-label img { filter: brightness(0) saturate(100%) invert(23%) sepia(98%) saturate(2575%) hue-rotate(7deg) brightness(88%) contrast(98%); }
+    .summary-card__group-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #1f2a37; font-size: 14px; line-height: 16px; }
+    .summary-card__divider { width: 1px; background: #e5e7eb; }
+
+    @media (max-width: 900px) {
+      .summary-card { grid-template-columns: 1fr; gap: 16px; }
+      .summary-card__divider { width: 100%; height: 1px; }
+    }
+
+    .chart-card { min-height: 287px; padding: 17px; }
+    .chart-card__header { align-items: flex-start; }
+    .chart-card__title { font-size: 16px; }
+    .chart-toggle { height: 36px; display: inline-flex; padding: 3px; border: 1px solid #d8dde6; border-radius: 10px; background: #eef0f3; }
+    .chart-toggle button { height: 28px; border: 0; border-radius: 8px; padding: 4px 18px; background: transparent; color: #8a93a3; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .chart-toggle button[aria-pressed="true"] { background: #fff; color: #087da6; box-shadow: 0 2px 5px rgba(15,23,42,.08); }
+    .chart-legend { display: flex; flex-wrap: wrap; gap: 18px; margin-top: 20px; color: #8a93a3; font-size: 14px; }
+    .legend-item { display: inline-flex; align-items: center; gap: 7px; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+    .dot-yellow { background: #ffd43b; } .dot-teal { background: #45c0ca; } .dot-purple { background: #ad9af1; } .dot-orange { background: #ff9b68; }
+
+    .donut-layout { display: flex; align-items: center; justify-content: center; gap: 34px; min-height: 190px; }
+    .gender-donut-wrap { width: 100%; height: 260px; position: relative; }
+    .gender-donut-chart { width: 100%; height: 100%; }
+    .gender-donut-chart__center {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      z-index: 2;
+      display: grid;
+      justify-items: center;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .gender-donut-chart__center strong { color: #1f2a37; font-size: 22px; line-height: 26px; font-weight: 600; }
+    .gender-donut-chart__center span { color: #6b7280; font-size: 14px; line-height: 20px; }
+    .donut-corner-label {
+      position: absolute;
+      z-index: 3;
+      display: grid;
+      gap: 1px;
+      color: #6b7280;
+      font-size: 16px;
+      line-height: 20px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .donut-corner-label__value { font-weight: 600; }
+    .donut-corner-label--top-left { left: 0; top: 14px; text-align: left; }
+    .donut-corner-label--top-right { right: 0; top: 14px; text-align: right; }
+    .donut-corner-label--bottom-left { left: 0; bottom: 12px; text-align: left; }
+    .donut-corner-label--bottom-right { right: 0; bottom: 12px; text-align: right; }
+    .donut-corner-label.is-hidden { display: none; }
+    .donut-corner-label { display: none !important; }
+    .chart-grid > .chart-card:has(#age-treemap-chart) { display: flex; flex-direction: column; }
+    .age-treemap-chart { width: 100%; flex: 1 1 auto; min-height: 0; height: auto; margin: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .age-treemap-stack { min-width: 0; display: flex; flex-direction: column; gap: 2px; overflow: hidden; border-radius: 4px; }
+    .age-treemap-stack.is-grid { position: relative; display: block; }
+    .age-treemap-stack.is-grid .age-treemap-cell { position: absolute; margin: 0; box-sizing: border-box; border: 2px solid #fff; }
+    .age-treemap-stack.is-grid .age-treemap-cell--child { left: 0; top: 0; width: 50%; height: 50%; }
+    .age-treemap-stack.is-grid .age-treemap-cell--young { left: 50%; top: 0; width: 50%; height: 50%; }
+    .age-treemap-stack.is-grid .age-treemap-cell--adult { left: 0; top: 50%; width: 20%; height: 50%; }
+    .age-treemap-stack.is-grid .age-treemap-cell--older { left: 20%; top: 50%; width: 80%; height: 50%; }
+    .age-treemap-chart.is-by-gender .age-treemap-stack:nth-child(2) .age-treemap-cell--adult { width: 46px; }
+    .age-treemap-chart.is-by-gender .age-treemap-stack:nth-child(2) .age-treemap-cell--older { left: 46px; width: calc(100% - 46px); }
+    .age-treemap-cell { display: flex; align-items: flex-end; padding: 10px; color: #fff; font-size: 14px; line-height: 1; position: relative; z-index: 0; cursor: pointer; transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease; transform-origin: center; }
+    .age-treemap-cell:hover { z-index: 2; transform: scale(1.05); box-shadow: 0 8px 18px rgba(15, 23, 42, .24); filter: brightness(1.1); }
+    @keyframes treemap-appear { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .age-treemap-chart.is-switching { animation: treemap-appear 360ms ease-out; }
+    .age-treemap-cell--male { flex: var(--male); background: #8bb2ed; }
+    .age-treemap-cell--female { flex: var(--female); background: #ed8bbb; }
+    .age-treemap-cell--child { flex: var(--segment); background: #ffd21a; }
+    .age-treemap-cell--young { flex: var(--segment); background: #2bb7c2; }
+    .age-treemap-cell--adult { flex: var(--segment); background: #a58ff1; }
+    .age-treemap-cell--older { flex: var(--segment); background: #ff8a4d; }
+    .age-treemap-chart:not(.is-by-age) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .age-treemap-chart.is-by-age { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .age-treemap-chart:not(.is-by-age) .age-treemap-stack { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 2px; }
+    .age-treemap-chart:not(.is-by-age) .age-treemap-cell { min-width: 0; min-height: 0; }
+    .age-treemap-chart.is-by-age .age-treemap-stack { display: flex; flex-direction: column; gap: 2px; }
+    .age-treemap-chart.is-by-age .age-treemap-cell--male { flex: var(--male); background: #8bb2ed; }
+    .age-treemap-chart.is-by-age .age-treemap-cell--female { flex: var(--female); background: #ed8bbb; }
+    .age-treemap-chart.is-by-age .age-treemap-stack { overflow: hidden; }
+    .age-treemap-labels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .age-treemap-labels.is-by-age { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .age-treemap-labels.is-by-age > span:nth-child(1) { background: #fff3a6; }
+    .age-treemap-labels.is-by-age > span:nth-child(2) { background: #c9f0f2; }
+    .age-treemap-labels.is-by-age > span:nth-child(3) { background: #e4defd; }
+    .age-treemap-labels.is-by-age > span:nth-child(4) { background: #ffe0cc; }
+    .age-treemap-labels:not(.is-by-age) > span:nth-child(1) { background: #e0f3ff; }
+    .age-treemap-labels:not(.is-by-age) > span:nth-child(2) { background: #fdf2f8; }
+    .age-treemap-labels > span { width: 100%; box-sizing: border-box; background: #E5E7EB !important; }
+    .age-treemap-chart.is-by-gender { grid-template-columns: 70fr 30fr; }
+    .age-treemap-chart.is-by-gender {
+      flex: 1 1 auto;
+      height: auto;
+      overflow: visible;
+    }
+    .age-treemap-chart.is-by-gender .age-treemap-cell { border: 0; }
+    .age-treemap-chart.is-by-gender .age-treemap-stack.is-grid .age-treemap-cell--child { left: 0; top: 0; width: calc(50% - 1px); height: calc(50% - 1px); }
+    .age-treemap-chart.is-by-gender .age-treemap-stack.is-grid .age-treemap-cell--young { left: calc(50% + 1px); top: 0; width: calc(50% - 1px); height: calc(50% - 1px); }
+    .age-treemap-chart.is-by-gender .age-treemap-stack.is-grid .age-treemap-cell--adult { left: 0; top: calc(50% + 1px); width: calc(20% - 1px); height: calc(50% - 1px); }
+    .age-treemap-chart.is-by-gender .age-treemap-stack.is-grid .age-treemap-cell--older { left: calc(20% + 1px); top: calc(50% + 1px); width: calc(80% - 1px); height: calc(50% - 1px); }
+    .age-treemap-chart.is-by-gender .age-treemap-stack:nth-child(2) .age-treemap-cell--adult {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .age-treemap-chart.is-by-gender .age-treemap-stack:nth-child(1) .age-treemap-cell--child { border-radius: 4px 0 0 0; }
+    .age-treemap-chart.is-by-gender .age-treemap-stack:nth-child(1) .age-treemap-cell--young { border-radius: 0 4px 0 0; }
+    .age-treemap-chart.is-by-gender .age-treemap-stack:nth-child(1) .age-treemap-cell--adult { border-radius: 0 0 0 4px; }
+    .age-treemap-chart.is-by-gender .age-treemap-stack:nth-child(1) .age-treemap-cell--older { border-radius: 0 0 4px 0; }
+    .age-treemap-chart.is-by-gender .age-treemap-stack:nth-child(2) .age-treemap-cell--child { border-radius: 4px 0 0 0; }
+    .age-treemap-chart.is-by-gender .age-treemap-stack:nth-child(2) .age-treemap-cell--young { border-radius: 0 4px 0 0; }
+    .age-treemap-chart.is-by-gender .age-treemap-stack:nth-child(2) .age-treemap-cell--adult { border-radius: 0 0 0 4px; }
+    .age-treemap-chart.is-by-gender .age-treemap-stack:nth-child(2) .age-treemap-cell--older { border-radius: 0 0 4px 0; }
+    .age-treemap-chart.is-by-gender .age-treemap-cell--child { background: #ffd21a; }
+    .age-treemap-chart.is-by-gender .age-treemap-cell--young { background: #2bb7c2; }
+    .age-treemap-chart.is-by-gender .age-treemap-cell--adult { background: #a58ff1; }
+    .age-treemap-chart.is-by-gender .age-treemap-cell--older { background: #ff8a4d; }
+    .age-treemap-chart.is-by-gender .age-treemap-stack.is-grid {
+      border-radius: 4px 4px 0 0;
+      overflow: hidden;
+    }
+    .age-treemap-labels.is-by-gender { margin-top: 0; }
+    .age-treemap-labels.is-by-gender > span { border-radius: 0 0 4px 4px; }
+    .demographic-tooltip { position: fixed; z-index: 20; min-width: 150px; padding: 10px 12px; border: 1.7px solid #e5e7eb; border-radius: 6px; background: #fff; color: #6b7280; box-shadow: 0 4px 12px rgba(15, 23, 42, .12); font-size: 14px; line-height: 18px; pointer-events: none; opacity: 0; transform: translateY(4px); transition: opacity 140ms ease, transform 140ms ease; }
+    .demographic-tooltip__title { display: block; margin-bottom: 8px; color: #6b7280; }
+    .demographic-tooltip__row { display: flex; align-items: center; gap: 8px; color: #6b7280; font-size: 14px; }
+    .demographic-tooltip__dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; }
+    .demographic-tooltip__value { margin-left: auto; color: #6b7280; font-weight: 600; }
+    .demographic-tooltip.is-visible { opacity: 1; transform: translateY(0); }
+    .age-gender-legend { display: flex; align-items: center; gap: 28px; margin: 16px 0; color: #6b7280; font-size: 16px; }
+    .age-gender-legend__item { display: inline-flex; align-items: center; gap: 8px; }
+    .age-gender-legend__dot { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+    .age-treemap-labels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 0; color: #5f6979; font-size: 12px; line-height: 15px; }
+    .age-treemap-labels > span { min-height: 10px; padding: 4px 8px; box-sizing: content-box; border-radius: 0 0 4px 4px; background: #e5e7eb; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .age-treemap-labels > span > span { padding: 0; background: transparent; }
+    .age-treemap-labels.is-by-gender { grid-template-columns: 70fr 30fr; }
+    .age-treemap-labels:not(.is-by-age) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .age-treemap-labels.is-by-age { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .age-treemap-labels > span { width: auto; box-sizing: border-box; }
+    @keyframes demographic-chart-appear {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes demographic-center-appear {
+      from { opacity: 0; transform: translate(-50%, calc(-50% + 5px)); }
+      to { opacity: 1; transform: translate(-50%, -50%); }
+    }
+    .gender-donut-wrap.is-switching .gender-donut-chart { animation: demographic-chart-appear 360ms ease-out; }
+    .gender-donut-wrap.is-switching .gender-donut-chart__center { animation: demographic-center-appear 360ms ease-out; }
+    .donut { width: 170px; height: 170px; border-radius: 50%; background: conic-gradient(#ed8bbb 0 62%, #8bb2ed 62% 100%); position: relative; }
+    .donut::after { content: ""; position: absolute; inset: 38px; border-radius: 50%; background: #fff; }
+    .donut__label { position: absolute; inset: 0; z-index: 1; display: grid; place-content: center; text-align: center; color: #6b7280; font-size: 14px; line-height: 20px; }
+    .donut__label strong { color: #1f2a37; font-size: 20px; }
+    .chart-values { display: grid; gap: 18px; }
+    .chart-value { display: grid; grid-template-columns: 12px auto; column-gap: 8px; align-items: center; }
+    .chart-value strong { color: #1f2a37; font-size: 18px; }
+    .chart-value span { grid-column: 2; color: #6b7280; font-size: 14px; }
+
+    .treemap { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3px; margin-top: 24px; min-height: 145px; }
+    .tree-column { display: grid; grid-template-rows: 1fr 1fr; gap: 3px; min-width: 0; }
+    .tree-cell { display: flex; align-items: flex-end; padding: 10px; border-radius: 4px; color: #fff; font-size: 14px; font-weight: 500; }
+    .tree-cell--blue { background: #8bb2ed; } .tree-cell--pink { background: #ed8bbb; }
+    .tree-labels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; color: #6b7280; font-size: 12px; }
+    .tree-labels span { min-width: 0; }
+
+    .wide-card { grid-column: 1 / -1; }
+    .bar-chart { height: 245px; display: flex; align-items: flex-end; gap: 18px; padding: 28px 12px 0; margin-top: 16px; overflow: hidden; }
+    .bar-group { min-width: 56px; height: 100%; display: flex; align-items: flex-end; justify-content: center; gap: 3px; position: relative; }
+    .bar { width: 11px; border-radius: 5px 5px 0 0; min-height: 8px; }
+    .bar--yellow { background: #ffd43b; } .bar--teal { background: #45c0ca; } .bar--purple { background: #ad9af1; } .bar--orange { background: #ff9b68; }
+    .bar-group::after { content: ""; position: absolute; left: 50%; bottom: -26px; width: 6px; height: 6px; border-radius: 50%; background: #e52b2f; transform: translateX(-50%); }
+    .bar-labels { display: flex; gap: 18px; padding: 12px 12px 0; color: #9aa1ad; font-size: 12px; overflow: hidden; }
+    .bar-labels span { min-width: 56px; max-width: 56px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .details-card {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+    }
+    .details-card__header { margin-bottom: 0; padding: 12px 16px; border: 1px solid #E5E7EB; border-bottom: 0; border-radius: 4px 4px 0 0; background: #F9FAFB; }
+    .details-card__title { font-size: 16px; }
+    .details-card__controls { display: flex; align-items: center; gap: 16px; }
+    .details-card__indicator { display: inline-flex; align-items: center; gap: 8px; color: #374151; font-size: 14px; }
+    .details-card__indicator .wide-card__indicator-help { margin-left: 2px; }
+    .details-card__indicator-select { width: 190px; height: 36px; padding: 0 38px 0 14px; border: 1px solid #d8dde6; border-radius: 8px; background: #f9fafb; color: #374151; font: inherit; font-size: 14px; appearance: auto; }
+    .details-card__indicator-dropdown .wide-card__dropdown-trigger { background: #FFFFFF; }
+    .details-card__switch { display: inline-flex; flex-direction: row-reverse; align-items: center; gap: 8px; color: #1f2a37; font-size: 14px; font-weight: 400; cursor: pointer; }
+    .details-card__switch input { position: absolute; opacity: 0; pointer-events: none; }
+    .details-card__switch-track { width: 38px; height: 22px; padding: 2px; box-sizing: border-box; border-radius: 999px; background: #9ca3af; transition: background 140ms ease; }
+    .details-card__switch-track::after { content: ""; display: block; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform 140ms ease; }
+    .details-card__switch input:checked + .details-card__switch-track { background: #087da6; }
+    .details-card__switch input:checked + .details-card__switch-track::after { transform: translateX(16px); }
+    .details-table-wrap { width: 100%; overflow-x: auto; }
+    .details-table { width: 100%; min-width: 0; table-layout: fixed; border-collapse: collapse; color: #4b5563; font-size: 13px; }
+    .details-table th, .details-table td { box-sizing: border-box; width: 110px; min-width: 110px; max-width: 110px; padding: 13px 12px; border: 1px solid #e5e7eb; text-align: right; white-space: nowrap; }
+    .details-table th:first-child, .details-table td:first-child { width: 160px; min-width: 160px; max-width: 160px; }
+    .details-table th:not(:first-child), .details-table td:not(:first-child) { width: auto; min-width: 0; max-width: none; }
+    .details-table th { background: #F3F4F6; color: #6b7280; font-weight: 600; text-align: center; }
+    .details-table th:first-child, .details-table td:first-child { text-align: left; }
+    .details-table th:first-child, .details-table td:first-child { position: sticky; left: 0; z-index: 2; }
+    .details-table tbody td:first-child { background: #FFFFFF; }
+    .details-table thead th:first-child, .details-table tfoot td:first-child { background: #F3F4F6; }
+    .details-table thead th:first-child { z-index: 4; }
+    .details-table td:first-child { color: #087da6; font-weight: 500; }
+    .details-table tbody td:first-child { text-decoration: underline; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .details-table thead th { height: 52px; padding: 0 12px; vertical-align: middle; }
+    .details-table thead th { white-space: normal; overflow-wrap: anywhere; line-height: 1.25; }
+    .details-table tbody tr:first-child { height: 52px; }
+    .details-table tbody tr:first-child td { height: 52px; padding: 0 12px; vertical-align: middle; }
+    .details-table.is-age-view tbody td:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .details-table.is-age-view tbody tr:first-child td { white-space: normal; line-height: 1.35; }
+    .details-table.is-age-view tbody tr:first-child td:first-child { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+    .details-table.is-age-view tbody tr:nth-child(n+2) td { height: 42px; padding: 13px 12px; white-space: nowrap; vertical-align: middle; }
+    .details-table.is-age-view tbody tr:first-child td { height: 42px; padding: 13px 12px; vertical-align: middle; white-space: nowrap; }
+    .details-table.is-age-view tbody tr:first-child td:first-child { display: table-cell; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .details-table.is-age-view thead th { height: 52px; white-space: normal; line-height: 1.25; }
+    .details-table tbody tr:nth-child(-n+4) td { background: #FFFFFF; }
+    .details-table tbody tr:first-child > td { background: #FFFFFF !important; border-color: #E5E7EB; }
+    .details-table tbody tr:first-child td:first-child { border-radius: 4px 0 0 4px; }
+    .details-table tbody tr:first-child td:last-child { border-radius: 0 4px 4px 0; }
+    .details-table tfoot td { background: #F3F4F6; color: #1f2a37; font-weight: 600; }
+    .details-table tfoot td:first-child { color: #1F2A37; font-weight: 600; }
+    .details-table-footer { display: grid; gap: 16px; padding: 14px 16px; background: #F9FAFB; border: 1px solid #E5E7EB; border-top: 0; border-radius: 0 0 4px 4px; }
+    .details-table-scrollbar { display: none; }
+    .details-table-scrollbar::before { content: ""; display: block; width: 28%; height: 100%; border-radius: inherit; background: #9ca3af; }
+    .details-table-footer__controls { display: flex; align-items: center; justify-content: space-between; }
+    .details-pagination { display: inline-flex; border: 1px solid #d4dae3; border-radius: 6px; overflow: hidden; background: #fff; }
+    .details-pagination button { width: 34px; height: 34px; border: 0; border-right: 1px solid #d4dae3; background: #fff; color: #6b7280; font-size: 22px; cursor: pointer; }
+    .details-pagination button:first-child,
+    .details-pagination button:last-child { width: 44px; }
+    .details-pagination button img { width: 16px; height: 16px; display: block; margin: 0 auto; }
+    .details-pagination button:not(:first-child):not(:last-child) { font-size: 14px; }
+    .details-pagination button:last-child { border-right: 0; }
+    .details-pagination button[aria-current="page"] { background: #c6eafa; color: #087da6; }
+    .details-download { display: inline-flex; align-items: center; gap: 8px; width: auto; height: 36px; min-height: 36px; box-sizing: border-box; padding: 0 18px; border: 0; border-radius: 6px; background: #016b8f; color: #fff; font: inherit; font-size: 14px; font-weight: 400; cursor: pointer; }
+    .details-download__icon { width: 16px; height: 16px; display: block; }
+
+    @media (max-width: 900px) {
+      .leader-grid, .chart-grid { grid-template-columns: 1fr; }
+      .wide-card { grid-column: auto; }
+    }
+
+    @media (max-width: 560px) {
+      .leader-card__top { align-items: flex-start; }
+      .donut-layout { flex-direction: column; gap: 18px; }
+      .chart-toggle button { padding-inline: 10px; }
+    }
+
+    @media (max-width: 860px) {
+      .sidebar { display: none; }
+      .page {
+        margin-left: 0;
+        padding: 16px;
+        min-height: 100vh;
+      }
+      .toolbar {
+        align-items: stretch;
+      }
+      .toolbar__right {
+        width: 100%;
+        justify-content: flex-end;
+        align-items: flex-end;
+      }
+      .button { justify-content: center; }
+      .shell-card,
+      .shell-card__placeholder {
+        min-height: calc(100vh - 210px);
+      }
+      .toolbar-date-picker__popover {
+        width: min(472px, calc(100vw - 32px));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="browser">
+    <div class="app">
+      <aside class="sidebar" aria-label="Navegación lateral">
+        <div class="sidebar__top">
+          <div class="sidebar__stack">
+            <button class="sidebar__item" aria-label="Reportes">
+              <img src="iconos-menu/line-chart-up-02.svg" alt="" aria-hidden="true">
+            </button>
+            <button class="sidebar__item" aria-label="Objetivos">
+              <img src="iconos-menu/target-04.svg" alt="" aria-hidden="true">
+            </button>
+            <button class="sidebar__item" aria-label="Presentación">
+              <img src="iconos-menu/presentation-chart-03.svg" alt="" aria-hidden="true">
+            </button>
+            <button class="sidebar__item" aria-label="Descargas">
+              <img src="iconos-menu/download-01.svg" alt="" aria-hidden="true">
+            </button>
+          </div>
+        </div>
+        <div class="sidebar__bottom">
+          <div class="sidebar__separator"></div>
+          <div class="sidebar__stack sidebar__stack--plain">
+            <button class="sidebar__item" aria-label="Inicio">
+              <img src="iconos-menu/home-smile.svg" alt="" aria-hidden="true">
+            </button>
+            <button class="sidebar__item" aria-label="Noticias">
+              <img src="iconos-menu/newspapper-outline.svg" alt="" aria-hidden="true">
+            </button>
+            <button class="sidebar__item" aria-label="Ayuda">
+              <img src="iconos-menu/message-question-circle.svg" alt="" aria-hidden="true">
+            </button>
+            <button class="sidebar__item" aria-label="Usuarios">
+              <img src="iconos-menu/settings-02.svg" alt="" aria-hidden="true">
+            </button>
+            <button class="sidebar__item" aria-label="Cerrar sesión">
+              <img src="iconos-menu/log-out-02.svg" alt="" aria-hidden="true">
+            </button>
+          </div>
+          <div class="sidebar__separator"></div>
+          <div class="sidebar__stack sidebar__stack--single">
+            <button class="sidebar__item" aria-label="Contraer">
+              <img src="iconos-menu/chevron-right-double.svg" alt="" aria-hidden="true">
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="page">
+        <nav class="crumb" aria-label="Breadcrumb">
+          <img src="iconos-menu/line-chart-up-02.svg" alt="" aria-hidden="true" width="18" height="18">
+          <span>Reportes</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+          <span>Demografía</span>
+        </nav>
+
+        <section class="toolbar" aria-label="Controles principales">
+          <div class="toolbar-date-picker" aria-label="Selector de fecha">
+            <button class="toolbar-date-picker__input" type="button" aria-label="Seleccionar rango de fechas" aria-expanded="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M5 5a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1h1a1 1 0 0 0 1-1 1 1 0 1 1 2 0 1 1 0 0 0 1 1 2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V7a2 2 0 0 1 2-2ZM3 19v-7a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Zm6.01-6a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm-10 4a1 1 0 1 1 2 0 1 1 0 0 1-2 0Zm6 0a1 1 0 1 0-2 0 1 1 0 0 0 2 0Zm2 0a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z"></path>
+              </svg>
+              <span class="toolbar-date-picker__label">17/02/2025 - 23/02/2025</span>
+            </button>
+            <div class="toolbar-date-picker__popover" role="dialog" aria-label="Calendario de febrero de 2025" aria-hidden="true">
+              <div class="calendar-popover">
+                <aside class="calendar-popover__shortcuts" aria-label="Atajos de fecha">
+                  <button class="calendar-popover__shortcut" type="button">Hoy</button>
+                  <button class="calendar-popover__shortcut" type="button">Ayer</button>
+                  <button class="calendar-popover__shortcut" type="button">Esta semana</button>
+                  <button class="calendar-popover__shortcut" type="button">La semana pasada</button>
+                  <button class="calendar-popover__shortcut" type="button">Este mes</button>
+                  <button class="calendar-popover__shortcut" type="button">El mes pasado</button>
+                </aside>
+
+                <section class="calendar-popover__main" aria-label="Calendario">
+                  <div class="calendar-popover__main-inner">
+                    <div class="calendar-popover__heading">
+                      <button class="calendar-popover__month" type="button" aria-label="Cambiar mes">
+                        <span>Febrero 2025</span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path d="m6 9 6 6 6-6"></path>
+                        </svg>
+                      </button>
+                      <div class="calendar-popover__nav" aria-label="Navegación de mes">
+                        <button class="calendar-popover__nav-button" type="button" aria-label="Mes anterior">
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m15 18-6-6 6-6"></path>
+                          </svg>
+                        </button>
+                        <button class="calendar-popover__nav-button" type="button" aria-label="Mes siguiente">
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="m9 6 6 6-6 6"></path>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="calendar-popover__weekdays" aria-hidden="true">
+                      <span>Lun</span>
+                      <span>Mar</span>
+                      <span>Mié</span>
+                      <span>Jue</span>
+                      <span>Vie</span>
+                      <span>Sáb</span>
+                      <span>Dom</span>
+                    </div>
+
+                    <div class="calendar-popover__grid" aria-label="Días de febrero de 2025">
+                      <span class="calendar-popover__cell calendar-popover__cell--empty" aria-hidden="true"></span>
+                      <span class="calendar-popover__cell calendar-popover__cell--empty" aria-hidden="true"></span>
+                      <span class="calendar-popover__cell calendar-popover__cell--empty" aria-hidden="true"></span>
+                      <span class="calendar-popover__cell calendar-popover__cell--empty" aria-hidden="true"></span>
+                      <span class="calendar-popover__cell calendar-popover__cell--empty" aria-hidden="true"></span>
+                      <button class="calendar-popover__cell" type="button">1</button>
+                      <button class="calendar-popover__cell" type="button">2</button>
+
+                      <button class="calendar-popover__cell" type="button">3</button>
+                      <button class="calendar-popover__cell" type="button">4</button>
+                      <button class="calendar-popover__cell" type="button">5</button>
+                      <button class="calendar-popover__cell" type="button">6</button>
+                      <button class="calendar-popover__cell" type="button">7</button>
+                      <button class="calendar-popover__cell" type="button">8</button>
+                      <button class="calendar-popover__cell" type="button">9</button>
+
+                      <button class="calendar-popover__cell" type="button">10</button>
+                      <button class="calendar-popover__cell" type="button">11</button>
+                      <button class="calendar-popover__cell" type="button">12</button>
+                      <button class="calendar-popover__cell" type="button">13</button>
+                      <button class="calendar-popover__cell" type="button">14</button>
+                      <button class="calendar-popover__cell" type="button">15</button>
+                      <button class="calendar-popover__cell" type="button">16</button>
+
+                      <button class="calendar-popover__cell calendar-popover__cell--range-start" type="button">17</button>
+                      <button class="calendar-popover__cell calendar-popover__cell--range-mid" type="button">18</button>
+                      <button class="calendar-popover__cell calendar-popover__cell--range-mid" type="button">19</button>
+                      <button class="calendar-popover__cell calendar-popover__cell--range-mid" type="button">20</button>
+                      <button class="calendar-popover__cell calendar-popover__cell--range-mid" type="button">21</button>
+                      <button class="calendar-popover__cell calendar-popover__cell--range-mid" type="button">22</button>
+                      <button class="calendar-popover__cell calendar-popover__cell--range-end" type="button">23</button>
+
+                      <button class="calendar-popover__cell" type="button">24</button>
+                      <button class="calendar-popover__cell" type="button">25</button>
+                      <button class="calendar-popover__cell" type="button">26</button>
+                      <button class="calendar-popover__cell" type="button">27</button>
+                      <button class="calendar-popover__cell" type="button">28</button>
+                      <span class="calendar-popover__cell calendar-popover__cell--empty" aria-hidden="true"></span>
+                      <span class="calendar-popover__cell calendar-popover__cell--empty" aria-hidden="true"></span>
+                    </div>
+                  </div>
+
+                  <div class="calendar-popover__footer">
+                    <button class="calendar-popover__footer-button calendar-popover__footer-button--secondary" type="button" data-action="close-date-picker">Cancelar</button>
+                    <button class="calendar-popover__footer-button calendar-popover__footer-button--primary" type="button" data-action="apply-date-picker">Aplicar</button>
+                  </div>
+                </section>
+              </div>
+            </div>
+            <div class="toolbar-date-picker__days" role="group" aria-label="Días de la semana">
+              <button class="toolbar-date-picker__day" type="button" aria-pressed="false">Lun</button>
+              <button class="toolbar-date-picker__day" type="button" aria-pressed="false">Mar</button>
+              <button class="toolbar-date-picker__day" type="button" aria-pressed="false">Mie</button>
+              <button class="toolbar-date-picker__day" type="button" aria-pressed="false">Jue</button>
+              <button class="toolbar-date-picker__day" type="button" aria-pressed="false">Vie</button>
+              <button class="toolbar-date-picker__day" type="button" aria-pressed="false">Sab</button>
+              <button class="toolbar-date-picker__day" type="button" aria-pressed="false">Dom</button>
+            </div>
+          </div>
+
+          <div class="toolbar__right">
+            <button class="button" type="button" aria-label="Filtros">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M7 12h10"></path><path d="M10 17h4"></path></svg>
+              <span>Filtros</span>
+            </button>
+
+            <div class="toolbar-meta" aria-label="Modo Recuperación activado. 100% de registros estimados.">
+              <img src="iconos-reporte/icon-outline.svg" alt="" aria-hidden="true">
+              <span class="toolbar-meta__text">
+                <span class="toolbar-meta__short">100%</span>
+                <span class="toolbar-meta__long">Modo Recuperación activado. 100% de registros estimados.</span>
+              </span>
+            </div>
+          </div>
+        </section>
+
+        <section class="shell-card demographic-content" aria-label="Composición demográfica">
+          <article class="summary-card" aria-label="Resumen de segmentos y grupos">
+            <section class="summary-card__section">
+              <div class="summary-card__header">
+                <span class="summary-card__icon"><img src="iconos-reporte/users-group-outline.svg" alt="" aria-hidden="true"></span>
+                <h2 class="summary-card__title">Segmentos líderes en visitas</h2>
+              </div>
+              <div class="summary-card__body summary-card__body--segments">
+                <div class="summary-card__column">
+                  <p class="summary-card__label">Género:</p>
+                  <div class="summary-card__segment summary-card__segment--pink">
+                    <div class="summary-card__segment-head"><img src="iconos-reporte/mujer.svg" alt="" aria-hidden="true">Mujeres</div>
+                    <div class="summary-card__segment-rule"></div>
+                    <div class="summary-card__metrics"><div class="summary-card__metric"><strong>1.235</strong><span>Entradas</span></div><span class="summary-card__metric-divider"></span><div class="summary-card__metric"><strong>36%</strong><span>Participación</span></div></div>
+                  </div>
+                </div>
+                <div class="summary-card__column">
+                  <p class="summary-card__label">Rango etario:</p>
+                  <div class="summary-card__segment summary-card__segment--orange">
+                    <div class="summary-card__segment-head"><img src="iconos-reporte/user-01.svg" alt="" aria-hidden="true">Ad. Mayores</div>
+                    <div class="summary-card__segment-rule"></div>
+                    <div class="summary-card__metrics"><div class="summary-card__metric"><strong>234</strong><span>Entradas</span></div><span class="summary-card__metric-divider"></span><div class="summary-card__metric"><strong>20%</strong><span>Participación</span></div></div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <div class="summary-card__divider" aria-hidden="true"></div>
+            <section class="summary-card__section">
+              <div class="summary-card__header">
+                <span class="summary-card__icon"><img src="iconos-reporte/building-02.svg" alt="" aria-hidden="true"></span>
+                  <h2 class="summary-card__title">Segmentos principales por grupo</h2>
+              </div>
+              <div class="summary-card__group-columns">
+                <div class="summary-card__group-column">
+                  <p class="summary-card__label">Género:</p>
+                  <div class="summary-card__group-item summary-card__group-item--blue"><div class="summary-card__group-label"><img src="iconos-reporte/hombre.svg" alt="" aria-hidden="true">Hombres</div><span class="summary-card__group-name">Zona Norte Chile</span></div>
+                  <div class="summary-card__group-item summary-card__group-item--pink"><div class="summary-card__group-label"><img src="iconos-reporte/mujer.svg" alt="" aria-hidden="true">Mujeres</div><span class="summary-card__group-name">Zona Centro Chile</span></div>
+                </div>
+                <div class="summary-card__group-column">
+                  <p class="summary-card__label">Rango etario:</p>
+                  <div class="summary-card__group-columns">
+                    <div class="summary-card__group-column">
+                      <div class="summary-card__group-item summary-card__group-item--yellow"><div class="summary-card__group-label"><img src="iconos-reporte/user-01.svg" alt="" aria-hidden="true">Niños</div><span class="summary-card__group-name">Zona Sur Chile</span></div>
+                      <div class="summary-card__group-item summary-card__group-item--purple"><div class="summary-card__group-label"><img src="iconos-reporte/user-01.svg" alt="" aria-hidden="true">Adultos</div><span class="summary-card__group-name">Santiago Sector Oriente</span></div>
+                    </div>
+                    <div class="summary-card__group-column">
+                      <div class="summary-card__group-item summary-card__group-item--teal"><div class="summary-card__group-label"><img src="iconos-reporte/user-01.svg" alt="" aria-hidden="true">Ad. Jóvenes</div><span class="summary-card__group-name">Santiago Alto Tráfico</span></div>
+                      <div class="summary-card__group-item summary-card__group-item--orange"><div class="summary-card__group-label"><img src="iconos-reporte/user-01.svg" alt="" aria-hidden="true">Ad. Mayores</div><span class="summary-card__group-name">Santiago Sector Poniente</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </article>
+
+          <div class="chart-grid">
+            <article class="chart-card">
+              <div class="chart-card__header"><h2 class="chart-card__title">Total de Entradas</h2><div class="chart-toggle"><button type="button" aria-pressed="true">Género</button><button type="button" aria-pressed="false">Edad</button></div></div>
+              <div class="donut-layout"><div class="gender-donut-wrap"><div id="gender-donut-chart" class="gender-donut-chart" role="img" aria-label="Distribución de género: 62% mujeres y 38% hombres"></div><div class="gender-donut-chart__center"><strong>1.235</strong><span>Entradas</span></div><div class="donut-corner-label donut-corner-label--top-left is-hidden" data-donut-slot="top-left"><span class="donut-corner-label__name"></span><span class="donut-corner-label__value"></span></div><div class="donut-corner-label donut-corner-label--top-right" data-donut-slot="top-right"><span class="donut-corner-label__name"></span><span class="donut-corner-label__value"></span></div><div class="donut-corner-label donut-corner-label--bottom-left" data-donut-slot="bottom-left"><span class="donut-corner-label__value"></span><span class="donut-corner-label__name"></span></div><div class="donut-corner-label donut-corner-label--bottom-right is-hidden" data-donut-slot="bottom-right"><span class="donut-corner-label__value"></span><span class="donut-corner-label__name"></span></div></div></div>
+            </article>
+            <article class="chart-card">
+              <div class="chart-card__header"><h2 class="chart-card__title">Composición interna</h2><div class="chart-toggle"><button type="button" aria-pressed="true">Género</button><button type="button" aria-pressed="false">Edad</button></div></div>
+              <div class="age-gender-legend" aria-label="Leyenda de rangos etarios"><span class="age-gender-legend__item"><span class="age-gender-legend__dot" style="background:#ffd21a"></span>Niños</span><span class="age-gender-legend__item"><span class="age-gender-legend__dot" style="background:#2bb7c2"></span>Ad. Jóvenes</span><span class="age-gender-legend__item"><span class="age-gender-legend__dot" style="background:#a58ff1"></span>Adultos</span><span class="age-gender-legend__item"><span class="age-gender-legend__dot" style="background:#ff8a4d"></span>Ad. Mayores</span></div>
+              <div id="age-treemap-chart" class="age-treemap-chart" role="img" aria-label="Distribución de género por edad">
+                <div class="age-treemap-stack"><div class="age-treemap-cell age-treemap-cell--child" data-segment="Hombres · Niños" data-value="247" style="--segment:25">25%</div><div class="age-treemap-cell age-treemap-cell--young" data-segment="Hombres · Ad. Jóvenes" data-value="247" style="--segment:25">25%</div><div class="age-treemap-cell age-treemap-cell--adult" data-segment="Hombres · Adultos" data-value="247" style="--segment:25">25%</div><div class="age-treemap-cell age-treemap-cell--older" data-segment="Hombres · Ad. Mayores" data-value="247" style="--segment:25">25%</div></div>
+                <div class="age-treemap-stack"><div class="age-treemap-cell age-treemap-cell--child" data-segment="Mujeres · Niños" data-value="247" style="--segment:25">25%</div><div class="age-treemap-cell age-treemap-cell--young" data-segment="Mujeres · Ad. Jóvenes" data-value="247" style="--segment:25">25%</div><div class="age-treemap-cell age-treemap-cell--adult" data-segment="Mujeres · Adultos" data-value="247" style="--segment:25">25%</div><div class="age-treemap-cell age-treemap-cell--older" data-segment="Mujeres · Ad. Mayores" data-value="247" style="--segment:25">25%</div></div>
+              </div>
+              <div class="age-treemap-labels" aria-hidden="true"><span><span>Hombres</span><span>50%</span></span><span><span>Mujeres</span><span>50%</span></span></div>
+            </article>
+          </div>
+
+          <article class="chart-card wide-card">
+            <div class="chart-card__header"><h2 class="chart-card__title">Distribución demográfica y Tasa de Conversión</h2><div class="wide-card__controls"><label><span class="wide-card__indicator-label">Indicador <span class="wide-card__indicator-help" data-tooltip="Este indicador se calcula a nivel de grupo, tienda, o día según la agrupación aplicada." tabindex="0"><img src="iconos-reporte/info-circle.svg" alt="Información del indicador"></span></span> <span class="wide-card__dropdown" data-open="false"><button class="wide-card__dropdown-trigger" type="button" aria-expanded="false">Tasa de Conversión</button><span class="wide-card__dropdown-menu" role="listbox"><button class="wide-card__dropdown-option" type="button" role="option" aria-selected="true">Tasa de Conversión</button><button class="wide-card__dropdown-option" type="button" role="option" aria-selected="false">Ventas</button><button class="wide-card__dropdown-option" type="button" role="option" aria-selected="false">Tickets</button><button class="wide-card__dropdown-option" type="button" role="option" aria-selected="false">Ticket Promedio</button><button class="wide-card__dropdown-option" type="button" role="option" aria-selected="false">Artículos</button><button class="wide-card__dropdown-option" type="button" role="option" aria-selected="false">Artículos por Ticket</button><button class="wide-card__dropdown-option" type="button" role="option" aria-selected="false">Precio Promedio</button><button class="wide-card__dropdown-option" type="button" role="option" aria-selected="false">Tasa de Captación</button><button class="wide-card__dropdown-option" type="button" role="option" aria-selected="false">Tráfico Externo</button></span></span></label><label><span>Género</span><span class="wide-card__dropdown wide-card__multiselect" data-multiselect="gender" data-open="false"><button class="wide-card__dropdown-trigger" type="button" aria-expanded="false">Hombres, Mujeres</button><span class="wide-card__dropdown-menu" role="group" aria-label="Seleccionar género"><label class="wide-card__multiselect-option"><input type="checkbox" value="Hombres" checked><span class="wide-card__multiselect-check" aria-hidden="true"></span>Hombres</label><label class="wide-card__multiselect-option"><input type="checkbox" value="Mujeres" checked><span class="wide-card__multiselect-check" aria-hidden="true"></span>Mujeres</label></span></span></label><label><span>Rango etario</span><span class="wide-card__dropdown wide-card__multiselect" data-multiselect="age" data-open="false"><button class="wide-card__dropdown-trigger" type="button" aria-expanded="false">Niños, Ad. Jóvenes...</button><span class="wide-card__dropdown-menu" role="group" aria-label="Seleccionar rango etario"><label class="wide-card__multiselect-option"><input type="checkbox" value="Niños" checked><span class="wide-card__multiselect-check" aria-hidden="true"></span>Niños</label><label class="wide-card__multiselect-option"><input type="checkbox" value="Ad. Jóvenes" checked><span class="wide-card__multiselect-check" aria-hidden="true"></span>Ad. Jóvenes</label><label class="wide-card__multiselect-option"><input type="checkbox" value="Adultos" checked><span class="wide-card__multiselect-check" aria-hidden="true"></span>Adultos</label><label class="wide-card__multiselect-option"><input type="checkbox" value="Ad. Mayores" checked><span class="wide-card__multiselect-check" aria-hidden="true"></span>Ad. Mayores</label></span></span></label><div class="chart-toggle"><button type="button" aria-pressed="true">Género</button><button type="button" aria-pressed="false">Edad</button></div></div></div>
+            <div id="group-demographic-chart" class="bar-chart" aria-label="Distribución demográfica por grupo o tienda"></div>
+          </article>
+
+          <article class="details-card">
+            <div class="details-card__header"><h2 class="details-card__title">Tabla de detalles</h2><div class="details-card__controls"><span class="details-card__indicator"><span class="wide-card__indicator-label">Indicador <span class="wide-card__indicator-help" data-tooltip="Este indicador se calcula a nivel de grupo, tienda, o día según la agrupación aplicada." tabindex="0"><img src="iconos-reporte/info-circle.svg" alt="Información del indicador"></span></span><span class="wide-card__dropdown details-card__indicator-dropdown" data-open="false"><button class="wide-card__dropdown-trigger" type="button" aria-expanded="false">Tasa de Conversión</button><span class="wide-card__dropdown-menu" role="listbox"><button class="wide-card__dropdown-option" type="button" role="option" aria-selected="true">Tasa de Conversión</button><button class="wide-card__dropdown-option" type="button" role="option" aria-selected="false">Ventas</button><button class="wide-card__dropdown-option" type="button" role="option" aria-selected="false">Tickets</button><button class="wide-card__dropdown-option" type="button" role="option" aria-selected="false">Ticket Promedio</button></span></span></span><label class="details-card__switch"><input type="checkbox" checked><span class="details-card__switch-track" aria-hidden="true"></span>Mostrar indicador</label></div></div>
+            <div class="details-table-wrap"><table class="details-table"><thead><tr><th>Grupos</th><th>Entradas</th><th>Tasa de Conversión</th><th>Hombres</th><th>Participación Hombres</th><th>Mujeres</th><th>Participación Mujeres</th><th>Niños</th><th>Participación Niños</th><th>Ad. Jóvenes</th><th>Participación Ad. Jóvenes</th><th>Adultos</th><th>Participación Adultos</th><th>Ad. Mayores</th><th>Participación Ad. Mayores</th></tr></thead><tbody><tr><td>Zona Norte Chile</td><td>359</td><td>10%</td><td>108</td><td>30%</td><td>108</td><td>30%</td><td>72</td><td>20%</td><td>108</td><td>30%</td><td>108</td><td>30%</td><td>71</td><td>20%</td></tr><tr><td>Zona Centro Chile</td><td>359</td><td>10%</td><td>108</td><td>30%</td><td>108</td><td>30%</td><td>72</td><td>20%</td><td>108</td><td>30%</td><td>108</td><td>30%</td><td>71</td><td>20%</td></tr><tr><td>Zona Sur Chile</td><td>359</td><td>55%</td><td>36</td><td>30%</td><td>108</td><td>30%</td><td>198</td><td>55%</td><td>36</td><td>10%</td><td>108</td><td>30%</td><td>17</td><td>5%</td></tr><tr><td>Santiago Alto Tráfico</td><td>359</td><td>10%</td><td>108</td><td>30%</td><td>108</td><td>30%</td><td>72</td><td>20%</td><td>108</td><td>30%</td><td>108</td><td>30%</td><td>71</td><td>20%</td></tr></tbody><tfoot><tr><td>Total período</td><td>1.436</td><td>19%</td><td>360</td><td>30%</td><td>432</td><td>26%</td><td>414</td><td>29%</td><td>360</td><td>25%</td><td>432</td><td>30%</td><td>230</td><td>16%</td></tr></tfoot></table></div>
+            <div class="details-table-footer"><div class="details-table-scrollbar" aria-hidden="true"></div><div class="details-table-footer__controls"><nav class="details-pagination" aria-label="Paginación de la tabla"><button type="button" aria-label="Página anterior"><img src="iconos-reporte/chevron-left.svg" alt=""></button><button type="button" aria-current="page">1</button><button type="button">2</button><button type="button">3</button><button type="button" aria-label="Página siguiente"><img src="iconos-reporte/chevron-right.svg" alt=""></button></nav><button class="details-download" type="button"><img class="details-download__icon" src="iconos-reporte/download-01.svg" alt="">Descargar</button></div></div>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <script>
+    const groupDemographicChartElement = document.getElementById('group-demographic-chart');
+    if (groupDemographicChartElement && window.echarts) {
+      const groupDemographicChart = echarts.init(groupDemographicChartElement);
+      let selectedIndicator = 'Tasa de Conversión';
+      let selectedBase = 'Todos';
+      const demographicRows = document.querySelectorAll('.details-table tbody tr');
+      const absoluteGenderValues = [[108, 108], [108, 108], [36, 108], [108, 108]];
+      demographicRows.forEach((row, index) => {
+        if (absoluteGenderValues[index]) {
+          row.cells[3].textContent = absoluteGenderValues[index][0];
+          row.cells[4].textContent = absoluteGenderValues[index][1];
+        }
+        row.cells[6].textContent = ['30%', '30%', '5%', '30%'][index] || '0%';
+      });
+      const totalRow = document.querySelector('.details-table tfoot tr');
+      if (totalRow) {
+        totalRow.cells[3].textContent = '360';
+        totalRow.cells[4].textContent = '432';
+        totalRow.cells[6].textContent = '26%';
+      }
+      const indicatorValues = {
+        'Tasa de Conversión': [62, 48, 76, 41, 69, 57, 83],
+        'Ventas': [420, 680, 930, 260, 770, 540, 860],
+        'Tickets': [180, 320, 460, 140, 390, 275, 430],
+        'Ticket Promedio': [46, 38, 64, 34, 59, 49, 68],
+        'Artículos': [64, 51, 77, 44, 72, 61, 84],
+      'Artículos por Ticket': [4.2, 3.6, 7.8, 2.9, 6.4, 5.1, 8.6],
+      'Precio Promedio': [320, 480, 760, 245, 690, 540, 880],
+        'Tasa de Captación': [41, 35, 57, 31, 52, 44, 61],
+        'Tráfico Externo': [68, 59, 82, 53, 75, 66, 89]
+      };
+      const indicatorMax = {
+        'Tasa de Conversión': 100,
+        Ventas: 1000,
+        Tickets: 500,
+        'Ticket Promedio': 200,
+        Artículos: 300,
+        'Artículos por Ticket': 10,
+        'Precio Promedio': 1000,
+        'Tasa de Captación': 100,
+        'Tráfico Externo': 100
+      };
+      const updateIndicatorTable = (indicator) => {
+        const values = indicatorValues[indicator] || indicatorValues['Tasa de Conversión'];
+        const isPercentage = ['Tasa de Conversión', 'Tasa de Captación'].includes(indicator);
+        document.querySelectorAll('.details-table tbody tr').forEach((row, index) => {
+          const value = values[index];
+          if (value !== undefined && row.cells[2]) row.cells[2].textContent = `${value}${isPercentage ? '%' : ''}`;
+        });
+      };
+      window.updateDetailsIndicatorTable = (indicator) => {
+        const header = document.querySelector('.details-table thead th:nth-child(3)');
+        if (header) header.textContent = indicator;
+        updateIndicatorTable(indicator);
+      };
+      const updateBaseDropdownOptions = (dimension) => {
+        const dropdown = document.querySelectorAll('.wide-card__dropdown')[1];
+        if (!dropdown) return;
+        const trigger = dropdown.querySelector('.wide-card__dropdown-trigger');
+        const options = [...dropdown.querySelectorAll('.wide-card__dropdown-option')];
+        const labels = dimension === 'Edad'
+          ? ['Todos', 'Hombres', 'Mujeres']
+          : ['Todos', 'Niños', 'Adultos Jóvenes', 'Adultos', 'Adultos Mayores'];
+        options.forEach((option, index) => {
+          const visible = index < labels.length;
+          option.hidden = !visible;
+          if (visible) {
+            option.textContent = labels[index];
+            option.setAttribute('aria-selected', String(index === 0));
+          }
+        });
+        selectedBase = labels[0];
+        if (trigger) trigger.textContent = labels[0];
+      };
+      const groupNames = ['Zona Norte Chile', 'Zona Centro Chile', 'Zona Sur Chile', 'Santiago Alto Tráfico', 'Santiago Sector Oriente', 'Santiago Sector Poniente', 'Región Metropolitana Retail'];
+      const demographicSource = [
+        { product: groupNames[0], 'Niños': 43.3, 'Ad. Jóvenes': 85.8, Adultos: 93.7, 'Ad. Mayores': 68.4 },
+        { product: groupNames[1], 'Niños': 83.1, 'Ad. Jóvenes': 73.4, Adultos: 55.1, 'Ad. Mayores': 71.2 },
+        { product: groupNames[2], 'Niños': 86.4, 'Ad. Jóvenes': 65.2, Adultos: 82.5, 'Ad. Mayores': 77.8 },
+        { product: groupNames[3], 'Niños': 72.4, 'Ad. Jóvenes': 53.9, Adultos: 39.1, 'Ad. Mayores': 48.6 },
+        { product: groupNames[4], 'Niños': 58.2, 'Ad. Jóvenes': 68.7, Adultos: 74.3, 'Ad. Mayores': 61.5 },
+        { product: groupNames[5], 'Niños': 47.6, 'Ad. Jóvenes': 79.4, Adultos: 63.8, 'Ad. Mayores': 84.1 },
+        { product: groupNames[6], 'Niños': 69.5, 'Ad. Jóvenes': 57.8, Adultos: 71.6, 'Ad. Mayores': 52.9 }
+      ];
+      const demographicValuesByBase = {
+        'Todos': [
+          [46, 92, 98, 67], [88, 76, 54, 82], [95, 64, 86, 78],
+          [73, 48, 42, 59], [61, 84, 77, 68], [49, 93, 65, 89], [81, 57, 74, 46]
+        ],
+        Hombres: [
+          [42, 61, 69, 48], [67, 54, 43, 58], [72, 49, 64, 63],
+          [58, 44, 41, 47], [51, 68, 62, 55], [45, 73, 57, 70], [64, 48, 59, 42]
+        ],
+        Mujeres: [
+          [45, 71, 76, 54], [63, 58, 46, 66], [74, 52, 70, 68],
+          [61, 47, 40, 51], [55, 72, 65, 59], [48, 79, 60, 76], [69, 53, 67, 44]
+        ],
+        Niños: [
+          [18, 27, 31, 22], [34, 29, 24, 31], [39, 25, 35, 30],
+          [28, 21, 19, 26], [24, 34, 30, 27], [20, 37, 26, 35], [32, 24, 33, 20]
+        ],
+        'Adultos Jóvenes': [
+          [42, 74, 79, 53], [69, 61, 45, 72], [76, 56, 71, 66],
+          [58, 43, 38, 49], [52, 78, 68, 61], [45, 84, 59, 77], [67, 51, 70, 43]
+        ],
+        Adultos: [
+          [36, 68, 73, 49], [63, 57, 42, 65], [71, 51, 67, 61],
+          [54, 40, 36, 46], [48, 71, 64, 56], [41, 77, 55, 70], [62, 47, 65, 39]
+        ],
+        'Adultos Mayores': [
+          [16, 23, 28, 19], [29, 25, 20, 27], [34, 21, 30, 26],
+          [24, 18, 16, 22], [21, 29, 26, 23], [17, 32, 22, 30], [27, 20, 28, 17]
+        ]
+      };
+      const genderValuesByBase = {
+        'Todos': [[58, 42], [46, 54], [63, 37], [51, 49], [44, 56], [67, 33], [55, 45]],
+        Hombres: [[100, 0], [100, 0], [100, 0], [100, 0], [100, 0], [100, 0], [100, 0]],
+        Mujeres: [[0, 100], [0, 100], [0, 100], [0, 100], [0, 100], [0, 100], [0, 100]],
+        Niños: [[54, 46], [48, 52], [61, 39], [57, 43], [45, 55], [63, 37], [51, 49]],
+        'Adultos Jóvenes': [[44, 56], [39, 61], [52, 48], [47, 53], [42, 58], [58, 42], [49, 51]],
+        Adultos: [[51, 49], [45, 55], [59, 41], [54, 46], [47, 53], [62, 38], [56, 44]],
+        'Adultos Mayores': [[57, 43], [52, 48], [65, 35], [60, 40], [49, 51], [68, 32], [58, 42]]
+      };
+      let selectedDemographicDimension = 'Género';
+      const genderLabels = ['Hombres', 'Mujeres'];
+      const ageLabels = ['Niños', 'Ad. Jóvenes', 'Adultos', 'Ad. Mayores'];
+      const selectedGenders = new Set(genderLabels);
+      const selectedAges = new Set(ageLabels);
+      const ageTotals = [
+        [18, 26, 31, 25], [28, 24, 19, 29], [32, 20, 27, 21],
+        [25, 22, 18, 20], [21, 26, 29, 24], [17, 30, 22, 31], [27, 19, 33, 18]
+      ];
+      const maleShares = [
+        [.54, .44, .51, .57], [.48, .39, .45, .52], [.61, .52, .59, .65],
+        [.57, .47, .54, .60], [.45, .42, .47, .49], [.63, .58, .62, .68], [.51, .49, .56, .58]
+      ];
+      const demographicModes = {
+        Edad: {
+          labels: ['Niños', 'Ad. Jóvenes', 'Adultos', 'Ad. Mayores'],
+          colors: ['#ffd43b', '#45c0ca', '#ad9af1', '#ff9b68']
+        },
+        Género: {
+          labels: ['Hombres', 'Mujeres'],
+          colors: ['#8bb2ed', '#ed8bbb']
+        }
+      };
+      const getDemographicLegend = () => {
+        const labels = selectedDemographicDimension === 'Género' ? genderLabels : ageLabels;
+        const selected = selectedDemographicDimension === 'Género' ? selectedGenders : selectedAges;
+        return labels.filter((label) => selected.has(label));
+      };
+      const getDemographicSource = () => {
+        const activeSeries = getDemographicLegend();
+        return groupNames.map((product, groupIndex) => {
+          const row = { product };
+          if (selectedDemographicDimension === 'Género') {
+            activeSeries.forEach((gender) => {
+              const genderIndex = genderLabels.indexOf(gender);
+              row[gender] = ageLabels.reduce((total, age, ageIndex) => selectedAges.has(age)
+                ? total + ageTotals[groupIndex][ageIndex] * (genderIndex === 0 ? maleShares[groupIndex][ageIndex] : 1 - maleShares[groupIndex][ageIndex])
+                : total, 0);
+            });
+          } else {
+            activeSeries.forEach((age) => {
+              const ageIndex = ageLabels.indexOf(age);
+              row[age] = genderLabels.reduce((total, gender, genderIndex) => selectedGenders.has(gender)
+                ? total + ageTotals[groupIndex][ageIndex] * (genderIndex === 0 ? maleShares[groupIndex][ageIndex] : 1 - maleShares[groupIndex][ageIndex])
+                : total, 0);
+            });
+          }
+          return row;
+        });
+      };
+      const getDemographicSeries = () => getDemographicLegend().map((label) => {
+        const index = demographicModes[selectedDemographicDimension].labels.indexOf(label);
+        return {
+          type: 'bar', name: label, barWidth: 8, animation: true, animationDuration: 360,
+          animationDurationUpdate: 480, animationDelayUpdate: index * 45, animationEasingUpdate: 'cubicOut',
+          itemStyle: { color: demographicModes[selectedDemographicDimension].colors[index], borderRadius: [4, 4, 0, 0] },
+          encode: { x: 'product', y: label }
+        };
+      });
+    groupDemographicChart.setOption({
+      textStyle: { fontFamily: 'Inter, Arial, sans-serif' },
+      animation: false,
+        legend: {
+          left: 0,
+          top: 0,
+          itemGap: 16,
+          textStyle: { fontSize: 16, color: '#6B7280' },
+          itemWidth: 12,
+          itemHeight: 12,
+          itemStyle: { borderRadius: 4 },
+          data: [
+            ...getDemographicLegend(),
+            {
+              name: 'Tasa de Conversión',
+              icon: 'circle',
+              itemStyle: { color: '#0180B2', borderColor: '#1F2A37', borderWidth: 0.7 }
+            }
+          ]
+        },
+        tooltip: {
+          formatter: (params) => {
+            const items = Array.isArray(params) ? params : [params];
+            const firstValue = items[0]?.value;
+            const groupName = items[0]?.axisValue
+              ?? items[0]?.name
+              ?? (Array.isArray(firstValue) ? firstValue[0] : firstValue?.product)
+              ?? '';
+            const rows = items.map((item) => {
+              const valueIndex = item.seriesName === selectedIndicator ? getDemographicLegend().length + 1 : item.seriesIndex + 1;
+              const rawValue = Array.isArray(item.value)
+                ? item.value[valueIndex]
+                : item.value?.[item.seriesName];
+            const value = item.seriesName === selectedIndicator && ['Tasa de Conversión', 'Tasa de Captación'].includes(selectedIndicator)
+              ? `${rawValue}%`
+                : Math.round(Number(rawValue));
+              return `${item.marker} ${item.seriesName}: ${value}`;
+            }).join('<br>');
+            return `<strong>${groupName}</strong><br>${rows}`;
+          }
+        },
+        dataset: {
+          dimensions: ['product', ...getDemographicLegend(), 'Tasa de Conversión'],
+          source: getDemographicSource().map((row, index) => ({ ...row, 'Tasa de Conversión': indicatorValues['Tasa de Conversión'][index] }))
+        },
+        grid: { top: 52, right: 70, bottom: 28, left: 60, containLabel: false },
+        xAxis: {
+          type: 'category',
+          axisLabel: {
+            interval: 0,
+            formatter: (value) => value.length > 18 ? `${value.slice(0, 18)}...` : value
+          }
+        },
+        yAxis: [
+          {
+            min: 0,
+            max: 100,
+            interval: 20,
+            name: 'Entradas',
+            nameLocation: 'middle',
+            nameRotate: 90,
+            nameGap: 48,
+            nameTextStyle: { fontSize: 12, color: '#9CA3AF', fontWeight: 500, fontStyle: 'italic' },
+            axisLabel: { align: 'right', margin: 8 }
+          },
+          {
+            min: 0,
+            max: 100,
+            interval: 20,
+            position: 'right',
+            name: 'Tasa de Conversión',
+            nameLocation: 'middle',
+            nameRotate: -90,
+            nameGap: 48,
+            nameTextStyle: { fontSize: 12, color: '#9CA3AF', fontWeight: 500, fontStyle: 'italic' },
+            animationDurationUpdate: 620,
+            animationEasingUpdate: 'cubicInOut',
+            axisLabel: { formatter: '{value}%' }
+          }
+        ],
+          series: [
+          ...getDemographicSeries(),
+          {
+            name: 'Tasa de Conversión',
+            type: 'scatter',
+            yAxisIndex: 1,
+            encode: { x: 'product', y: 'Tasa de Conversión' },
+            symbol: 'circle',
+            symbolSize: 12,
+            animation: true,
+            animationDuration: 450,
+            animationDurationUpdate: 450,
+            itemStyle: { color: '#0180B2', borderColor: '#1F2A37', borderWidth: 0.7 }
+          }
+        ]
+      });
+      window.updateIndicatorChart = (indicator) => {
+        selectedIndicator = indicator;
+        const indicatorHeader = document.querySelector('[data-indicator-header]');
+        if (indicatorHeader) indicatorHeader.textContent = indicator;
+        const title = document.querySelector('.wide-card .chart-card__title');
+        if (title) title.textContent = `Distribución demográfica y ${indicator}`;
+        const values = indicatorValues[indicator] || indicatorValues['Tasa de Conversión'];
+        const source = getDemographicSource().map((row, index) => ({ ...row, [indicator]: values[index] }));
+        groupDemographicChart.setOption({
+          animation: false,
+          legend: { data: [...getDemographicLegend(), { name: indicator, icon: 'circle', itemStyle: { color: '#0180B2', borderColor: '#1F2A37', borderWidth: 0.7 } }] },
+          dataset: { dimensions: ['product', ...getDemographicLegend(), indicator], source },
+          yAxis: [
+            { min: 0, max: 100, interval: 20 },
+            {
+              min: 0,
+              max: indicatorMax[indicator] || 100,
+              interval: (indicatorMax[indicator] || 100) / 5,
+              animationDurationUpdate: 620,
+              animationEasingUpdate: 'cubicInOut',
+              name: indicator,
+              nameLocation: 'middle',
+              nameRotate: -90,
+              nameGap: 48,
+              nameTextStyle: { fontSize: 12, color: '#9CA3AF', fontWeight: 500, fontStyle: 'italic' },
+              axisLabel: { formatter: ['Tasa de Conversión', 'Tasa de Captación'].includes(indicator) ? '{value}%' : '{value}' }
+            }
+          ],
+          series: [
+            ...getDemographicSeries(),
+            { name: indicator, type: 'scatter', yAxisIndex: 1, encode: { x: 'product', y: indicator }, symbol: 'circle', symbolSize: 12, animation: true, animationDuration: 450, animationDurationUpdate: 450, itemStyle: { color: '#0180B2', borderColor: '#1F2A37', borderWidth: 0.7 } }
+          ],
+          replaceMerge: ['series']
+        });
+      };
+      window.updateBaseChart = (base) => {
+        selectedBase = base;
+        const values = indicatorValues[selectedIndicator] || indicatorValues['Tasa de Conversión'];
+        const source = getDemographicSource().map((row, index) => ({ ...row, [selectedIndicator]: values[index] }));
+      groupDemographicChart.setOption({
+        textStyle: { fontFamily: 'Inter, Arial, sans-serif' },
+        animation: true,
+          animationDurationUpdate: 540,
+          animationEasingUpdate: 'cubicOut',
+          xAxis: { animation: false },
+          yAxis: [{ animation: false }, { animation: false }],
+          dataset: { dimensions: ['product', ...getDemographicLegend(), selectedIndicator], source },
+          series: [
+            ...getDemographicSeries(),
+            { name: selectedIndicator, type: 'scatter', yAxisIndex: 1, encode: { x: 'product', y: selectedIndicator }, symbol: 'circle', symbolSize: 12, animation: false, itemStyle: { color: '#0180B2', borderColor: '#1F2A37', borderWidth: 0.7 } }
+          ],
+          replaceMerge: ['series']
+        });
+      };
+      const updateDetailsTableDimension = (dimension) => {
+        const table = document.querySelector('.details-table');
+        if (!table) return;
+        const isAge = dimension === 'Edad';
+        table.classList.toggle('is-age-view', isAge);
+        updateBaseDropdownOptions(dimension);
+        const indicatorLabel = selectedIndicator;
+        const headers = isAge
+          ? ['Grupos', 'Entradas', indicatorLabel, 'Niños', 'Ad. Jóvenes', 'Adultos', 'Ad. Mayores', 'Participación Niños', 'Participación Ad. Jóvenes', 'Participación Adultos', 'Participación Ad. Mayores']
+          : ['Grupos', 'Entradas', indicatorLabel, 'Hombres', 'Mujeres', 'Participación Hombres', 'Participación Mujeres'];
+        table.tHead.rows[0].innerHTML = headers.map((label, index) => `<th${index === 2 ? ' data-indicator-header' : ''}>${label}</th>`).join('');
+        const rows = [...table.tBodies[0].rows];
+        const ageValues = [[72, 108, 108, 71], [72, 108, 108, 71], [198, 36, 108, 17], [72, 108, 108, 71]];
+        const ageShares = [['20%', '30%', '30%', '20%'], ['20%', '30%', '30%', '20%'], ['55%', '10%', '30%', '5%'], ['20%', '30%', '30%', '20%']];
+        rows.forEach((row, index) => {
+          const group = row.cells[0].textContent;
+          const entries = row.cells[1].textContent;
+          const indicator = row.cells[2].textContent;
+          const values = isAge ? ageValues[index] : absoluteGenderValues[index];
+          const shares = isAge ? ageShares[index] : ['30%', '30%'];
+          row.innerHTML = `<td>${group}</td><td>${entries}</td><td>${indicator}</td>${values.map((value) => `<td>${value}</td>`).join('')}${shares.map((value) => `<td>${value}</td>`).join('')}`;
+        });
+        const total = table.tFoot.rows[0];
+        total.innerHTML = isAge
+          ? '<td>Total período</td><td>1.436</td><td>19%</td><td>414</td><td>360</td><td>432</td><td>230</td><td>29%</td><td>25%</td><td>30%</td><td>16%</td>'
+          : '<td>Total período</td><td>1.436</td><td>19%</td><td>360</td><td>432</td><td>30%</td><td>26%</td>';
+      };
+      window.updateDemographicDimension = (dimension) => {
+        selectedDemographicDimension = dimension;
+        const values = indicatorValues[selectedIndicator] || indicatorValues['Tasa de Conversión'];
+        const source = getDemographicSource().map((row, index) => ({ ...row, [selectedIndicator]: values[index] }));
+        // Remove the previous bar series before applying the new demographic mode.
+        // This prevents the two age-only series from surviving the switch to gender.
+        groupDemographicChart.setOption({ series: [] }, { replaceMerge: ['series'], lazyUpdate: false });
+        groupDemographicChart.setOption({
+          animation: true,
+          animationDurationUpdate: 420,
+          animationEasingUpdate: 'cubicOut',
+          legend: { data: [...getDemographicLegend(), { name: selectedIndicator, icon: 'circle', itemStyle: { color: '#0180B2', borderColor: '#1F2A37', borderWidth: 0.7 } }] },
+          dataset: { dimensions: ['product', ...getDemographicLegend(), selectedIndicator], source },
+          series: [...getDemographicSeries(), { name: selectedIndicator, type: 'scatter', yAxisIndex: 1, encode: { x: 'product', y: selectedIndicator }, symbol: 'circle', symbolSize: 12, animation: false, itemStyle: { color: '#0180B2', borderColor: '#1F2A37', borderWidth: 0.7 } }],
+          replaceMerge: ['series']
+        });
+      };
+      window.updateDemographicSelections = () => {
+        const values = indicatorValues[selectedIndicator] || indicatorValues['Tasa de Conversión'];
+        const source = getDemographicSource().map((row, index) => ({ ...row, [selectedIndicator]: values[index] }));
+        // Clear the existing series first. This prevents ECharts from retaining a
+        // previously rendered bar when the active series selection becomes smaller.
+        groupDemographicChart.setOption({ series: [] }, { replaceMerge: ['series'], lazyUpdate: false });
+        groupDemographicChart.setOption({
+          animation: true,
+          animationDurationUpdate: 420,
+          animationEasingUpdate: 'cubicOut',
+          legend: { data: [...getDemographicLegend(), { name: selectedIndicator, icon: 'circle', itemStyle: { color: '#0180B2', borderColor: '#1F2A37', borderWidth: 0.7 } }] },
+          dataset: { dimensions: ['product', ...getDemographicLegend(), selectedIndicator], source },
+          series: [...getDemographicSeries(), { name: selectedIndicator, type: 'scatter', yAxisIndex: 1, encode: { x: 'product', y: selectedIndicator }, symbol: 'circle', symbolSize: 12, animation: false, itemStyle: { color: '#0180B2', borderColor: '#1F2A37', borderWidth: 0.7 } }],
+          replaceMerge: ['series']
+        });
+      };
+      window.setDemographicSelection = (type, values) => {
+        const selection = type === 'gender' ? selectedGenders : selectedAges;
+        selection.clear();
+        values.forEach((value) => selection.add(value));
+        window.updateDemographicSelections();
+      };
+      window.addEventListener('resize', () => groupDemographicChart.resize());
+    }
+
+    const genderChartElement = document.getElementById('gender-donut-chart');
+    if (genderChartElement && window.echarts) {
+      const genderChart = echarts.init(genderChartElement);
+      const donutLabelRich = {
+        label: { color: '#6b7280', fontSize: 16, lineHeight: 22, fontWeight: 400 },
+        female: { color: '#ed8bbb', fontSize: 16, lineHeight: 22, fontWeight: 600 },
+        male: { color: '#8bb2ed', fontSize: 16, lineHeight: 22, fontWeight: 600 },
+        children: { color: '#ffd21a', fontSize: 16, lineHeight: 22, fontWeight: 600 },
+        young: { color: '#2bb7c2', fontSize: 16, lineHeight: 22, fontWeight: 600 },
+        adults: { color: '#a58ff1', fontSize: 16, lineHeight: 22, fontWeight: 600 },
+        older: { color: '#ff8a4d', fontSize: 16, lineHeight: 22, fontWeight: 600 }
+      };
+      const donutLabelFormatter = (params) => {
+        const value = `{${params.data.valueStyle}|${params.percent}%}`;
+        const label = `{label|${params.name}}`;
+        return params.data.labelOrder === 'label-first' ? `${label}\n${value}` : `${value}\n${label}`;
+      };
+      const donutSeries = (isAge) => ({
+        name: isAge ? 'Edad' : 'Género',
+        type: 'pie',
+        radius: ['50%', '82%'],
+        center: ['50%', '50%'],
+        avoidLabelOverlap: true,
+        itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+        label: { show: true, position: 'outside', formatter: donutLabelFormatter, rich: donutLabelRich },
+        emphasis: { label: { show: true } },
+        labelLine: { show: true, length: 18, length2: 24, smooth: false, lineStyle: { width: 2 } },
+        data: isAge ? [
+          { value: 20, name: 'Niños', valueStyle: 'children', labelOrder: 'label-first' },
+          { value: 40, name: 'Ad. Jóvenes', valueStyle: 'young', labelOrder: 'label-first' },
+          { value: 30, name: 'Adultos', valueStyle: 'adults', labelOrder: 'value-first' },
+          { value: 10, name: 'Ad. Mayores', valueStyle: 'older', labelOrder: 'value-first' }
+        ] : [
+          { value: 62, name: 'Mujeres', valueStyle: 'female', labelOrder: 'value-first' },
+          { value: 38, name: 'Hombres', valueStyle: 'male', labelOrder: 'label-first' }
+        ]
+      });
+      genderChart.setOption({
+        tooltip: { trigger: 'item' },
+        legend: { show: false },
+        color: ['#ed8bbb', '#8bb2ed'],
+        series: [donutSeries(false)]
+      });
+
+      const genderViewButtons = document.querySelectorAll('.chart-grid .chart-card:first-child .chart-toggle button');
+      const donutCornerLabels = [...document.querySelectorAll('.donut-corner-label')];
+      const updateDonutCornerLabels = (isAge) => {
+        const values = isAge ? {
+          'top-left': { name: 'Ad. Mayores', value: '10%', color: '#ff8a4d', lineWidth: '145px', lineTop: '31px', angle: '3deg' },
+          'top-right': { name: 'Niños', value: '20%', color: '#ffd21a', lineWidth: '145px', lineTop: '31px', angle: '-3deg' },
+          'bottom-left': { name: 'Adultos', value: '30%', color: '#a58ff1', lineWidth: '145px', lineTop: '10px', angle: '-3deg' },
+          'bottom-right': { name: 'Ad. Jóvenes', value: '40%', color: '#2bb7c2', lineWidth: '145px', lineTop: '10px', angle: '3deg' }
+        } : {
+          'top-left': null,
+          'top-right': { name: 'Mujeres', value: '62%', color: '#ed8bbb', lineWidth: '180px', lineTop: '31px', angle: '-3deg' },
+          'bottom-left': { name: 'Hombres', value: '38%', color: '#8bb2ed', lineWidth: '180px', lineTop: '10px', angle: '3deg' },
+          'bottom-right': null
+        };
+        donutCornerLabels.forEach((label) => {
+          const item = values[label.dataset.donutSlot];
+          label.classList.toggle('is-hidden', !item);
+          if (!item) return;
+          label.style.setProperty('--donut-label-color', item.color);
+          label.style.setProperty('--donut-line-width', item.lineWidth);
+          label.style.setProperty('--donut-line-top', item.lineTop);
+          label.style.setProperty('--donut-line-angle', item.angle);
+          label.querySelector('.donut-corner-label__name').textContent = item.name;
+          label.querySelector('.donut-corner-label__value').textContent = item.value;
+          label.querySelector('.donut-corner-label__value').style.color = item.color;
+        });
+      };
+      updateDonutCornerLabels(false);
+
+      const setGenderChartView = (view) => {
+        const isAge = view === 'age';
+        updateDonutCornerLabels(isAge);
+        genderChart.setOption({
+          legend: { show: false },
+          color: isAge ? ['#ffd21a', '#2bb7c2', '#a58ff1', '#ff8a4d'] : ['#ed8bbb', '#8bb2ed'],
+          series: [donutSeries(isAge)]
+        }, { replaceMerge: ['legend', 'series'] });
+      };
+
+      const genderChartWrap = document.querySelector('.gender-donut-wrap');
+      const animateGenderChart = () => {
+        if (!genderChartWrap) return;
+        genderChartWrap.classList.remove('is-switching');
+        void genderChartWrap.offsetWidth;
+        genderChartWrap.classList.add('is-switching');
+        window.setTimeout(() => genderChartWrap.classList.remove('is-switching'), 380);
+      };
+
+      animateGenderChart();
+
+      genderViewButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const isAge = button.textContent.trim() === 'Edad';
+          genderViewButtons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+          setGenderChartView(isAge ? 'age' : 'gender');
+          animateGenderChart();
+        });
+      });
+      window.addEventListener('resize', () => genderChart.resize());
+    }
+
+    const ageTreemapElement = document.getElementById('age-treemap-chart');
+    if (false && ageTreemapElement && window.echarts) {
+      const ageTreemap = echarts.init(ageTreemapElement);
+      ageTreemap.setOption({
+        series: [
+          {
+            type: 'treemap',
+            layout: 'sliceAndDice',
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: 0,
+            data: [
+              {
+                name: 'Niños',
+                value: 25,
+                children: [
+                  { name: 'Hombres', value: 40 },
+                  { name: 'Mujeres', value: 60 }
+                ]
+              },
+              {
+                name: 'Ad. Jóvenes',
+                value: 25,
+                children: [
+                  { name: 'Hombres', value: 80 },
+                  { name: 'Mujeres', value: 20 }
+                ]
+              },
+              {
+                name: 'Adultos',
+                value: 25,
+                children: [
+                  { name: 'Hombres', value: 45 },
+                  { name: 'Mujeres', value: 55 }
+                ]
+              },
+              {
+                name: 'Ad. Mayores',
+                value: 25,
+                children: [
+                  { name: 'Hombres', value: 70 },
+                  { name: 'Mujeres', value: 30 }
+                ]
+              }
+            ],
+            roam: false,
+            nodeClick: false,
+            breadcrumb: { show: false },
+            label: { show: false, color: '#fff', fontSize: 14 },
+            upperLabel: { show: false, height: 24, color: '#4b5563', fontSize: 12 },
+            itemStyle: { borderColor: '#fff', borderWidth: 3, gapWidth: 3 },
+            levels: [
+              { itemStyle: { borderColor: '#fff', borderWidth: 3, gapWidth: 3 } },
+              { itemStyle: { borderColor: '#fff', borderWidth: 0, gapWidth: 0 } },
+              { itemStyle: { borderColor: 'transparent', borderWidth: 0, gapWidth: 0 } }
+            ],
+            color: ['#8bb2ed', '#ed8bbb']
+          }
+        ]
+      });
+      window.addEventListener('resize', () => ageTreemap.resize());
+    }
+
+    const demographicTooltip = document.createElement('div');
+    demographicTooltip.className = 'demographic-tooltip';
+    document.body.appendChild(demographicTooltip);
+    document.querySelectorAll('.age-treemap-cell').forEach((cell) => {
+      cell.addEventListener('mouseenter', () => {
+        const isMale = cell.dataset.segment.startsWith('Hombres');
+        const segmentColor = isMale ? '#8bb2ed' : '#ed8bbb';
+        const gender = isMale ? 'Hombres' : 'Mujeres';
+        demographicTooltip.style.borderColor = segmentColor;
+        demographicTooltip.innerHTML = `<span class="demographic-tooltip__title">Género</span><span class="demographic-tooltip__row"><span class="demographic-tooltip__dot" style="background:${segmentColor}"></span><span>${gender}</span><span class="demographic-tooltip__value">${cell.dataset.value}</span></span>`;
+        demographicTooltip.classList.add('is-visible');
+        const rect = cell.getBoundingClientRect();
+        const tooltipRect = demographicTooltip.getBoundingClientRect();
+        demographicTooltip.style.left = `${Math.max(8, rect.left + (rect.width - tooltipRect.width) / 2)}px`;
+        demographicTooltip.style.top = `${Math.max(8, rect.top - tooltipRect.height - 8)}px`;
+      });
+      cell.addEventListener('mouseleave', () => demographicTooltip.classList.remove('is-visible'));
+    });
+
+    const ageGenderCard = document.querySelector('.chart-grid > .chart-card:has(#age-treemap-chart)');
+    const ageGenderButtons = ageGenderCard?.querySelectorAll('.chart-toggle button');
+    const ageGenderLegend = ageGenderCard?.querySelector('.age-gender-legend');
+    const ageTreemapLabels = document.querySelector('.age-treemap-labels');
+    const ageTreemap = document.getElementById('age-treemap-chart');
+    const animateAgeTreemap = () => {
+      if (!ageTreemap) return;
+      ageTreemap.classList.remove('is-switching');
+      void ageTreemap.offsetWidth;
+      ageTreemap.classList.add('is-switching');
+      window.setTimeout(() => ageTreemap.classList.remove('is-switching'), 380);
+    };
+    animateAgeTreemap();
+    const genderTreemapMarkup = ageTreemap?.innerHTML;
+    const ageByGenderMarkup = `
+      <div class="age-treemap-stack"><div class="age-treemap-cell age-treemap-cell--male" data-segment="Niños · Hombres" data-value="494" style="--male:40">40%</div><div class="age-treemap-cell age-treemap-cell--female" data-segment="Niños · Mujeres" data-value="741" style="--female:60">60%</div></div>
+      <div class="age-treemap-stack"><div class="age-treemap-cell age-treemap-cell--male" data-segment="Ad. Jóvenes · Hombres" data-value="988" style="--male:80">80%</div><div class="age-treemap-cell age-treemap-cell--female" data-segment="Ad. Jóvenes · Mujeres" data-value="247" style="--female:20">20%</div></div>
+      <div class="age-treemap-stack"><div class="age-treemap-cell age-treemap-cell--male" data-segment="Adultos · Hombres" data-value="556" style="--male:45">45%</div><div class="age-treemap-cell age-treemap-cell--female" data-segment="Adultos · Mujeres" data-value="679" style="--female:55">55%</div></div>
+      <div class="age-treemap-stack"><div class="age-treemap-cell age-treemap-cell--male" data-segment="Ad. Mayores · Hombres" data-value="865" style="--male:70">70%</div><div class="age-treemap-cell age-treemap-cell--female" data-segment="Ad. Mayores · Mujeres" data-value="371" style="--female:30">30%</div></div>`;
+    const ageLegendMarkup = '<span class="age-gender-legend__item"><span class="age-gender-legend__dot" style="background:#ffd21a"></span>Niños</span><span class="age-gender-legend__item"><span class="age-gender-legend__dot" style="background:#2bb7c2"></span>Ad. Jóvenes</span><span class="age-gender-legend__item"><span class="age-gender-legend__dot" style="background:#a58ff1"></span>Adultos</span><span class="age-gender-legend__item"><span class="age-gender-legend__dot" style="background:#ff8a4d"></span>Ad. Mayores</span>';
+    const genderLegendMarkup = '<span class="age-gender-legend__item"><span class="age-gender-legend__dot" style="background:#8bb2ed"></span>Hombres</span><span class="age-gender-legend__item"><span class="age-gender-legend__dot" style="background:#ed8bbb"></span>Mujeres</span>';
+    ageGenderButtons?.forEach((button) => {
+      button.addEventListener('click', () => {
+        const isAge = button.textContent.trim() === 'Edad';
+        ageGenderButtons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+        ageTreemap.classList.toggle('is-by-age', isAge);
+        ageTreemap.innerHTML = isAge ? ageByGenderMarkup : genderTreemapMarkup;
+        animateAgeTreemap();
+        ageGenderLegend.innerHTML = isAge ? genderLegendMarkup : ageLegendMarkup;
+        ageGenderLegend.setAttribute('aria-label', isAge ? 'Leyenda de género' : 'Leyenda de rangos etarios');
+        ageTreemapLabels.innerHTML = isAge ? '<span><span>Niños</span><span>25%</span></span><span><span>Ad. Jóvenes</span><span>25%</span></span><span><span>Adultos</span><span>25%</span></span><span><span>Ad. Mayores</span><span>25%</span></span>' : '<span><span>Hombres</span><span>50%</span></span><span><span>Mujeres</span><span>50%</span></span>';
+        ageTreemapLabels.classList.toggle('is-by-age', isAge);
+        ageTreemap.querySelectorAll('.age-treemap-cell').forEach((cell) => {
+          cell.addEventListener('mouseenter', () => {
+            const isMale = cell.dataset.segment.endsWith('Hombres');
+            const segmentColor = isAge ? (isMale ? '#8bb2ed' : '#ed8bbb') : (cell.classList.contains('age-treemap-cell--child') ? '#ffd21a' : cell.classList.contains('age-treemap-cell--young') ? '#2bb7c2' : cell.classList.contains('age-treemap-cell--adult') ? '#a58ff1' : '#ff8a4d');
+            demographicTooltip.style.borderColor = segmentColor;
+            demographicTooltip.innerHTML = `<span class="demographic-tooltip__title">${isAge ? 'Edad' : 'Género'}</span><span class="demographic-tooltip__row"><span class="demographic-tooltip__dot" style="background:${segmentColor}"></span><span>${isAge ? cell.dataset.segment.split(' · ')[1] : (isMale ? 'Hombres' : 'Mujeres')}</span><span class="demographic-tooltip__value">${cell.dataset.value}</span></span>`;
+            demographicTooltip.classList.add('is-visible');
+            const rect = cell.getBoundingClientRect();
+            const tooltipRect = demographicTooltip.getBoundingClientRect();
+            demographicTooltip.style.left = `${Math.max(8, rect.left + (rect.width - tooltipRect.width) / 2)}px`;
+            demographicTooltip.style.top = `${Math.max(8, rect.top - tooltipRect.height - 8)}px`;
+          });
+          cell.addEventListener('mouseleave', () => demographicTooltip.classList.remove('is-visible'));
+        });
+      });
+    });
+
+    const detailsIndicatorMenu = document.querySelector('.details-card__indicator-dropdown .wide-card__dropdown-menu');
+    ['Artículos', 'Artículos por Ticket', 'Precio Promedio', 'Tasa de Captación', 'Tráfico Externo'].forEach((label) => {
+      if (!detailsIndicatorMenu) return;
+      const option = document.createElement('button');
+      option.className = 'wide-card__dropdown-option';
+      option.type = 'button';
+      option.setAttribute('role', 'option');
+      option.setAttribute('aria-selected', 'false');
+      option.textContent = label;
+      detailsIndicatorMenu.appendChild(option);
+    });
+    const customDropdowns = document.querySelectorAll('.wide-card__dropdown');
+    const demographicModeButtons = document.querySelectorAll('.wide-card .chart-toggle button');
+    const demographicBaseLabel = document.querySelector('.wide-card__base-label');
+    const detailsIndicatorToggle = document.querySelector('.details-card__switch input');
+    const detailsTable = document.querySelector('.details-table');
+    const setDetailsIndicatorVisibility = (isVisible) => {
+      if (!detailsTable) return;
+      detailsTable.querySelectorAll('tr').forEach((row) => {
+        const cell = row.cells[2];
+        if (cell) cell.style.display = isVisible ? '' : 'none';
+      });
+    };
+    detailsIndicatorToggle?.addEventListener('change', (event) => {
+      setDetailsIndicatorVisibility(event.target.checked);
+    });
+    setDetailsIndicatorVisibility(detailsIndicatorToggle?.checked !== false);
+    demographicModeButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const dimension = button.textContent.trim();
+        demographicModeButtons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+        if (demographicBaseLabel) demographicBaseLabel.textContent = dimension === 'Edad' ? 'Género' : 'Rango etario';
+        window.updateDemographicDimension?.(dimension);
+      });
+    });
+    const setDropdownOpen = (dropdown, isOpen) => {
+      dropdown.setAttribute('data-open', String(isOpen));
+      dropdown.querySelector('.wide-card__dropdown-trigger')?.setAttribute('aria-expanded', String(isOpen));
+    };
+
+    customDropdowns.forEach((dropdown) => {
+      const trigger = dropdown.querySelector('.wide-card__dropdown-trigger');
+      const options = dropdown.querySelectorAll('.wide-card__dropdown-option');
+
+      trigger?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        customDropdowns.forEach((item) => {
+          if (item !== dropdown) setDropdownOpen(item, false);
+        });
+        setDropdownOpen(dropdown, dropdown.getAttribute('data-open') !== 'true');
+      });
+
+      options.forEach((option) => {
+        option.addEventListener('click', () => {
+          trigger.textContent = option.textContent;
+          options.forEach((item) => item.setAttribute('aria-selected', String(item === option)));
+          if (dropdown === customDropdowns[0] && window.updateIndicatorChart) {
+            window.updateIndicatorChart(option.textContent.trim());
+          }
+          if (dropdown === customDropdowns[1] && window.updateBaseChart) {
+            window.updateBaseChart(option.textContent.trim());
+          }
+          if (dropdown.classList.contains('details-card__indicator-dropdown')) {
+            window.updateDetailsIndicatorTable?.(option.textContent.trim());
+          }
+          setDropdownOpen(dropdown, false);
+        });
+      });
+    });
+
+    document.querySelectorAll('.wide-card__multiselect').forEach((dropdown) => {
+      const trigger = dropdown.querySelector('.wide-card__dropdown-trigger');
+      const checkboxes = [...dropdown.querySelectorAll('input[type="checkbox"]')];
+      const updateTrigger = () => {
+        const selected = checkboxes.filter((checkbox) => checkbox.checked).map((checkbox) => checkbox.value);
+        trigger.textContent = selected.join(', ');
+        trigger.title = selected.join(', ');
+      };
+      checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener('change', () => {
+          const selectedCount = checkboxes.filter((item) => item.checked).length;
+          if (!selectedCount) checkbox.checked = true;
+          updateTrigger();
+          window.setDemographicSelection?.(dropdown.dataset.multiselect, checkboxes.filter((item) => item.checked).map((item) => item.value));
+        });
+      });
+      updateTrigger();
+    });
+
+    const datePicker = document.querySelector('.toolbar-date-picker');
+    const datePickerButton = document.querySelector('.toolbar-date-picker__input');
+    const datePickerPopover = document.querySelector('.toolbar-date-picker__popover');
+    const closeDatePickerButtons = document.querySelectorAll('[data-action="close-date-picker"]');
+    const applyDatePickerButton = document.querySelector('[data-action="apply-date-picker"]');
+    const dayButtons = document.querySelectorAll('.toolbar-date-picker__day');
+
+    const setDatePickerOpen = (isOpen) => {
+      datePicker.dataset.open = String(isOpen);
+      datePickerButton.setAttribute('aria-expanded', String(isOpen));
+      datePickerPopover.setAttribute('aria-hidden', String(!isOpen));
+    };
+
+    datePickerButton.addEventListener('click', (event) => {
+      event.stopPropagation();
+      const isOpen = datePicker.dataset.open === 'true';
+      setDatePickerOpen(!isOpen);
+    });
+
+    closeDatePickerButtons.forEach((button) => {
+      button.addEventListener('click', () => setDatePickerOpen(false));
+    });
+
+    applyDatePickerButton?.addEventListener('click', () => setDatePickerOpen(false));
+
+    document.addEventListener('click', (event) => {
+      if (!datePicker.contains(event.target)) {
+        setDatePickerOpen(false);
+      }
+      customDropdowns.forEach((dropdown) => {
+        if (!dropdown.contains(event.target)) setDropdownOpen(dropdown, false);
+      });
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        setDatePickerOpen(false);
+      customDropdowns.forEach((dropdown) => setDropdownOpen(dropdown, false));
+      }
+    });
+
+    dayButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const isPressed = button.getAttribute('aria-pressed') === 'true';
+        button.setAttribute('aria-pressed', String(!isPressed));
+      });
+    });
+
+    setDatePickerOpen(false);
+  </script>
+</body>
+</html>
