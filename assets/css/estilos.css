@@ -645,3 +645,22 @@ body.visor-abierto { overflow: hidden; }
   .no-encontrada__titulo { font-size: 34px; line-height: 1.12; }
   .no-encontrada__texto { font-size: 17px; }
 }
+
+/* ---------- Marco de teléfono para capturas de pantalla ---------- */
+.telefono-marco { box-sizing: border-box; border: 10px solid #000; border-radius: 36px; overflow: hidden; background: #000; line-height: 0; }
+.telefono-marco img { display: block; width: 100%; height: auto; border-radius: 26px; }
+.telefono-marco--chico { max-width: 270px; }
+
+/* ---------- Prototipo de Figma: incrustado en escritorio, aviso + enlace en móvil ---------- */
+.figma-proto { display: flex; flex-direction: column; gap: 12px; }
+.figma-proto__marco { width: 100%; aspect-ratio: 16 / 9; border: var(--borde); background: var(--gris-fondo); line-height: 0; }
+.figma-proto__marco iframe { display: block; width: 100%; height: 100%; border: 0; }
+.figma-proto__enlace { align-self: flex-start; font-family: var(--fuente-titulos); font-size: 14px; font-weight: 600; color: var(--negro); }
+.figma-proto__movil { display: none; }
+@media (max-width: 640px) {
+  .figma-proto__marco, .figma-proto__enlace { display: none; }
+  .figma-proto__movil { display: flex; flex-direction: column; gap: 16px; padding: 24px 20px; border: var(--borde); background: var(--gris-fondo); }
+  .figma-proto__aviso { font-size: 16px; line-height: 1.6; color: var(--texto-suave); margin: 0; }
+  .telefono-marco { border-width: 7px; border-radius: 26px; }
+  .telefono-marco img { border-radius: 19px; }
+}
