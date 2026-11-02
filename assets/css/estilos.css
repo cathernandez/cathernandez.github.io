@@ -635,3 +635,13 @@ body.visor-abierto { overflow: hidden; }
   .comparar__rotulo--izq { left: 8px; } .comparar__rotulo--der { right: 8px; }
 }
 
+
+/* ---------- Página 404 ---------- */
+.no-encontrada { display: flex; flex-direction: column; gap: 24px; padding-top: 120px; padding-bottom: 140px; }
+.no-encontrada__titulo { font-size: 58px; line-height: 1.08; max-width: 720px; }
+.no-encontrada__texto { font-size: 19px; color: var(--texto-suave); max-width: 560px; }
+@media (max-width: 640px) {
+  .no-encontrada { padding-top: 56px; padding-bottom: 72px; gap: 18px; }
+  .no-encontrada__titulo { font-size: 34px; line-height: 1.12; }
+  .no-encontrada__texto { font-size: 17px; }
+}
